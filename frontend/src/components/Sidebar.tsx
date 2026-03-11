@@ -58,6 +58,17 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             );
           })}
         </div>
+        {searches.length > 0 && (
+          <button
+            onClick={onToggle}
+            title={`Expand to see ${searches.length} recent search${searches.length === 1 ? "" : "es"}`}
+            className="mt-auto mx-2 mb-2 p-2 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200/60 dark:hover:bg-[#262626] transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 12h14" />
+            </svg>
+          </button>
+        )}
       </aside>
     );
   }

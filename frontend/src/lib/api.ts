@@ -72,15 +72,44 @@ export interface OpportunityReport {
 }
 
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${url}`, {
-    headers: { "Content-Type": "application/json" },
-    ...options,
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`API error ${res.status}: ${text}`);
+  const maxAttempts = 2;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const controller = new AbortController();
+    // First attempt allows 90s for cold starts; retry allows 30s
+    const timeout = attempt === 1 ? 90_000 : 30_000;
+    const timer = setTimeout(() => controller.abort(), timeout);
+
+    try {
+      const res = await fetch(`${API_BASE}${url}`, {
+        headers: { "Content-Type": "application/json" },
+        ...options,
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`API error ${res.status}: ${text}`);
+      }
+      return res.json();
+    } catch (err) {
+      clearTimeout(timer);
+
+      // Retry on timeout or network error, but not on HTTP errors
+      if (attempt < maxAttempts && err instanceof DOMException && err.name === "AbortError") {
+        continue;
+      }
+      if (attempt < maxAttempts && err instanceof TypeError) {
+        // Network error (fetch failed) — wait briefly then retry
+        await new Promise((r) => setTimeout(r, 2000));
+        continue;
+      }
+      throw err;
+    }
   }
-  return res.json();
+
+  throw new Error("Request failed after retries");
 }
 
 export async function createSearch(query: string, sources: string[]): Promise<SearchResult> {

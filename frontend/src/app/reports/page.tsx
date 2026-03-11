@@ -155,8 +155,22 @@ export default function ReportsPage() {
   if (error) {
     return (
       <AppShell>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-sm text-red-500">{error}</div>
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="text-center max-w-md">
+            <p className="text-sm text-red-500 dark:text-red-400 mb-2">{error}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+              Make sure the backend is running and the database has completed searches with clusters.
+            </p>
+            <button
+              onClick={() => {
+                setError(null);
+                loadClusters();
+              }}
+              className="px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-[#333333] transition-colors"
+            >
+              Retry
+            </button>
+          </div>
         </div>
       </AppShell>
     );

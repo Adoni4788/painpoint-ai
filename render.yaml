@@ -1,0 +1,60 @@
+databases:
+  - name: painpoint-db
+    plan: free
+    region: oregon
+    postgresMajorVersion: "16"
+    databaseName: painpoint
+    user: painpoint_user
+
+services:
+  - type: web
+    name: painpoint-ai-backend
+    runtime: python
+    plan: free
+    region: oregon
+    repo: https://github.com/Adoni4788/painpoint-ai.git
+    branch: main
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: painpoint-db
+          property: connectionString
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: CORS_ORIGINS
+        fromService:
+          name: painpoint-ai-frontend
+          type: web
+          property: url
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+    buildFilter:
+      paths:
+        - backend/**
+
+  - type: web
+    name: painpoint-ai-frontend
+    runtime: node
+    plan: free
+    region: oregon
+    repo: https://github.com/Adoni4788/painpoint-ai.git
+    branch: main
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          name: painpoint-ai-backend
+          type: web
+          property: url
+      - key: NODE_ENV
+        value: production
+    buildFilter:
+      paths:
+        - frontend/**

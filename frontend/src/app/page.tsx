@@ -96,12 +96,12 @@ export default function Home() {
       onSelectSearch={handleSelectSearch}
       headerCenter={
         <div className="w-full max-w-lg">
-          <SearchBar onSearch={handleSearch} loading={loading} />
+          <SourceFilters sources={sources} onToggle={toggleSource} />
         </div>
       }
       headerRight={
-        <div className="hidden md:flex mr-1">
-          <SourceFilters sources={sources} onToggle={toggleSource} />
+        <div className="hidden md:flex min-w-[320px]">
+          <SearchBar onSearch={handleSearch} loading={loading} />
         </div>
       }
     >

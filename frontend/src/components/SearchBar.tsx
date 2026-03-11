@@ -97,14 +97,17 @@ export function SourceFilters({
   const label = selectedCount === 0 ? "Sources" : `${selectedCount} source${selectedCount === 1 ? "" : "s"}`;
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative w-full" ref={ref}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 dark:border-white/10 bg-white dark:bg-[#262626] text-gray-700 dark:text-gray-200 hover:border-gray-400 dark:hover:border-white/20 transition-colors"
+        className="w-full flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border border-gray-300 dark:border-white/10 bg-white dark:bg-[#262626] text-gray-700 dark:text-gray-200 hover:border-gray-400 dark:hover:border-white/20 transition-colors"
       >
-        {label}
-        <svg className={`w-3.5 h-3.5 text-gray-500 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <span className="flex-1 text-left">{label}</span>
+        <svg className={`w-3.5 h-3.5 text-gray-500 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>

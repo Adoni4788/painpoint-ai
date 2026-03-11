@@ -55,7 +55,7 @@ function ClusterCard({
       onClick={onClick}
       className={`w-full text-left p-5 rounded-xl border-2 transition-all hover:shadow-md ${
         isSelected
-          ? "border-brand-500 bg-brand-50/50 shadow-md dark:bg-brand-950/20 dark:border-brand-400"
+          ? "border-gray-900 bg-gray-50 shadow-md dark:bg-gray-800/50 dark:border-gray-300"
           : "border-gray-200 bg-white hover:border-gray-300 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-gray-700"
       }`}
     >

@@ -147,8 +147,8 @@ function EmptyState() {
   return (
     <div className="flex items-center justify-center h-full">
       <div className="text-center max-w-md">
-        <div className="w-16 h-16 bg-brand-100 dark:bg-brand-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
@@ -160,7 +160,7 @@ function EmptyState() {
           <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Try searching for</p>
           <div className="space-y-1">
             {["email marketing software", "project management tools", "alternatives to Notion", "complaints about Shopify apps"].map((q) => (
-              <p key={q} className="text-sm text-brand-600 dark:text-brand-400 font-medium">{q}</p>
+              <p key={q} className="text-sm text-gray-900 dark:text-gray-300 font-medium">{q}</p>
             ))}
           </div>
         </div>

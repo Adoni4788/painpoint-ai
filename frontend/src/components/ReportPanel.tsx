@@ -51,7 +51,7 @@ export function ReportPanel({ report, onClose, onReportUpdate }: ReportPanelProp
           onClick={() => setActiveTab("report")}
           className={`py-3 px-1 text-sm font-medium border-b-2 transition-colors mr-6 ${
             activeTab === "report"
-              ? "border-brand-500 text-brand-600 dark:text-brand-400"
+              ? "border-gray-900 text-gray-900 dark:text-gray-100"
               : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
           }`}
         >
@@ -61,7 +61,7 @@ export function ReportPanel({ report, onClose, onReportUpdate }: ReportPanelProp
           onClick={() => prd ? setActiveTab("prd") : handleGeneratePRD()}
           className={`py-3 px-1 text-sm font-medium border-b-2 transition-colors ${
             activeTab === "prd"
-              ? "border-brand-500 text-brand-600 dark:text-brand-400"
+              ? "border-gray-900 text-gray-900 dark:text-gray-100"
               : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
           }`}
         >
@@ -86,7 +86,7 @@ export function ReportPanel({ report, onClose, onReportUpdate }: ReportPanelProp
             <button
               onClick={handleGeneratePRD}
               disabled={generatingPRD}
-              className="px-4 py-2 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 disabled:opacity-50"
+              className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-gray-200"
             >
               {generatingPRD ? "Generating PRD..." : "Generate PRD Draft"}
             </button>
@@ -113,11 +113,11 @@ function ReportContent({
   return (
     <div className="space-y-6">
       {/* Opportunity Score */}
-      <div className="bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-brand-950/30 dark:to-indigo-950/30 rounded-xl p-5 border border-brand-100 dark:border-brand-900/50">
+      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-brand-800 dark:text-brand-300">Opportunity Score</p>
-            <p className="text-3xl font-bold text-brand-700 dark:text-brand-400 mt-1">{cluster.opportunity_score.toFixed(1)} <span className="text-lg font-normal text-brand-500 dark:text-brand-500">/ 10</span></p>
+            <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Opportunity Score</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{cluster.opportunity_score.toFixed(1)} <span className="text-lg font-normal text-gray-500 dark:text-gray-500">/ 10</span></p>
           </div>
           <div className="grid grid-cols-5 gap-3 text-center">
             <ScoreCell label="Relevance" value={cluster.relevance_score} />
@@ -160,7 +160,7 @@ function ReportContent({
       <Section title="Top Complaint Examples">
         <div className="space-y-3">
           {cluster.top_complaints.map((text, i) => (
-            <blockquote key={i} className="text-sm text-gray-600 dark:text-gray-400 border-l-3 border-brand-200 dark:border-brand-700 pl-4 py-1 italic leading-relaxed bg-gray-50 dark:bg-gray-800/50 rounded-r-lg pr-3">
+            <blockquote key={i} className="text-sm text-gray-600 dark:text-gray-400 border-l-3 border-gray-300 dark:border-gray-600 pl-4 py-1 italic leading-relaxed bg-gray-50 dark:bg-gray-800/50 rounded-r-lg pr-3">
               &ldquo;{text}&rdquo;
             </blockquote>
           ))}
@@ -196,7 +196,7 @@ function ReportContent({
                     Auth: {post.authenticity_score.toFixed(1)}
                   </span>
                   {post.url && (
-                    <a href={post.url} target="_blank" rel="noopener noreferrer" className="text-brand-500 dark:text-brand-400 hover:underline">
+                    <a href={post.url} target="_blank" rel="noopener noreferrer" className="text-gray-900 dark:text-gray-300 hover:underline">
                       View source
                     </a>
                   )}
@@ -212,7 +212,7 @@ function ReportContent({
           <button
             onClick={onGeneratePRD}
             disabled={generatingPRD}
-            className="w-full py-3 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 disabled:opacity-50 transition-colors"
+            className="w-full py-3 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors dark:bg-white dark:text-black dark:hover:bg-gray-200"
           >
             {generatingPRD ? (
               <span className="flex items-center justify-center gap-2">
@@ -278,7 +278,7 @@ function PRDContent({ prd }: { prd: NonNullable<OpportunityReport["prd"]> }) {
           <ul className="space-y-2">
             {prd.core_features.map((f, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <span className="w-5 h-5 bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                <span className="w-5 h-5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                   {i + 1}
                 </span>
                 {f}
@@ -317,8 +317,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function ScoreCell({ label, value }: { label: string; value: number }) {
   return (
     <div>
-      <p className="text-xs text-brand-600 dark:text-brand-400 font-medium">{label}</p>
-      <p className="text-lg font-bold text-brand-800 dark:text-brand-300">{value.toFixed(1)}</p>
+      <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{label}</p>
+      <p className="text-lg font-bold text-gray-900 dark:text-gray-200">{value.toFixed(1)}</p>
     </div>
   );
 }
@@ -330,7 +330,7 @@ function AuthenticityCell({ value }: { value: number }) {
   const label = value >= 0.7 ? "High" : value >= 0.4 ? "Mixed" : "Low";
   return (
     <div>
-      <p className="text-xs text-brand-600 dark:text-brand-400 font-medium">Evidence</p>
+      <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Evidence</p>
       <p className={`text-sm font-bold ${color} ${bg} rounded px-1 py-0.5`} title={`${pct}% authentic — ${label} evidence quality`}>
         {pct}% {label}
       </p>

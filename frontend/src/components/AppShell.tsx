@@ -59,7 +59,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 </svg>
               )}
             </button>
-            <span className="text-lg font-semibold tracking-tight text-brand-600 dark:text-brand-400 hidden sm:inline">PainPoint AI</span>
+            <span className="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100 hidden sm:inline">PainPoint AI</span>
           </div>
 
           {/* Center: page-specific content (e.g. search bar) */}
@@ -86,7 +86,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
               )}
             </button>
             <button
-              className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:ring-2 hover:ring-brand-500/40 transition-all"
+              className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:ring-2 hover:ring-gray-400/40 transition-all"
               title="Profile"
             >
               <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

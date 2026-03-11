@@ -48,7 +48,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
               href={item.href}
               className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-colors w-full ${
                 isActive
-                  ? "bg-[#dedede] text-gray-900 dark:bg-black dark:text-gray-100"
+                  ? "bg-[#dedede] text-gray-900 dark:bg-[#262626] dark:text-gray-100"
                   : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#262626] dark:hover:text-gray-200"
               }`}
             >

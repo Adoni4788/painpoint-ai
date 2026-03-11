@@ -72,11 +72,11 @@ export interface OpportunityReport {
 }
 
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
-  const maxAttempts = 2;
+  const maxAttempts = 3;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const controller = new AbortController();
-    // First attempt allows 90s for cold starts; retry allows 30s
+    // First attempt allows 90s for cold starts; retries allow 30s each
     const timeout = attempt === 1 ? 90_000 : 30_000;
     const timer = setTimeout(() => controller.abort(), timeout);
 
@@ -88,6 +88,12 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
       });
       clearTimeout(timer);
 
+      // Retry on 502/503 (backend cold start on Render free tier)
+      if ((res.status === 502 || res.status === 503) && attempt < maxAttempts) {
+        await new Promise((r) => setTimeout(r, 3000));
+        continue;
+      }
+
       if (!res.ok) {
         const text = await res.text();
         throw new Error(`API error ${res.status}: ${text}`);
@@ -96,7 +102,6 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
     } catch (err) {
       clearTimeout(timer);
 
-      // Retry on timeout or network error, but not on HTTP errors
       if (attempt < maxAttempts && err instanceof DOMException && err.name === "AbortError") {
         continue;
       }

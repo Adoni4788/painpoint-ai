@@ -153,17 +153,9 @@ function EmptyState() {
           </svg>
         </div>
         <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Discover Pain Points</h2>
-        <p className="text-gray-500 dark:text-gray-400 mb-6">
+        <p className="text-gray-500 dark:text-gray-400">
           Enter a keyword, niche, competitor, or product category to find real frustrations people are sharing online.
         </p>
-        <div className="text-left bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 space-y-2">
-          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Try searching for</p>
-          <div className="space-y-1">
-            {["email marketing software", "project management tools", "alternatives to Notion", "complaints about Shopify apps"].map((q) => (
-              <p key={q} className="text-sm text-gray-900 dark:text-gray-300 font-medium">{q}</p>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

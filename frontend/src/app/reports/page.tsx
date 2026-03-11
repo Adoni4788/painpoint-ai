@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { MdAssessment, MdFilterList, MdContentCopy, MdFileDownload, MdCompareArrows, MdClose, MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
+import { MdAssessment, MdFilterList, MdContentCopy, MdFileDownload, MdCompareArrows, MdClose, MdCheckBox, MdCheckBoxOutlineBlank, MdExpandMore } from "react-icons/md";
 import { AppShell } from "@/components/AppShell";
 import { ClusterWithQuery, listAllClusters } from "@/lib/api";
 
@@ -226,48 +226,44 @@ export default function ReportsPage() {
               Filters
             </div>
 
-            <select
+            <FilterSelect
               value={nicheFilter}
               onChange={(e) => setNicheFilter(e.target.value)}
               aria-label="Filter by niche"
-              className="text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-400"
             >
               <option value="all">All niches</option>
               {niches.map((n) => (
                 <option key={n} value={n}>{n}</option>
               ))}
-            </select>
+            </FilterSelect>
 
-            <select
+            <FilterSelect
               value={minScore}
               onChange={(e) => setMinScore(Number(e.target.value))}
               aria-label="Filter by minimum score"
-              className="text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-400"
             >
               <option value={0}>Any score</option>
               <option value={5}>Score 5+</option>
               <option value={6}>Score 6+</option>
               <option value={7}>Score 7+</option>
               <option value={8}>Score 8+</option>
-            </select>
+            </FilterSelect>
 
-            <select
+            <FilterSelect
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
               aria-label="Filter by date range"
-              className="text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-400"
             >
               <option value="all">All time</option>
               <option value="7d">Last 7 days</option>
               <option value="30d">Last 30 days</option>
               <option value="90d">Last 90 days</option>
-            </select>
+            </FilterSelect>
 
-            <select
+            <FilterSelect
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortField)}
               aria-label="Sort by"
-              className="text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-400"
             >
               <option value="opportunity_score">Sort: Opportunity</option>
               <option value="frequency_score">Sort: Frequency</option>
@@ -275,7 +271,7 @@ export default function ReportsPage() {
               <option value="urgency_score">Sort: Urgency</option>
               <option value="relevance_score">Sort: Relevance</option>
               <option value="created_at">Sort: Newest</option>
-            </select>
+            </FilterSelect>
 
             {compareIds.size > 0 && (
               <button
@@ -336,6 +332,35 @@ export default function ReportsPage() {
         />
       )}
     </AppShell>
+  );
+}
+
+
+function FilterSelect({
+  value,
+  onChange,
+  "aria-label": ariaLabel,
+  children,
+}: {
+  value: string | number;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  "aria-label"?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="relative inline-flex">
+      <select
+        value={value}
+        onChange={onChange}
+        aria-label={ariaLabel}
+        className="text-xs pl-3 pr-9 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-transparent appearance-none cursor-pointer"
+      >
+        {children}
+      </select>
+      <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 dark:text-gray-500">
+        <MdExpandMore size={16} />
+      </span>
+    </div>
   );
 }
 

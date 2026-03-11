@@ -61,6 +61,10 @@ export interface PRD {
   created_at: string;
 }
 
+export interface ClusterWithQuery extends Cluster {
+  search_query: string;
+}
+
 export interface OpportunityReport {
   cluster: Cluster;
   posts: RawPost[];
@@ -96,6 +100,10 @@ export async function getSearch(id: string): Promise<SearchResult> {
 
 export async function getClusters(searchId: string): Promise<Cluster[]> {
   return fetchJSON<Cluster[]>(`/searches/${searchId}/clusters`);
+}
+
+export async function listAllClusters(): Promise<ClusterWithQuery[]> {
+  return fetchJSON<ClusterWithQuery[]>("/clusters");
 }
 
 export async function getCluster(clusterId: string): Promise<Cluster> {

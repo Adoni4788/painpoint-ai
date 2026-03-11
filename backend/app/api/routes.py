@@ -10,6 +10,7 @@ from ..core.database import get_db
 from ..models.search import Search, RawPost, PainCluster, PRDDraft
 from ..schemas.search import (
     SearchCreate, SearchResponse, ClusterResponse,
+    ClusterWithSearchResponse,
     PRDResponse, OpportunityReport, RawPostResponse,
 )
 from ..services.pipeline import run_search_pipeline, generate_prd_for_cluster
@@ -82,6 +83,26 @@ async def get_clusters(search_id: UUID, db: AsyncSession = Depends(get_db)):
         .order_by(PainCluster.opportunity_score.desc())
     )
     return result.scalars().all()
+
+
+@router.get("/clusters", response_model=list[ClusterWithSearchResponse])
+async def list_all_clusters(db: AsyncSession = Depends(get_db)):
+    """Get all clusters across all completed searches, ranked by opportunity score."""
+    result = await db.execute(
+        select(PainCluster)
+        .join(Search, PainCluster.search_id == Search.id)
+        .where(Search.status == "completed")
+        .order_by(PainCluster.opportunity_score.desc())
+        .options(selectinload(PainCluster.search))
+    )
+    clusters = result.scalars().all()
+    return [
+        ClusterWithSearchResponse(
+            **ClusterResponse.model_validate(c).model_dump(),
+            search_query=c.search.query,
+        )
+        for c in clusters
+    ]
 
 
 @router.get("/clusters/{cluster_id}", response_model=ClusterResponse)

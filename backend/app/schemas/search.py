@@ -78,6 +78,11 @@ class PRDResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ClusterWithSearchResponse(ClusterResponse):
+    """Cluster with parent search query for cross-search reports."""
+    search_query: str
+
+
 class OpportunityReport(BaseModel):
     cluster: ClusterResponse
     posts: list[RawPostResponse]

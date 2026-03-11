@@ -74,22 +74,22 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
       </div>
 
       {/* Divider */}
-      <div className="mx-3 border-t border-gray-300/40 dark:border-gray-800" />
+      <div className="mx-4 border-t border-gray-100 dark:border-gray-800" />
 
       {/* Recent Searches */}
       <nav className="flex-1 overflow-y-auto py-3">
         <div className="px-3 mb-2">
-          <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 px-2.5">Recent</p>
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-2">Recent Searches</p>
         </div>
         {searches.length === 0 ? (
-          <p className="px-5 py-2 text-xs text-gray-400 dark:text-gray-500">No searches yet</p>
+          <p className="px-5 py-3 text-sm text-gray-400 dark:text-gray-500">No searches yet</p>
         ) : (
           <ul className="space-y-0">
             {searches.map((s) => (
               <li key={s.id}>
                 <button
                   onClick={() => onSelectSearch(s)}
-                  className={`w-full text-left px-3 py-2 text-[13px] transition-colors rounded-md mx-1 ${
+                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors rounded-md ${
                     s.id === activeSearchId
                       ? "bg-[#dedede] text-gray-900 dark:bg-gray-800 dark:text-gray-100"
                       : "text-gray-700 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:bg-gray-800"
@@ -120,14 +120,19 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
 }
 
 function StatusDot({ status }: { status: string }) {
-  const isActive = !["completed", "failed"].includes(status);
-  const color = status === "failed"
-    ? "bg-red-400"
-    : status === "completed"
-    ? "bg-gray-400 dark:bg-gray-500"
-    : "bg-gray-900 dark:bg-gray-200 animate-pulse";
+  const colorMap: Record<string, string> = {
+    pending: "bg-yellow-400",
+    expanding: "bg-cyan-400 animate-pulse",
+    collecting: "bg-yellow-400 animate-pulse",
+    analyzing: "bg-blue-400 animate-pulse",
+    detecting: "bg-blue-400 animate-pulse",
+    clustering: "bg-purple-400 animate-pulse",
+    scoring: "bg-purple-400 animate-pulse",
+    completed: "bg-green-400",
+    failed: "bg-red-400",
+  };
 
   return (
-    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${color}`} />
+    <span className={`w-2 h-2 rounded-full shrink-0 ${colorMap[status] || "bg-gray-300"}`} />
   );
 }

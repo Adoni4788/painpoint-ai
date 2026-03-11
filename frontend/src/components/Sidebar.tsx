@@ -36,7 +36,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
 
   if (!isOpen) {
     return (
-      <aside className="w-14 bg-[#f2f2f2] dark:bg-[#171717] flex flex-col shrink-0 border-r border-gray-200 dark:border-white/10">
+      <aside className="w-14 bg-[#f2f2f2] dark:bg-[#171717] flex flex-col shrink-0">
         <div className="flex flex-col gap-0.5 px-2 pt-3 pb-2">
           {NAV_ITEMS.map((item) => {
             const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);

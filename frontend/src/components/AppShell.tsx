@@ -59,8 +59,8 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
             <span className="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100 hidden sm:inline">PainPoint AI</span>
           </div>
 
-          {/* Center: pl-2 bridges gap so search bar aligns with main content (sidebar 256px + header pad 16px, main p-6 = 24px → need 8px) */}
-          <div className="flex-1 flex justify-start min-w-0 pl-2">
+          {/* Center: search bar centered in header */}
+          <div className="flex-1 flex justify-center min-w-0 pl-2">
             {headerCenter}
           </div>
 

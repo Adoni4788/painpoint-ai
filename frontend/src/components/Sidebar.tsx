@@ -34,7 +34,33 @@ const NAV_ITEMS = [
 export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSearch }: SidebarProps) {
   const pathname = usePathname();
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return (
+      <aside className="w-14 bg-[#f2f2f2] dark:bg-[#171717] flex flex-col shrink-0 border-r border-gray-200 dark:border-white/10">
+        <div className="flex flex-col gap-0.5 px-2 pt-3 pb-2">
+          {NAV_ITEMS.map((item) => {
+            const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                title={item.label}
+                className={`flex items-center justify-center p-2 rounded-md transition-colors ${
+                  isActive
+                    ? "bg-[#dedede] text-gray-900 dark:bg-[#262626] dark:text-gray-100"
+                    : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#262626] dark:hover:text-gray-200"
+                }`}
+              >
+                <span className={isActive ? "text-gray-700 dark:text-gray-300" : "text-gray-400 dark:text-gray-500"}>
+                  {item.icon}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <aside className="w-64 bg-[#f2f2f2] dark:bg-[#171717] flex flex-col shrink-0">

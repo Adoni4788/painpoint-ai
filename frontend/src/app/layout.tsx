@@ -10,7 +10,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Gap Lens — Opportunity Discovery Engine",
+  title: "GapLens — Opportunity Discovery Engine",
   description: "Turn public complaints into product opportunities",
 };
 

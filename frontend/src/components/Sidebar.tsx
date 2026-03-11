@@ -138,7 +138,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
       </nav>
 
       <div className="p-3">
-        <p className="text-[10px] text-gray-400 dark:text-gray-600 text-center">Gap Lens v0.1</p>
+        <p className="text-[10px] text-gray-400 dark:text-gray-600 text-center">GapLens v0.1</p>
       </div>
     </aside>
   );

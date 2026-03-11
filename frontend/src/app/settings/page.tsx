@@ -15,7 +15,7 @@ export default function SettingsPage() {
           </div>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Settings</h2>
           <p className="text-gray-500 dark:text-gray-400 mb-6">
-            Configure your data sources, filtering preferences, and account settings to customize how Gap Lens works for you.
+            Configure your data sources, filtering preferences, and account settings to customize how GapLens works for you.
           </p>
           <div className="rounded-xl bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-xl border border-gray-200/60 dark:border-white/10 shadow-xl shadow-black/10 dark:shadow-black/10 p-5">
             <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">Coming soon</p>

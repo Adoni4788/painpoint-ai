@@ -99,7 +99,7 @@ export default function ReportsPage() {
 
   // Generate markdown export
   function generateMarkdown(): string {
-    const lines: string[] = ["# Gap Lens — Opportunity Report\n"];
+    const lines: string[] = ["# GapLens — Opportunity Report\n"];
     lines.push(`Generated: ${new Date().toLocaleDateString()}\n`);
     lines.push(`Total opportunities: ${filtered.length}\n`);
 

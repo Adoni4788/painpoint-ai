@@ -17,6 +17,12 @@ PainPoint AI is a full-stack app deployed on Render.com. ECO and CLIP have asked
 
 ---
 
+## Observed Errors (from browser console)
+
+- **favicon.ico 404** — Fixed by adding `icon.svg` to the app
+- **/api/searches 502** — Backend returns Render's "502 Bad Gateway" HTML page. Indicates backend is down, crashed, or cold-starting (Render free tier sleeps after ~15 min)
+- **Failed to load searches** / **Search failed** — Both caused by 502 when proxying to backend
+
 ## Issues to Investigate
 
 1. **Recent searches not showing in the sidebar**

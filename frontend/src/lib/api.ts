@@ -72,7 +72,7 @@ export interface OpportunityReport {
 }
 
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
-  const maxAttempts = 3;
+  const maxAttempts = 5;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const controller = new AbortController();
@@ -90,7 +90,7 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
 
       // Retry on 502/503 (backend cold start on Render free tier)
       if ((res.status === 502 || res.status === 503) && attempt < maxAttempts) {
-        await new Promise((r) => setTimeout(r, 3000));
+        await new Promise((r) => setTimeout(r, attempt === 1 ? 8000 : 5000));
         continue;
       }
 

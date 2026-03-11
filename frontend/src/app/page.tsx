@@ -96,15 +96,15 @@ export default function Home() {
       onSelectSearch={handleSelectSearch}
       headerCenter={
         <div className="w-full max-w-lg">
-          <SourceFilters sources={sources} onToggle={toggleSource} />
-        </div>
-      }
-      headerRight={
-        <div className="hidden md:flex min-w-[320px]">
           <SearchBar onSearch={handleSearch} loading={loading} />
         </div>
       }
     >
+      {/* Top bar: sources dropdown in main content area */}
+      <div className="flex items-center gap-4 px-6 pt-4 pb-3 shrink-0 border-b border-gray-200/60 dark:border-white/5">
+        <SourceFilters sources={sources} onToggle={toggleSource} />
+      </div>
+
       {activeSearch && (
         <StatusBanner search={activeSearch} />
       )}

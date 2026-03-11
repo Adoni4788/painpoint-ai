@@ -18,15 +18,21 @@ interface AppShellProps {
 export function AppShell({ children, headerCenter, headerRight, activeSearchId, onSelectSearch }: AppShellProps) {
   const [searches, setSearches] = useState<SearchResult[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [backendUnavailable, setBackendUnavailable] = useState(false);
   const { theme, toggle: toggleTheme } = useTheme();
   const router = useRouter();
 
   const loadSearches = useCallback(async () => {
     try {
+      setBackendUnavailable(false);
       const data = await listSearches();
       setSearches(data);
     } catch (e) {
       console.error("Failed to load searches:", e);
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes("502") || msg.includes("503")) {
+        setBackendUnavailable(true);
+      }
     }
   }, []);
 
@@ -41,6 +47,30 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
+      {backendUnavailable && (
+        <div className="shrink-0 px-4 py-2.5 bg-amber-500/15 dark:bg-amber-500/10 border-b border-amber-500/30 dark:border-amber-500/20 flex items-center justify-between gap-4">
+          <p className="text-sm text-amber-800 dark:text-amber-200">
+            Backend is starting or unavailable. Free-tier services may take up to a minute to wake.
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => loadSearches()}
+              className="shrink-0 px-3 py-1.5 text-xs font-medium bg-amber-500/20 dark:bg-amber-500/20 text-amber-800 dark:text-amber-200 rounded-lg hover:bg-amber-500/30 dark:hover:bg-amber-500/30 transition-colors"
+            >
+              Retry
+            </button>
+            <button
+              onClick={() => setBackendUnavailable(false)}
+              className="shrink-0 p-1.5 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 dark:hover:bg-amber-500/20 rounded transition-colors"
+              aria-label="Dismiss"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
       {/* Full-width header */}
       <header className="bg-[#f2f2f2] dark:bg-[#171717] px-4 py-4 shrink-0 z-10">
         <div className="flex items-center gap-3">

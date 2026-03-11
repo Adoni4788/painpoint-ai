@@ -42,10 +42,10 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Full-width header */}
-      <header className="bg-[#f2f2f2] dark:bg-[#171717] px-4 py-3.5 shrink-0 z-10">
+      <header className="bg-[#f2f2f2] dark:bg-[#171717] px-4 py-4 shrink-0 z-10">
         <div className="flex items-center gap-3">
-          {/* Left: toggle + logo — matches sidebar width */}
-          <div className="w-60 flex items-center gap-2 shrink-0">
+          {/* Left: toggle + logo — matches sidebar width (w-64) */}
+          <div className="w-64 flex items-center gap-2 shrink-0">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
@@ -59,8 +59,8 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
             <span className="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100 hidden sm:inline">PainPoint AI</span>
           </div>
 
-          {/* Center: page-specific content (e.g. search bar) */}
-          <div className="flex-1 flex">
+          {/* Center: pl-2 bridges gap so search bar aligns with main content (sidebar 256px + header pad 16px, main p-6 = 24px → need 8px) */}
+          <div className="flex-1 flex justify-start min-w-0 pl-2">
             {headerCenter}
           </div>
 

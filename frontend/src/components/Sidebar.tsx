@@ -39,14 +39,14 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   return (
     <aside className="w-64 bg-[#f2f2f2] dark:bg-[#171717] flex flex-col shrink-0">
       {/* Navigation Links */}
-      <div className="px-3 pt-3 pb-2 space-y-0.5">
+      <div className="flex flex-col gap-0.5 px-3 pt-3 pb-2">
         {NAV_ITEMS.map((item) => {
           const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`inline-flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-colors w-fit ${
+              className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-colors w-fit ${
                 isActive
                   ? "bg-[#dedede] text-gray-900 dark:bg-[#262626] dark:text-gray-100"
                   : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#262626] dark:hover:text-gray-200"

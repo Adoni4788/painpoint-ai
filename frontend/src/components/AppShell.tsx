@@ -41,7 +41,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Full-width header */}
-      <header className="bg-[#f2f2f2] dark:bg-gray-900 px-4 py-3.5 shrink-0 z-10">
+      <header className="bg-[#f2f2f2] dark:bg-gray-900 px-4 py-2.5 shrink-0 z-10 border-b border-gray-200/60 dark:border-gray-800">
         <div className="flex items-center gap-3">
           {/* Left: toggle + logo — matches sidebar width */}
           <div className="w-60 flex items-center gap-2 shrink-0">

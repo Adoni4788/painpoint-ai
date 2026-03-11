@@ -146,24 +146,11 @@ export default function Home() {
 function EmptyState() {
   return (
     <div className="flex items-center justify-center h-full">
-      <div className="text-center max-w-md">
-        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Discover Pain Points</h2>
-        <p className="text-gray-500 dark:text-gray-400 mb-6">
-          Enter a keyword, niche, competitor, or product category to find real frustrations people are sharing online.
+      <div className="text-center max-w-sm">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1.5">What can I help you discover?</h2>
+        <p className="text-sm text-gray-400 dark:text-gray-500">
+          Search a niche, keyword, or competitor to uncover real pain points people share online.
         </p>
-        <div className="text-left bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 space-y-2">
-          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Try searching for</p>
-          <div className="space-y-1">
-            {["email marketing software", "project management tools", "alternatives to Notion", "complaints about Shopify apps"].map((q) => (
-              <p key={q} className="text-sm text-gray-900 dark:text-gray-300 font-medium">{q}</p>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

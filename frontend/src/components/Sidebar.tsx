@@ -37,7 +37,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   if (!isOpen) return null;
 
   return (
-    <aside className="w-64 bg-[#f2f2f2] dark:bg-gray-900 flex flex-col shrink-0">
+    <aside className="w-64 bg-[#f2f2f2] dark:bg-[#171717] flex flex-col shrink-0">
       {/* Navigation Links */}
       <div className="px-3 pt-3 pb-2 space-y-0.5">
         {NAV_ITEMS.map((item) => {
@@ -48,8 +48,8 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
               href={item.href}
               className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-colors ${
                 isActive
-                  ? "bg-[#dedede] text-gray-900 dark:bg-gray-800 dark:text-gray-100"
-                  : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                  ? "bg-[#dedede] text-gray-900 dark:bg-[#262626] dark:text-gray-100"
+                  : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#262626] dark:hover:text-gray-200"
               }`}
             >
               <span className={isActive ? "text-gray-700 dark:text-gray-300" : "text-gray-400 dark:text-gray-500"}>
@@ -62,7 +62,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
       </div>
 
       {/* Divider */}
-      <div className="mx-4 border-t border-gray-100 dark:border-gray-800" />
+      <div className="mx-4 border-t border-gray-100 dark:border-white/10" />
 
       {/* Recent Searches */}
       <nav className="flex-1 overflow-y-auto py-3">
@@ -79,8 +79,8 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                   onClick={() => onSelectSearch(s)}
                   className={`w-full text-left px-4 py-2.5 text-sm transition-colors rounded-md ${
                     s.id === activeSearchId
-                      ? "bg-[#dedede] text-gray-900 dark:bg-gray-800 dark:text-gray-100"
-                      : "text-gray-700 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:bg-gray-800"
+                      ? "bg-[#dedede] text-gray-900 dark:bg-[#262626] dark:text-gray-100"
+                      : "text-gray-700 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:bg-[#262626]"
                   }`}
                 >
                   <div className="flex items-center justify-between">

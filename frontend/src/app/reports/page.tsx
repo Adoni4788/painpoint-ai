@@ -167,7 +167,7 @@ export default function ReportsPage() {
       <AppShell>
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="text-center max-w-md">
-            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-gray-100 dark:bg-[#262626] rounded-2xl flex items-center justify-center mx-auto mb-4">
               <MdAssessment size={32} className="text-gray-500 dark:text-gray-400" />
             </div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">No Reports Yet</h2>
@@ -184,7 +184,7 @@ export default function ReportsPage() {
     <AppShell>
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Toolbar */}
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 shrink-0">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-black shrink-0">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Opportunity Reports</h1>
@@ -204,14 +204,14 @@ export default function ReportsPage() {
               )}
               <button
                 onClick={handleCopyToClipboard}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-[#333333] transition-colors"
               >
                 <MdContentCopy size={14} />
                 {copied ? "Copied!" : "Clipboard"}
               </button>
               <button
                 onClick={handleExportMarkdown}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-[#333333] transition-colors"
               >
                 <MdFileDownload size={14} />
                 Export .md
@@ -292,8 +292,8 @@ export default function ReportsPage() {
             </div>
           ) : (
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-gray-50 dark:bg-gray-900 z-10">
-                <tr className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-800">
+              <thead className="sticky top-0 bg-gray-50 dark:bg-black z-10">
+                <tr className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-white/10">
                   <th className="pl-6 pr-2 py-3 text-left w-8"><span className="sr-only">Select</span></th>
                   <th className="px-2 py-3 text-left w-8">#</th>
                   <th className="px-3 py-3 text-left">Opportunity</th>
@@ -353,7 +353,7 @@ function FilterSelect({
         value={value}
         onChange={onChange}
         aria-label={ariaLabel}
-        className="text-xs pl-3 pr-9 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-transparent appearance-none cursor-pointer"
+        className="text-xs pl-3 pr-9 py-2 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-[#262626] text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-white/20 focus:border-transparent appearance-none cursor-pointer"
       >
         {children}
       </select>
@@ -382,7 +382,7 @@ function ClusterRow({
     ? "text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-950/40"
     : cluster.opportunity_score >= 5
     ? "text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-950/40"
-    : "text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-800";
+    : "text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-[#262626]";
 
   const authPct = Math.round(cluster.avg_authenticity * 100);
   const authColor = cluster.avg_authenticity >= 0.7
@@ -392,7 +392,7 @@ function ClusterRow({
     : "text-red-500 dark:text-red-400";
 
   return (
-    <tr className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors group">
+    <tr className="hover:bg-gray-50/50 dark:hover:bg-[#262626]/50 transition-colors group">
       <td className="pl-6 pr-2 py-3">
         <button
           onClick={onToggle}
@@ -411,7 +411,7 @@ function ClusterRow({
         )}
       </td>
       <td className="px-3 py-3">
-        <span className="inline-flex px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full truncate max-w-[140px]">
+        <span className="inline-flex px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-600 dark:text-gray-400 rounded-full truncate max-w-[140px]">
           {cluster.search_query}
         </span>
       </td>
@@ -462,9 +462,9 @@ function ComparisonPanel({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col mx-4">
+      <div className="bg-white dark:bg-[#171717] rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col mx-4">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-white/10">
           <div className="flex items-center gap-2">
             <MdCompareArrows size={20} className="text-gray-500" />
             <h2 className="font-semibold text-gray-900 dark:text-gray-100">Side-by-Side Comparison</h2>
@@ -505,7 +505,7 @@ function CompareColumn({ cluster }: { cluster: ClusterWithQuery }) {
     ? "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-950/40 dark:border-green-800"
     : cluster.opportunity_score >= 5
     ? "text-yellow-600 bg-yellow-50 border-yellow-200 dark:text-yellow-400 dark:bg-yellow-950/40 dark:border-yellow-800"
-    : "text-gray-600 bg-gray-50 border-gray-200 dark:text-gray-400 dark:bg-gray-800 dark:border-gray-700";
+    : "text-gray-600 bg-gray-50 border-gray-200 dark:text-gray-400 dark:bg-[#262626] dark:border-white/10";
 
   return (
     <div>
@@ -568,15 +568,15 @@ function CompareBar({ label, a, b }: { label: string; a: number; b: number; }) {
         {a.toFixed(1)}
       </span>
       <div className="flex-1 flex gap-1">
-        <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex justify-end">
+        <div className="flex-1 h-2 bg-gray-100 dark:bg-[#262626] rounded-full overflow-hidden flex justify-end">
           <div
-            className={`h-full rounded-full ${aWins ? "bg-green-400" : "bg-gray-300 dark:bg-gray-600"}`}
+            className={`h-full rounded-full ${aWins ? "bg-green-400" : "bg-gray-300 dark:bg-[#404040]"}`}
             style={{ width: `${aPct}%` }}
           />
         </div>
-        <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+        <div className="flex-1 h-2 bg-gray-100 dark:bg-[#262626] rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full ${bWins ? "bg-green-400" : "bg-gray-300 dark:bg-gray-600"}`}
+            className={`h-full rounded-full ${bWins ? "bg-green-400" : "bg-gray-300 dark:bg-[#404040]"}`}
             style={{ width: `${bPct}%` }}
           />
         </div>

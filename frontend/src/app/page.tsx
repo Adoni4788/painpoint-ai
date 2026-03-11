@@ -130,7 +130,7 @@ export default function Home() {
         </div>
 
         {selectedReport && (
-          <div className="w-1/2 border-l border-gray-200 dark:border-gray-800 overflow-y-auto bg-white dark:bg-gray-900">
+          <div className="w-1/2 border-l border-gray-200 dark:border-white/10 overflow-y-auto bg-white dark:bg-black">
             <ReportPanel
               report={selectedReport}
               onClose={() => setSelectedReport(null)}
@@ -147,7 +147,7 @@ function EmptyState() {
   return (
     <div className="flex items-center justify-center h-full">
       <div className="text-center max-w-md">
-        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 bg-gray-100 dark:bg-[#262626] rounded-2xl flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>

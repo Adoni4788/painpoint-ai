@@ -42,13 +42,13 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Full-width header */}
-      <header className="bg-[#f2f2f2] dark:bg-gray-900 px-4 py-3.5 shrink-0 z-10">
+      <header className="bg-[#f2f2f2] dark:bg-[#171717] px-4 py-3.5 shrink-0 z-10">
         <div className="flex items-center gap-3">
           {/* Left: toggle + logo — matches sidebar width */}
           <div className="w-60 flex items-center gap-2 shrink-0">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
             >
               {sidebarOpen ? (
                 <MdChevronLeft size={16} />
@@ -69,7 +69,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
             {headerRight}
             <button
               onClick={toggleTheme}
-              className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
               title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               {theme === "dark" ? (
@@ -79,7 +79,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
               )}
             </button>
             <button
-              className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:ring-2 hover:ring-gray-400/40 transition-all"
+              className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#262626] flex items-center justify-center hover:ring-2 hover:ring-gray-400/40 transition-all"
               title="Profile"
             >
               <MdPerson size={16} className="text-gray-500 dark:text-gray-400" />
@@ -89,7 +89,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
       </header>
 
       {/* Body: sidebar + content */}
-      <div className="flex flex-1 overflow-hidden bg-[#f2f2f2] dark:bg-gray-900">
+      <div className="flex flex-1 overflow-hidden bg-[#f2f2f2] dark:bg-[#171717]">
         <Sidebar
           searches={searches}
           activeSearchId={activeSearchId ?? null}
@@ -98,7 +98,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
           onSelectSearch={handleSelectSearch}
         />
 
-        <main className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-gray-950 rounded-tl-2xl border-t border-l border-gray-200 dark:border-gray-800">
+        <main className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-black rounded-tl-2xl border-t border-l border-gray-200 dark:border-white/10">
           {children}
         </main>
       </div>

@@ -23,7 +23,7 @@ export function StatusBanner({ search }: StatusBannerProps) {
   const info = STATUS_MESSAGES[search.status] ?? {
     label: search.status,
     light: "bg-gray-50 text-gray-700 border-gray-200",
-    dark: "dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700",
+    dark: "dark:bg-[#262626] dark:text-gray-300 dark:border-white/10",
   };
 
   return (

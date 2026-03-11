@@ -48,15 +48,15 @@ function ClusterCard({
     ? "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-950/40 dark:border-green-800"
     : cluster.opportunity_score >= 5
     ? "text-yellow-600 bg-yellow-50 border-yellow-200 dark:text-yellow-400 dark:bg-yellow-950/40 dark:border-yellow-800"
-    : "text-gray-600 bg-gray-50 border-gray-200 dark:text-gray-400 dark:bg-gray-800 dark:border-gray-700";
+    : "text-gray-600 bg-gray-50 border-gray-200 dark:text-gray-400 dark:bg-[#262626] dark:border-white/10";
 
   return (
     <button
       onClick={onClick}
       className={`w-full text-left p-5 rounded-xl border-2 transition-all hover:shadow-md ${
         isSelected
-          ? "border-gray-900 bg-gray-50 shadow-md dark:bg-gray-800/50 dark:border-gray-300"
-          : "border-gray-200 bg-white hover:border-gray-300 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-gray-700"
+          ? "border-gray-900 bg-gray-50 shadow-md dark:bg-[#262626] dark:border-white/30"
+          : "border-gray-200 bg-white hover:border-gray-300 dark:border-white/10 dark:bg-[#262626] dark:hover:border-white/20"
       }`}
     >
       <div className="flex items-start justify-between gap-4">
@@ -112,7 +112,7 @@ function AuthenticityBadge({ value }: { value: number }) {
 
 function ScoreMini({ label, value }: { label: string; value: number }) {
   const pct = (value / 10) * 100;
-  const barColor = value >= 7 ? "bg-green-400" : value >= 5 ? "bg-yellow-400" : "bg-gray-300 dark:bg-gray-600";
+  const barColor = value >= 7 ? "bg-green-400" : value >= 5 ? "bg-yellow-400" : "bg-gray-300 dark:bg-[#404040]";
 
   return (
     <div>
@@ -120,7 +120,7 @@ function ScoreMini({ label, value }: { label: string; value: number }) {
         <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase">{label}</span>
         <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{value.toFixed(1)}</span>
       </div>
-      <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-gray-100 dark:bg-[#262626] rounded-full overflow-hidden">
         <div className={`h-full rounded-full ${barColor}`} style={{ width: `${pct}%` }} />
       </div>
     </div>

@@ -30,8 +30,8 @@ export function SearchBar({ onSearch, loading }: SearchBarProps) {
       <div
         className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors ${
           focused
-            ? "border-gray-400 shadow-[0_0_0_1px_rgba(0,0,0,0.1)] bg-white dark:bg-gray-800"
-            : "border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 bg-white dark:bg-gray-800"
+            ? "border-gray-400 shadow-[0_0_0_1px_rgba(0,0,0,0.1)] bg-white dark:bg-[#262626]"
+            : "border-gray-300 dark:border-white/10 hover:border-gray-400 dark:hover:border-white/20 bg-white dark:bg-[#262626]"
         }`}
       >
         <svg className="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,12 +89,12 @@ export function SourceFilters({
             onClick={() => onToggle(src.id)}
             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium transition-all border ${
               active
-                ? "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 shadow-sm"
-                : "bg-transparent text-gray-400 dark:text-gray-500 border-transparent hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-200 dark:hover:border-gray-700"
+                ? "bg-white dark:bg-[#262626] text-gray-700 dark:text-gray-200 border-gray-300 dark:border-white/20 shadow-sm"
+                : "bg-transparent text-gray-400 dark:text-gray-500 border-transparent hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#262626] hover:border-gray-200 dark:hover:border-white/10"
             }`}
           >
             <span className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold text-white ${
-              active ? src.color : "bg-gray-300 dark:bg-gray-600"
+              active ? src.color : "bg-gray-300 dark:bg-[#404040]"
             }`}>
               {src.icon}
             </span>

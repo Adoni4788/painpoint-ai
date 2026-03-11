@@ -30,7 +30,7 @@ export function ReportPanel({ report, onClose, onReportUpdate }: ReportPanelProp
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-[#262626]/80">
         <div>
           <h3 className="font-semibold text-gray-900 dark:text-gray-100">{cluster.label}</h3>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Opportunity Report</p>
@@ -46,7 +46,7 @@ export function ReportPanel({ report, onClose, onReportUpdate }: ReportPanelProp
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200 dark:border-gray-800 px-6">
+      <div className="flex border-b border-gray-200 dark:border-white/10 px-6">
         <button
           onClick={() => setActiveTab("report")}
           className={`py-3 px-1 text-sm font-medium border-b-2 transition-colors mr-6 ${
@@ -113,7 +113,7 @@ function ReportContent({
   return (
     <div className="space-y-6">
       {/* Opportunity Score */}
-      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+      <div className="bg-gray-50 dark:bg-[#262626] rounded-xl p-5 border border-gray-200 dark:border-white/10">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Opportunity Score</p>
@@ -150,7 +150,7 @@ function ReportContent({
       <Section title="Source Distribution">
         <div className="flex items-center gap-3">
           {Object.entries(cluster.source_breakdown).map(([src, count]) => (
-            <span key={src} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 capitalize">
+            <span key={src} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-gray-300 capitalize">
               {src}: {count}
             </span>
           ))}
@@ -160,7 +160,7 @@ function ReportContent({
       <Section title="Top Complaint Examples">
         <div className="space-y-3">
           {cluster.top_complaints.map((text, i) => (
-            <blockquote key={i} className="text-sm text-gray-600 dark:text-gray-400 border-l-3 border-gray-300 dark:border-gray-600 pl-4 py-1 italic leading-relaxed bg-gray-50 dark:bg-gray-800/50 rounded-r-lg pr-3">
+            <blockquote key={i} className="text-sm text-gray-600 dark:text-gray-400 border-l-3 border-gray-300 dark:border-white/20 pl-4 py-1 italic leading-relaxed bg-gray-50 dark:bg-[#262626] rounded-r-lg pr-3">
               &ldquo;{text}&rdquo;
             </blockquote>
           ))}
@@ -183,7 +183,7 @@ function ReportContent({
         <Section title={`Related Posts (${posts.length})`}>
           <div className="space-y-2">
             {posts.slice(0, 10).map((post) => (
-              <div key={post.id} className="text-sm bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+              <div key={post.id} className="text-sm bg-gray-50 dark:bg-[#262626] rounded-lg p-3">
                 <div className="flex items-center gap-2 mb-1">
                   {post.title && <p className="font-medium text-gray-800 dark:text-gray-200 flex-1">{post.title}</p>}
                   <ContentTypeBadge type={post.content_type} />
@@ -208,7 +208,7 @@ function ReportContent({
       )}
 
       {!prd && (
-        <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+        <div className="pt-4 border-t border-gray-200 dark:border-white/10">
           <button
             onClick={onGeneratePRD}
             disabled={generatingPRD}
@@ -249,7 +249,7 @@ function PRDContent({ prd }: { prd: NonNullable<OpportunityReport["prd"]> }) {
         <h3 className="font-semibold text-gray-900 dark:text-gray-100">PRD Draft</h3>
         <button
           onClick={handleCopy}
-          className="px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+          className="px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-[#333333] transition-colors"
         >
           {copied ? "Copied!" : "Copy to Clipboard"}
         </button>
@@ -278,7 +278,7 @@ function PRDContent({ prd }: { prd: NonNullable<OpportunityReport["prd"]> }) {
           <ul className="space-y-2">
             {prd.core_features.map((f, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <span className="w-5 h-5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                <span className="w-5 h-5 bg-gray-200 dark:bg-[#404040] text-gray-700 dark:text-gray-300 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                   {i + 1}
                 </span>
                 {f}
@@ -296,7 +296,7 @@ function PRDContent({ prd }: { prd: NonNullable<OpportunityReport["prd"]> }) {
 
       {prd.full_text && (
         <Section title="Full PRD (Markdown)">
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-mono leading-relaxed max-h-96 overflow-y-auto">
+          <div className="bg-gray-50 dark:bg-[#262626] rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-mono leading-relaxed max-h-96 overflow-y-auto">
             {prd.full_text}
           </div>
         </Section>
@@ -342,13 +342,13 @@ const CONTENT_TYPE_STYLES: Record<string, { label: string; light: string; dark: 
   firsthand_complaint: { label: "Firsthand", light: "bg-green-100 text-green-700", dark: "dark:bg-green-900/30 dark:text-green-400" },
   help_seeking: { label: "Help Seeking", light: "bg-blue-100 text-blue-700", dark: "dark:bg-blue-900/30 dark:text-blue-400" },
   workaround_discussion: { label: "Workaround", light: "bg-indigo-100 text-indigo-700", dark: "dark:bg-indigo-900/30 dark:text-indigo-400" },
-  comparison_post: { label: "Comparison", light: "bg-gray-100 text-gray-600", dark: "dark:bg-gray-800 dark:text-gray-400" },
+  comparison_post: { label: "Comparison", light: "bg-gray-100 text-gray-600", dark: "dark:bg-[#262626] dark:text-gray-400" },
   promotional_content: { label: "Promotional", light: "bg-red-100 text-red-600", dark: "dark:bg-red-900/30 dark:text-red-400" },
   guide_article: { label: "Guide/Article", light: "bg-orange-100 text-orange-600", dark: "dark:bg-orange-900/30 dark:text-orange-400" },
 };
 
 function ContentTypeBadge({ type }: { type: string }) {
-  const style = CONTENT_TYPE_STYLES[type] || { label: type, light: "bg-gray-100 text-gray-500", dark: "dark:bg-gray-800 dark:text-gray-400" };
+  const style = CONTENT_TYPE_STYLES[type] || { label: type, light: "bg-gray-100 text-gray-500", dark: "dark:bg-[#262626] dark:text-gray-400" };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium whitespace-nowrap ${style.light} ${style.dark}`}>
       {style.label}

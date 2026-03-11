@@ -49,7 +49,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   if (!isOpen) return null;
 
   return (
-    <aside className="w-64 bg-white dark:bg-gray-900 flex flex-col shrink-0">
+    <aside className="w-64 bg-[#f2f2f2] dark:bg-gray-900 flex flex-col shrink-0">
       {/* Navigation Links */}
       <div className="px-3 pt-3 pb-2 space-y-0.5">
         {NAV_ITEMS.map((item) => {
@@ -61,7 +61,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
               className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isActive
                   ? "bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                  : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
               }`}
             >
               <span className={isActive ? "text-brand-600 dark:text-brand-400" : "text-gray-400 dark:text-gray-500"}>
@@ -92,7 +92,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                   className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                     s.id === activeSearchId
                       ? "bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300"
-                      : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
+                      : "text-gray-700 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:bg-gray-800"
                   }`}
                 >
                   <div className="flex items-center justify-between">

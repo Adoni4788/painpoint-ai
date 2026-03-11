@@ -40,7 +40,7 @@ export function AppShell({ children, headerCenter, headerRight }: AppShellProps)
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Full-width header */}
-      <header className="bg-white dark:bg-gray-900 px-4 py-3.5 shrink-0 z-10">
+      <header className="bg-[#f2f2f2] dark:bg-gray-900 px-4 py-3.5 shrink-0 z-10">
         <div className="flex items-center gap-3">
           {/* Left: toggle + logo — matches sidebar width */}
           <div className="w-60 flex items-center gap-2 shrink-0">
@@ -97,7 +97,7 @@ export function AppShell({ children, headerCenter, headerRight }: AppShellProps)
       </header>
 
       {/* Body: sidebar + content */}
-      <div className="flex flex-1 overflow-hidden bg-white dark:bg-gray-900">
+      <div className="flex flex-1 overflow-hidden bg-[#f2f2f2] dark:bg-gray-900">
         <Sidebar
           searches={searches}
           activeSearchId={activeSearch?.id ?? null}
@@ -106,7 +106,7 @@ export function AppShell({ children, headerCenter, headerRight }: AppShellProps)
           onSelectSearch={handleSelectSearch}
         />
 
-        <main className="flex-1 flex flex-col overflow-hidden bg-gray-100 dark:bg-gray-950 rounded-tl-2xl border-t border-l border-gray-200 dark:border-gray-800">
+        <main className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-gray-950 rounded-tl-2xl border-t border-l border-gray-200 dark:border-gray-800">
           {children}
         </main>
       </div>

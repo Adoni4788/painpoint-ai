@@ -28,16 +28,18 @@ export function ReportPanel({ report, onClose, onReportUpdate }: ReportPanelProp
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-w-0 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-[#262626]/80">
-        <div>
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100">{cluster.label}</h3>
+      <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-[#262626]/80 min-w-0">
+        <div className="min-w-0 flex-1">
+          <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{cluster.label}</h3>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Opportunity Report</p>
         </div>
         <button
           onClick={onClose}
-          className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded"
+          className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded shrink-0"
+          title="Close report"
+          aria-label="Close report"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -70,7 +72,7 @@ export function ReportPanel({ report, onClose, onReportUpdate }: ReportPanelProp
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 min-w-0">
         {activeTab === "report" ? (
           <ReportContent
             cluster={cluster}
@@ -111,15 +113,15 @@ function ReportContent({
   generatingPRD: boolean;
 }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-0">
       {/* Opportunity Score */}
-      <div className="bg-gray-50 dark:bg-[#262626] rounded-xl p-5 border border-gray-200 dark:border-white/10">
-        <div className="flex items-center justify-between">
-          <div>
+      <div className="bg-gray-50 dark:bg-[#262626] rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-white/10 min-w-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="shrink-0">
             <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Opportunity Score</p>
             <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{cluster.opportunity_score.toFixed(1)} <span className="text-lg font-normal text-gray-500 dark:text-gray-500">/ 10</span></p>
           </div>
-          <div className="grid grid-cols-5 gap-3 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center min-w-0">
             <ScoreCell label="Relevance" value={cluster.relevance_score} />
             <ScoreCell label="Frequency" value={cluster.frequency_score} />
             <ScoreCell label="Emotion" value={cluster.emotion_score} />
@@ -148,7 +150,7 @@ function ReportContent({
       )}
 
       <Section title="Source Distribution">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {Object.entries(cluster.source_breakdown).map(([src, count]) => (
             <span key={src} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-gray-300 capitalize">
               {src}: {count}
@@ -183,9 +185,9 @@ function ReportContent({
         <Section title={`Related Posts (${posts.length})`}>
           <div className="space-y-2">
             {posts.slice(0, 10).map((post) => (
-              <div key={post.id} className="text-sm bg-gray-50 dark:bg-[#262626] rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  {post.title && <p className="font-medium text-gray-800 dark:text-gray-200 flex-1">{post.title}</p>}
+              <div key={post.id} className="text-sm bg-gray-50 dark:bg-[#262626] rounded-lg p-3 min-w-0">
+                <div className="flex items-center gap-2 mb-1 min-w-0">
+                  {post.title && <p className="font-medium text-gray-800 dark:text-gray-200 flex-1 min-w-0 truncate">{post.title}</p>}
                   <ContentTypeBadge type={post.content_type} />
                 </div>
                 <p className="text-gray-600 dark:text-gray-400 line-clamp-3">{post.text}</p>
@@ -249,7 +251,7 @@ function PRDContent({ prd }: { prd: NonNullable<OpportunityReport["prd"]> }) {
         <h3 className="font-semibold text-gray-900 dark:text-gray-100">PRD Draft</h3>
         <button
           onClick={handleCopy}
-          className="px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-[#333333] transition-colors"
+          className="px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-[#333333] transition-colors shrink-0"
         >
           {copied ? "Copied!" : "Copy to Clipboard"}
         </button>
@@ -307,7 +309,7 @@ function PRDContent({ prd }: { prd: NonNullable<OpportunityReport["prd"]> }) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div>
+    <div className="min-w-0">
       <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{title}</h4>
       {children}
     </div>

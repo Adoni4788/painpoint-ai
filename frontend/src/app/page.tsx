@@ -130,7 +130,7 @@ export default function Home() {
         </div>
 
         {selectedReport && (
-          <div className="flex-1 min-w-[280px] border-l border-gray-200 dark:border-white/10 overflow-y-auto bg-white dark:bg-black">
+          <div className="flex-1 min-w-[280px] border-l border-gray-200 dark:border-white/10 overflow-y-auto overflow-x-hidden bg-white dark:bg-black">
             <ReportPanel
               report={selectedReport}
               onClose={() => setSelectedReport(null)}

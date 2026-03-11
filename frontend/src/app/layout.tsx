@@ -3,7 +3,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PainPoint AI — Opportunity Discovery Engine",
+  title: "Gap Lens — Opportunity Discovery Engine",
   description: "Turn public complaints into product opportunities",
 };
 

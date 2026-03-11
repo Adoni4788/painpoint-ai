@@ -99,7 +99,7 @@ export default function ReportsPage() {
 
   // Generate markdown export
   function generateMarkdown(): string {
-    const lines: string[] = ["# PainPoint AI — Opportunity Report\n"];
+    const lines: string[] = ["# Gap Lens — Opportunity Report\n"];
     lines.push(`Generated: ${new Date().toLocaleDateString()}\n`);
     lines.push(`Total opportunities: ${filtered.length}\n`);
 
@@ -132,7 +132,7 @@ export default function ReportsPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `painpoint-report-${new Date().toISOString().slice(0, 10)}.md`;
+    a.download = `gaplens-report-${new Date().toISOString().slice(0, 10)}.md`;
     a.click();
     URL.revokeObjectURL(url);
   }

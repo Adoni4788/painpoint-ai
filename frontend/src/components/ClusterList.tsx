@@ -10,9 +10,9 @@ interface ClusterListProps {
 
 export function ClusterList({ clusters, selectedClusterId, onSelectCluster }: ClusterListProps) {
   return (
-    <div>
+    <div className="text-left">
       <div className="mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Pain Point Clusters</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Gap Clusters</h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           {clusters.length} clusters found, ranked by opportunity score
         </p>

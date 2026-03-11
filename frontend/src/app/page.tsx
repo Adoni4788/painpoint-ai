@@ -100,8 +100,8 @@ export default function Home() {
         </div>
       }
     >
-      {/* Top bar: sources dropdown in main content area */}
-      <div className="flex items-center gap-4 px-6 pt-4 pb-3 shrink-0 border-b border-gray-200/60 dark:border-white/5">
+      {/* Top bar: sources dropdown in main content area, left-aligned with main content */}
+      <div className="flex items-center justify-start gap-4 px-6 pt-4 pb-3 shrink-0 border-b border-gray-200/60 dark:border-white/5">
         <SourceFilters sources={sources} onToggle={toggleSource} />
       </div>
 

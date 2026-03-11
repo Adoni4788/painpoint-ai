@@ -56,7 +56,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 <MdMenu size={16} />
               )}
             </button>
-            <span className="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100 hidden sm:inline">PainPoint AI</span>
+            <span className="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100 hidden sm:inline">Gap Lens</span>
           </div>
 
           {/* Center: search bar centered in header */}

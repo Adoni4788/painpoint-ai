@@ -10,11 +10,12 @@ interface AppShellProps {
   children: ReactNode;
   headerCenter?: ReactNode;
   headerRight?: ReactNode;
+  activeSearchId?: string | null;
+  onSelectSearch?: (search: SearchResult) => void;
 }
 
-export function AppShell({ children, headerCenter, headerRight }: AppShellProps) {
+export function AppShell({ children, headerCenter, headerRight, activeSearchId, onSelectSearch }: AppShellProps) {
   const [searches, setSearches] = useState<SearchResult[]>([]);
-  const [activeSearch, setActiveSearch] = useState<SearchResult | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { theme, toggle: toggleTheme } = useTheme();
   const router = useRouter();
@@ -33,7 +34,7 @@ export function AppShell({ children, headerCenter, headerRight }: AppShellProps)
   }, [loadSearches]);
 
   const handleSelectSearch = async (search: SearchResult) => {
-    setActiveSearch(search);
+    onSelectSearch?.(search);
     router.push("/");
   };
 
@@ -100,7 +101,7 @@ export function AppShell({ children, headerCenter, headerRight }: AppShellProps)
       <div className="flex flex-1 overflow-hidden bg-[#f2f2f2] dark:bg-gray-900">
         <Sidebar
           searches={searches}
-          activeSearchId={activeSearch?.id ?? null}
+          activeSearchId={activeSearchId ?? null}
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
           onSelectSearch={handleSelectSearch}

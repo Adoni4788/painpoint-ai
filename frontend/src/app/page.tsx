@@ -65,6 +65,22 @@ export default function Home() {
     }
   };
 
+  const handleSelectSearch = async (search: SearchResult) => {
+    setActiveSearch(search);
+    setSelectedReport(null);
+    if (search.status === "completed") {
+      try {
+        const clusterData = await getClusters(search.id);
+        setClusters(clusterData);
+      } catch (e) {
+        console.error("Failed to load clusters:", e);
+        setClusters([]);
+      }
+    } else {
+      setClusters([]);
+    }
+  };
+
   const handleSelectCluster = async (cluster: Cluster) => {
     try {
       const report = await getOpportunityReport(cluster.id);
@@ -76,6 +92,8 @@ export default function Home() {
 
   return (
     <AppShell
+      activeSearchId={activeSearch?.id}
+      onSelectSearch={handleSelectSearch}
       headerCenter={
         <div className="w-full max-w-lg">
           <SearchBar onSearch={handleSearch} loading={loading} />

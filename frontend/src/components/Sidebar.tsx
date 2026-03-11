@@ -58,13 +58,13 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-colors ${
                 isActive
-                  ? "bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300"
+                  ? "bg-[#dedede] text-gray-900 dark:bg-gray-800 dark:text-gray-100"
                   : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
               }`}
             >
-              <span className={isActive ? "text-brand-600 dark:text-brand-400" : "text-gray-400 dark:text-gray-500"}>
+              <span className={isActive ? "text-gray-700 dark:text-gray-300" : "text-gray-400 dark:text-gray-500"}>
                 {item.icon}
               </span>
               {item.label}
@@ -89,9 +89,9 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
               <li key={s.id}>
                 <button
                   onClick={() => onSelectSearch(s)}
-                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors rounded-md ${
                     s.id === activeSearchId
-                      ? "bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300"
+                      ? "bg-[#dedede] text-gray-900 dark:bg-gray-800 dark:text-gray-100"
                       : "text-gray-700 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:bg-gray-800"
                   }`}
                 >

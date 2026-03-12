@@ -114,10 +114,10 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
               <li key={s.id}>
                 <button
                   onClick={() => onSelectSearch(s)}
-                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors rounded-md border-0 ring-0 ${
+                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors border-0 ring-0 ${
                     s.id === activeSearchId
-                      ? "bg-[#dedede] text-gray-900 dark:bg-[#262626] dark:text-gray-100"
-                      : "text-gray-700 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:bg-[#262626]"
+                      ? "bg-[#dedede] text-gray-900 dark:bg-[#262626] dark:text-gray-100 rounded-none"
+                      : "text-gray-700 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:bg-[#262626] rounded-md"
                   }`}
                 >
                   <div className="flex items-center justify-between">

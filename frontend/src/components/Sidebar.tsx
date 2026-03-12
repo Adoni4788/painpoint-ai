@@ -45,10 +45,10 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                 key={item.href}
                 href={item.href}
                 title={item.label}
-                className={`flex items-center justify-center p-2 rounded-md transition-colors border-0 ring-0 ${
+                className={`flex items-center justify-center p-2 transition-colors border-0 ring-0 ${
                   isActive
-                    ? "bg-[#dedede] text-gray-900 dark:bg-[#262626] dark:text-gray-100"
-                    : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#262626] dark:hover:text-gray-200"
+                    ? "bg-[#dedede] text-gray-900 dark:bg-[#262626] dark:text-gray-100 rounded-full"
+                    : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#262626] dark:hover:text-gray-200 rounded-md"
                 }`}
               >
                 <span className={isActive ? "text-gray-700 dark:text-gray-300" : "text-gray-400 dark:text-gray-500"}>
@@ -83,10 +83,10 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-colors w-full border-0 ring-0 ${
+              className={`flex items-center gap-2 px-2.5 py-1.5 text-[13px] font-medium transition-colors w-full border-0 ring-0 ${
                 isActive
-                  ? "bg-[#dedede] text-gray-900 dark:bg-[#262626] dark:text-gray-100"
-                  : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#262626] dark:hover:text-gray-200"
+                  ? "bg-[#dedede] text-gray-900 dark:bg-[#262626] dark:text-gray-100 rounded-full"
+                  : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#262626] dark:hover:text-gray-200 rounded-md"
               }`}
             >
               <span className={isActive ? "text-gray-700 dark:text-gray-300" : "text-gray-400 dark:text-gray-500"}>

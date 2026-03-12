@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { MdChevronLeft, MdMenu, MdLightMode, MdDarkMode, MdPerson } from "react-icons/md";
 import { Sidebar } from "@/components/Sidebar";
+import { Logo } from "@/components/Logo";
 import { useTheme } from "@/components/ThemeProvider";
 import { SearchResult, listSearches } from "@/lib/api";
 
@@ -76,6 +77,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
         <div className="flex items-center gap-3">
           {/* Left: logo + toggle — matches sidebar width (w-64) */}
           <div className="w-64 flex items-center gap-2 shrink-0">
+            <Logo size={28} className="text-gray-900 dark:text-gray-100 shrink-0" />
             <span className="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100 hidden sm:inline">GapLens</span>
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}

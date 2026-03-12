@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     reddit_client_secret: str = ""
     reddit_user_agent: str = "PainPointAI/1.0"
     g2_api_key: str = ""
+    youtube_api_key: str = ""
     cors_origins: str = "http://localhost:3000"
 
     model_config = {"env_file": ".env", "extra": "ignore"}

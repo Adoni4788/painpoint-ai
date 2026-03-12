@@ -7,6 +7,7 @@ const SOURCE_OPTIONS = [
   { id: "hackernews", label: "Hacker News", icon: "Y", color: "bg-amber-500" },
   { id: "amazon", label: "Amazon Reviews", icon: "A", color: "bg-yellow-600" },
   { id: "g2", label: "G2", icon: "G", color: "bg-green-600" },
+  { id: "youtube", label: "YouTube", icon: "▶", color: "bg-red-600" },
 ];
 
 interface SearchBarProps {

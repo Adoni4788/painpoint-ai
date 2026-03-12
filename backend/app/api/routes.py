@@ -26,7 +26,7 @@ async def create_search(
     db: AsyncSession = Depends(get_db),
 ):
     """Start a new pain point search."""
-    valid_sources = {"reddit", "hackernews", "amazon", "g2"}
+    valid_sources = {"reddit", "hackernews", "amazon", "g2", "youtube"}
     sources = [s for s in payload.sources if s in valid_sources]
     if not sources:
         sources = ["reddit", "hackernews", "amazon"]

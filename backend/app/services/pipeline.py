@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from ..models.search import Search, RawPost, PainCluster, PRDDraft
-from .collectors import RedditCollector, HackerNewsCollector, AmazonCollector, G2Collector
+from .collectors import RedditCollector, HackerNewsCollector, AmazonCollector, G2Collector, YouTubeCollector
 from .collectors.base import CollectedPost
 from . import ai_service
 
@@ -21,6 +21,7 @@ COLLECTOR_MAP = {
     "hackernews": HackerNewsCollector,
     "amazon": AmazonCollector,
     "g2": G2Collector,
+    "youtube": YouTubeCollector,
 }
 
 # Rule-based authenticity caps by content type.
@@ -131,6 +132,9 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
 
             content_type = result.get("content_type", "unknown")
             authenticity_score = float(result.get("authenticity_score", 0.5))
+            # YouTube comments tend to be noisier; apply multiplicative downweight
+            if raw_post_records[idx].source == "youtube":
+                authenticity_score *= 0.85
             authenticity_score = _apply_authenticity_cap(content_type, authenticity_score)
 
             raw_post_records[idx].is_complaint = is_complaint

@@ -116,7 +116,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                   onClick={() => onSelectSearch(s)}
                   className={`w-full text-left px-4 py-2.5 text-sm transition-colors border-0 ring-0 rounded-l-full rounded-tr-xl rounded-br-xl -mr-4 pr-5 relative z-10 ${
                     s.id === activeSearchId
-                      ? "bg-[#dedede] text-gray-900 dark:bg-[#262626] dark:text-gray-100"
+                      ? "bg-white text-gray-900 dark:bg-black dark:text-gray-100"
                       : "text-gray-700 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:bg-[#262626]"
                   }`}
                 >

@@ -109,8 +109,8 @@ export default function Home() {
         <StatusBanner search={activeSearch} />
       )}
 
-      <div className="flex-1 flex overflow-hidden min-w-0">
-        <div className="flex-1 min-w-0 overflow-y-auto p-6 transition-all">
+      <div className="flex-1 flex overflow-hidden min-w-0 w-full">
+        <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-6 transition-all">
           {clusters.length > 0 ? (
             <ClusterList
               clusters={clusters}
@@ -130,7 +130,7 @@ export default function Home() {
         </div>
 
         {selectedReport && (
-          <div className="flex-1 min-w-[280px] border-l border-gray-200 dark:border-white/10 overflow-y-auto overflow-x-hidden bg-white dark:bg-black">
+          <div className="flex-1 min-w-0 border-l border-gray-200 dark:border-white/10 overflow-y-auto overflow-x-hidden bg-white dark:bg-black">
             <ReportPanel
               report={selectedReport}
               onClose={() => setSelectedReport(null)}

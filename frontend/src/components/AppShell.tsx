@@ -128,7 +128,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
           onSelectSearch={handleSelectSearch}
         />
 
-        <main className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-black rounded-tl-2xl border-t border-l border-gray-200 dark:border-white/10">
+        <main className="flex-1 flex flex-col overflow-hidden min-w-0 bg-white dark:bg-black rounded-tl-2xl border-t border-l border-gray-200 dark:border-white/10">
           {children}
         </main>
       </div>

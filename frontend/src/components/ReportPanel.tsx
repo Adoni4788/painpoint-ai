@@ -133,7 +133,7 @@ function ReportContent({
 
       {cluster.summary && (
         <Section title="Problem Summary">
-          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{cluster.summary}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words">{cluster.summary}</p>
         </Section>
       )}
 
@@ -145,7 +145,7 @@ function ReportContent({
 
       {cluster.why_it_matters && (
         <Section title="Why It Matters">
-          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{cluster.why_it_matters}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words">{cluster.why_it_matters}</p>
         </Section>
       )}
 
@@ -162,7 +162,7 @@ function ReportContent({
       <Section title="Top Complaint Examples">
         <div className="space-y-3">
           {cluster.top_complaints.map((text, i) => (
-            <blockquote key={i} className="text-sm text-gray-600 dark:text-gray-400 border-l-3 border-gray-300 dark:border-white/20 pl-4 py-1 italic leading-relaxed bg-gray-50 dark:bg-[#262626] rounded-r-lg pr-3">
+            <blockquote key={i} className="text-sm text-gray-600 dark:text-gray-400 border-l-3 border-gray-300 dark:border-white/20 pl-4 py-1 italic leading-relaxed break-words bg-gray-50 dark:bg-[#262626] rounded-r-lg pr-3">
               &ldquo;{text}&rdquo;
             </blockquote>
           ))}
@@ -171,13 +171,13 @@ function ReportContent({
 
       {cluster.suggested_solution && (
         <Section title="Suggested Solution">
-          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{cluster.suggested_solution}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words">{cluster.suggested_solution}</p>
         </Section>
       )}
 
       {cluster.product_angle && (
         <Section title="Product Angle">
-          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{cluster.product_angle}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words">{cluster.product_angle}</p>
         </Section>
       )}
 
@@ -190,7 +190,7 @@ function ReportContent({
                   {post.title && <p className="font-medium text-gray-800 dark:text-gray-200 flex-1 min-w-0 truncate">{post.title}</p>}
                   <ContentTypeBadge type={post.content_type} />
                 </div>
-                <p className="text-gray-600 dark:text-gray-400 line-clamp-3">{post.text}</p>
+                <p className="text-gray-600 dark:text-gray-400 line-clamp-3 break-words">{post.text}</p>
                 <div className="flex items-center gap-3 mt-2 text-xs text-gray-400 dark:text-gray-500">
                   <span className="capitalize">{post.source}</span>
                   {post.author && <span>by {post.author}</span>}
@@ -259,13 +259,13 @@ function PRDContent({ prd }: { prd: NonNullable<OpportunityReport["prd"]> }) {
 
       {prd.product_concept && (
         <Section title="Product Concept">
-          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{prd.product_concept}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words">{prd.product_concept}</p>
         </Section>
       )}
 
       {prd.target_user && (
         <Section title="Target User">
-          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{prd.target_user}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words">{prd.target_user}</p>
         </Section>
       )}
 
@@ -292,13 +292,13 @@ function PRDContent({ prd }: { prd: NonNullable<OpportunityReport["prd"]> }) {
 
       {prd.mvp_suggestion && (
         <Section title="MVP Suggestion">
-          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{prd.mvp_suggestion}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words">{prd.mvp_suggestion}</p>
         </Section>
       )}
 
       {prd.full_text && (
         <Section title="Full PRD (Markdown)">
-          <div className="bg-gray-50 dark:bg-[#262626] rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-mono leading-relaxed max-h-96 overflow-y-auto">
+          <div className="bg-gray-50 dark:bg-[#262626] rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-mono leading-relaxed max-h-96 overflow-y-auto break-words min-w-0">
             {prd.full_text}
           </div>
         </Section>
@@ -309,7 +309,7 @@ function PRDContent({ prd }: { prd: NonNullable<OpportunityReport["prd"]> }) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="min-w-0">
+    <div className="min-w-0 overflow-hidden break-words">
       <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{title}</h4>
       {children}
     </div>

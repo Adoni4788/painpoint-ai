@@ -72,6 +72,8 @@ export default function ValidatePage() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [pendingSearch, setPendingSearch] = useState<{ id: string } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -83,6 +85,22 @@ export default function ValidatePage() {
     setIdea(random);
   };
 
+  const handleFeedbackResponse = (response: "yes" | "no" | "maybe" | "skipped") => {
+    if (pendingSearch) {
+      captureEvent("pricing_feedback", {
+        response,
+        search_id: pendingSearch.id,
+        idea_length: idea.trim().length,
+      });
+    }
+    setShowFeedbackModal(false);
+    setPendingSearch(null);
+    if (pendingSearch) {
+      captureEvent("validate_redirect_to_discover", { search_id: pendingSearch.id });
+      router.push(`/discover?search_id=${pendingSearch.id}`);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!idea.trim()) return;
@@ -91,10 +109,9 @@ export default function ValidatePage() {
     captureEvent("validate_idea_submitted", { idea_length: idea.trim().length });
     try {
       const search = await validateMinimal(idea.trim());
-      captureEvent("validate_redirect_to_discover", { search_id: search.id });
       setSubmitted(true);
-      await new Promise((r) => setTimeout(r, 400));
-      router.push(`/discover?search_id=${search.id}`);
+      setPendingSearch(search);
+      setShowFeedbackModal(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Validation failed");
     } finally {
@@ -140,6 +157,47 @@ export default function ValidatePage() {
           </form>
         </div>
       </div>
+
+      {/* Pricing feedback modal – shown after successful validation */}
+      {showFeedbackModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white dark:bg-[#171717] rounded-2xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-white/10">
+            <p className="text-base font-medium text-gray-900 dark:text-gray-100 mb-4">
+              Would you pay $5/month for unlimited validations?
+            </p>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => handleFeedbackResponse("yes")}
+                className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium transition-colors"
+              >
+                Yes, I&apos;d pay
+              </button>
+              <button
+                type="button"
+                onClick={() => handleFeedbackResponse("no")}
+                className="w-full py-2.5 px-4 rounded-xl bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-900 dark:text-gray-100 font-medium transition-colors"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                onClick={() => handleFeedbackResponse("maybe")}
+                className="w-full py-2.5 px-4 rounded-xl bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-900 dark:text-gray-100 font-medium transition-colors"
+              >
+                Maybe
+              </button>
+              <button
+                type="button"
+                onClick={() => handleFeedbackResponse("skipped")}
+                className="mt-2 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              >
+                Skip
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }

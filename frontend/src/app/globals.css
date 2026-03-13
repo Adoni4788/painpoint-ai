@@ -17,4 +17,11 @@
   .logo-carved {
     filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.1)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
   }
+  /* App logo: no shadow in light mode, shadow in dark mode */
+  .logo-app {
+    filter: none;
+  }
+  .dark .logo-app {
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.1)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
+  }
 }

@@ -80,8 +80,11 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
         <div className="flex items-center gap-3">
           {/* Left: logo + toggle — matches sidebar width (w-64) */}
           <div className="w-64 flex items-center gap-2 shrink-0">
-            <Logo size={28} className="text-gray-900 dark:text-gray-100 shrink-0" />
-            <span className="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100 hidden sm:inline">GapLens</span>
+            <Logo size={28} color="#4d7c7a" className="logo-carved shrink-0" />
+            <span className="text-lg font-semibold tracking-tight text-carved hidden sm:inline">
+              <span style={{ color: "#4d7c7a" }}>Gap</span>
+              <span style={{ color: "#d97706" }}>Lens</span>
+            </span>
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"

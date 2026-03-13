@@ -1,13 +1,14 @@
 interface LogoProps {
   className?: string;
   size?: number;
+  color?: string;
 }
 
-export function Logo({ className = "", size = 28 }: LogoProps) {
+export function Logo({ className = "", size = 28, color }: LogoProps) {
   return (
     <span
       className={`inline-block shrink-0 ${className}`}
-      style={{ width: size, height: size }}
+      style={{ width: size, height: size, color: color ?? "currentColor" }}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

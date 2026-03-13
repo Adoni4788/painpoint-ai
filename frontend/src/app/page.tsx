@@ -60,8 +60,11 @@ export default function LandingPage() {
       >
         <div className="flex items-center justify-between px-6 py-5 max-w-6xl mx-auto">
         <Link href="/" className="flex items-center gap-2.5 group">
-          <Logo size={32} className="text-white group-hover:opacity-90 transition-opacity" />
-          <span className="text-xl font-semibold tracking-tight">GapLens</span>
+          <Logo size={32} color="#4d7c7a" className="logo-carved group-hover:opacity-90 transition-opacity" />
+          <span className="text-xl font-semibold tracking-tight text-carved">
+            <span style={{ color: "#4d7c7a" }}>Gap</span>
+            <span style={{ color: "#d97706" }}>Lens</span>
+          </span>
         </Link>
         <nav className="flex items-center gap-4">
           <Link
@@ -188,8 +191,11 @@ export default function LandingPage() {
       <footer className="relative z-10 border-t border-white/5 py-8">
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Logo size={20} className="text-gray-500" />
-            <span className="text-sm text-gray-500 text-shadow-readable">GapLens</span>
+            <Logo size={20} color="#4d7c7a" className="logo-carved" />
+            <span className="text-sm text-carved">
+              <span style={{ color: "#4d7c7a" }}>Gap</span>
+              <span style={{ color: "#d97706" }}>Lens</span>
+            </span>
           </div>
           <p className="text-xs text-gray-600 text-shadow-readable">© {new Date().getFullYear()} GapLens</p>
         </div>

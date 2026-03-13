@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { MdCasino } from "react-icons/md";
 import { AppShell } from "@/components/AppShell";
 import { validateMinimal } from "@/lib/api";
+import { captureEvent } from "@/lib/analytics";
 
 const ROTATING_TIPS = [
   "Be specific – include who it's for and the problem it solves.",
@@ -73,6 +74,10 @@ export default function ValidatePage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  useEffect(() => {
+    captureEvent("validate_page_view");
+  }, []);
+
   const handleRandomIdea = () => {
     const random = IDEA_ROULETTE[Math.floor(Math.random() * IDEA_ROULETTE.length)];
     setIdea(random);
@@ -83,8 +88,10 @@ export default function ValidatePage() {
     if (!idea.trim()) return;
     setLoading(true);
     setError(null);
+    captureEvent("validate_idea_submitted", { idea_length: idea.trim().length });
     try {
       const search = await validateMinimal(idea.trim());
+      captureEvent("validate_redirect_to_discover", { search_id: search.id });
       setSubmitted(true);
       await new Promise((r) => setTimeout(r, 400));
       router.push(`/discover?search_id=${search.id}`);

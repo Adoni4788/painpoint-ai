@@ -2,14 +2,16 @@
 
 import { useState } from "react";
 import { OpportunityReport, generatePRD } from "@/lib/api";
+import { captureEvent } from "@/lib/analytics";
 
 interface ReportPanelProps {
   report: OpportunityReport;
   onClose: () => void;
   onReportUpdate: (report: OpportunityReport) => void;
+  analyticsSource?: "validate" | "standard" | null;
 }
 
-export function ReportPanel({ report, onClose, onReportUpdate }: ReportPanelProps) {
+export function ReportPanel({ report, onClose, onReportUpdate, analyticsSource }: ReportPanelProps) {
   const [generatingPRD, setGeneratingPRD] = useState(false);
   const [activeTab, setActiveTab] = useState<"report" | "prd">("report");
   const { cluster, posts, prd } = report;
@@ -18,6 +20,10 @@ export function ReportPanel({ report, onClose, onReportUpdate }: ReportPanelProp
     setGeneratingPRD(true);
     try {
       const newPrd = await generatePRD(cluster.id);
+      captureEvent(
+        analyticsSource === "validate" ? "validate_prd_generated" : "discover_prd_generated",
+        { cluster_label: cluster.label }
+      );
       onReportUpdate({ ...report, prd: newPrd });
       setActiveTab("prd");
     } catch (e) {

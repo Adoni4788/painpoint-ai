@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { SearchBar, SourceFilters } from "@/components/SearchBar";
 import { MdExpandMore, MdExpandLess } from "react-icons/md";
@@ -19,6 +19,7 @@ import {
 } from "@/lib/api";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { useRefreshSearches } from "@/contexts/RefreshSearchesContext";
+import { captureEvent } from "@/lib/analytics";
 
 export default function DiscoverPage() {
   const searchParams = useSearchParams();
@@ -30,19 +31,35 @@ export default function DiscoverPage() {
   const router = useRouter();
   const { activeWorkspaceId } = useWorkspace();
   const refreshSearches = useRefreshSearches();
+  const analyticsSourceRef = useRef<"validate" | "standard" | null>(null);
+  const [analyticsSource, setAnalyticsSource] = useState<"validate" | "standard" | null>(null);
+  const resultsViewedForSearchRef = useRef<string | null>(null);
+  const fromValidateRedirectRef = useRef(false);
 
   // Handle ?search_id= from Validate flow redirect
   const urlSearchId = searchParams.get("search_id");
   useEffect(() => {
-    if (!urlSearchId) return;
+    if (!urlSearchId) {
+      if (!fromValidateRedirectRef.current) {
+        captureEvent("discover_page_view");
+      }
+      return;
+    }
+    fromValidateRedirectRef.current = true;
     (async () => {
       try {
         const search = await getSearch(urlSearchId);
         setActiveSearch(search);
+        analyticsSourceRef.current = "validate";
+        setAnalyticsSource("validate");
         refreshSearches();
         if (search.status === "completed") {
           const clusterData = await getClusters(search.id);
           setClusters(clusterData);
+          captureEvent("validate_results_viewed", {
+            search_id: search.id,
+            has_clusters: clusterData.length > 0,
+          });
         }
         router.replace("/discover", { scroll: false });
       } catch (e) {
@@ -56,6 +73,22 @@ export default function DiscoverPage() {
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
     );
   };
+
+  // Track discover_results_viewed when results load
+  useEffect(() => {
+    if (
+      activeSearch?.status === "completed" &&
+      resultsViewedForSearchRef.current !== activeSearch.id
+    ) {
+      resultsViewedForSearchRef.current = activeSearch.id;
+      const source = analyticsSourceRef.current ?? "unknown";
+      captureEvent("discover_results_viewed", {
+        source,
+        search_id: activeSearch.id,
+        cluster_count: clusters.length,
+      });
+    }
+  }, [activeSearch, clusters.length]);
 
   useEffect(() => {
     if (!activeSearch || activeSearch.status === "completed" || activeSearch.status === "failed") {
@@ -83,6 +116,12 @@ export default function DiscoverPage() {
     setLoading(true);
     setClusters([]);
     setSelectedReport(null);
+    analyticsSourceRef.current = "standard";
+    setAnalyticsSource("standard");
+    captureEvent("standard_search_submitted", {
+      query_length: query.length,
+      sources: sources.join(","),
+    });
     try {
       const search = await createSearch(query, sources, activeWorkspaceId ?? undefined);
       setActiveSearch(search);
@@ -97,6 +136,8 @@ export default function DiscoverPage() {
   const handleSelectSearch = async (search: SearchResult) => {
     setActiveSearch(search);
     setSelectedReport(null);
+    analyticsSourceRef.current = null;
+    setAnalyticsSource(null);
     if (search.status === "completed") {
       try {
         const clusterData = await getClusters(search.id);
@@ -111,6 +152,15 @@ export default function DiscoverPage() {
   };
 
   const handleSelectCluster = async (cluster: Cluster) => {
+    const source = analyticsSourceRef.current ?? "unknown";
+    captureEvent("discover_cluster_clicked", {
+      cluster_label: cluster.label,
+      opportunity_score: cluster.opportunity_score,
+      source,
+    });
+    captureEvent(source === "validate" ? "validate_report_opened" : "discover_report_opened", {
+      cluster_label: cluster.label,
+    });
     try {
       const report = await getOpportunityReport(cluster.id);
       setSelectedReport(report);
@@ -167,6 +217,7 @@ export default function DiscoverPage() {
               report={selectedReport}
               onClose={() => setSelectedReport(null)}
               onReportUpdate={setSelectedReport}
+              analyticsSource={analyticsSource}
             />
           </div>
         )}

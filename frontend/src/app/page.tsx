@@ -108,26 +108,34 @@ export default function LandingPage() {
 
       {/* Hero - pt accounts for fixed header; z-[5] so content scrolls behind header */}
       <section className="relative z-[5] px-6 pt-24 pb-24 max-w-4xl mx-auto text-center">
-        <p className="text-sm font-medium text-blue-400/90 uppercase tracking-widest mb-6 text-shadow-readable">
-          Opportunity Discovery Engine
-        </p>
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6 text-shadow-readable">
-          Turn public complaints into product opportunities
+          Find problems worth solving – before you build.
         </h1>
-        <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed text-shadow-readable">
-          Search any niche, product, or market. GapLens mines Reddit, Hacker News, Amazon, and more—finding real pain points people are begging to solve.
+        <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed text-shadow-readable">
+          GapLens mines Reddit, Hacker News, Amazon, and G2 for real complaints people are begging to solve. Stop guessing. Start building what&apos;s actually needed.
         </p>
-        <Link
-          href="/discover"
-          className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold bg-white text-black rounded-xl hover:bg-gray-100 transition-all hover:scale-[1.02] active:scale-[0.98]"
-        >
-          Start Discovering
-          <MdArrowForward size={20} />
-        </Link>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+          <Link
+            href="/validate"
+            className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold bg-white text-black rounded-xl hover:bg-gray-100 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Validate your idea – it&apos;s free
+            <MdArrowForward size={20} />
+          </Link>
+          <a
+            href="#how-it-works"
+            className="inline-flex items-center gap-2 px-6 py-3 text-base font-medium text-gray-300 hover:text-white border border-white/20 hover:border-white/40 rounded-xl transition-all"
+          >
+            See how it works
+          </a>
+        </div>
+        <p className="text-sm text-gray-500 text-shadow-readable">
+          Free to try · No credit card required
+        </p>
       </section>
 
       {/* How it works */}
-      <section className="relative z-[5] px-6 py-20 max-w-5xl mx-auto">
+      <section id="how-it-works" className="relative z-[5] px-6 py-20 max-w-5xl mx-auto">
         <h2 className="text-2xl font-bold text-center mb-16 text-shadow-readable">How it works</h2>
         <div className="grid md:grid-cols-3 gap-12">
           <div className="text-center">
@@ -188,10 +196,10 @@ export default function LandingPage() {
           Find the pain first. Then build the solution.
         </p>
         <Link
-          href="/discover"
+          href="/validate"
           className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold bg-white text-black rounded-xl hover:bg-gray-100 transition-all"
         >
-          Start Discovering
+          Validate your idea – it&apos;s free
           <MdArrowForward size={20} />
         </Link>
       </section>

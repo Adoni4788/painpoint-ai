@@ -4,13 +4,15 @@ import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { useTheme } from "@/components/ThemeProvider";
 import { MdSearch, MdAssessment, MdLightMode, MdDarkMode, MdArrowForward } from "react-icons/md";
+import { SiReddit, SiYcombinator, SiG2, SiYoutube } from "react-icons/si";
+import { FaAmazon } from "react-icons/fa";
 
 const SOURCES = [
-  { name: "Reddit", color: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
-  { name: "Hacker News", color: "bg-amber-500/20 text-amber-400 border-amber-500/30" },
-  { name: "Amazon", color: "bg-sky-500/20 text-sky-400 border-sky-500/30" },
-  { name: "G2", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
-  { name: "YouTube", color: "bg-red-500/20 text-red-400 border-red-500/30" },
+  { name: "Reddit", color: "bg-orange-500/20 text-orange-400 border-orange-500/30", Icon: SiReddit },
+  { name: "Hacker News", color: "bg-amber-500/20 text-amber-400 border-amber-500/30", Icon: SiYcombinator },
+  { name: "Amazon", color: "bg-sky-500/20 text-sky-400 border-sky-500/30", Icon: FaAmazon },
+  { name: "G2", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30", Icon: SiG2 },
+  { name: "YouTube", color: "bg-red-500/20 text-red-400 border-red-500/30", Icon: SiYoutube },
 ];
 
 export default function LandingPage() {
@@ -78,16 +80,16 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="relative z-10 px-6 pt-16 pb-24 max-w-4xl mx-auto text-center">
-        <p className="text-sm font-medium text-blue-400/90 uppercase tracking-widest mb-6">
+        <p className="text-sm font-medium text-blue-400/90 uppercase tracking-widest mb-6 text-shadow-readable">
           Opportunity Discovery Engine
         </p>
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6 text-shadow-readable">
           Turn public complaints into{" "}
           <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
             product opportunities
           </span>
         </h1>
-        <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+        <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed text-shadow-readable">
           Search any niche, product, or market. GapLens mines Reddit, Hacker News, Amazon, and more—finding real pain points people are begging to solve.
         </p>
         <Link
@@ -101,14 +103,14 @@ export default function LandingPage() {
 
       {/* How it works */}
       <section className="relative z-10 px-6 py-20 max-w-5xl mx-auto">
-        <h2 className="text-2xl font-bold text-center mb-16">How it works</h2>
+        <h2 className="text-2xl font-bold text-center mb-16 text-shadow-readable">How it works</h2>
         <div className="grid md:grid-cols-3 gap-12">
           <div className="text-center">
             <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-5">
               <MdSearch size={28} className="text-blue-400" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">Search</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <h3 className="text-lg font-semibold mb-2 text-shadow-readable">Search</h3>
+            <p className="text-gray-400 text-sm leading-relaxed text-shadow-readable">
               Enter a keyword, niche, or product category. GapLens expands your query and scans multiple platforms.
             </p>
           </div>
@@ -118,8 +120,8 @@ export default function LandingPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold mb-2">Cluster & Score</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <h3 className="text-lg font-semibold mb-2 text-shadow-readable">Cluster & Score</h3>
+            <p className="text-gray-400 text-sm leading-relaxed text-shadow-readable">
               AI groups similar complaints into pain point clusters and scores each by opportunity potential.
             </p>
           </div>
@@ -127,8 +129,8 @@ export default function LandingPage() {
             <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-5">
               <MdAssessment size={28} className="text-amber-400" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">Report & PRD</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <h3 className="text-lg font-semibold mb-2 text-shadow-readable">Report & PRD</h3>
+            <p className="text-gray-400 text-sm leading-relaxed text-shadow-readable">
               Get full opportunity reports with evidence, suggested solutions, and AI-generated PRD drafts.
             </p>
           </div>
@@ -137,16 +139,17 @@ export default function LandingPage() {
 
       {/* Data sources */}
       <section className="relative z-10 px-6 py-20 max-w-5xl mx-auto">
-        <h2 className="text-2xl font-bold text-center mb-4">Mine real conversations</h2>
-        <p className="text-gray-400 text-center mb-12 max-w-xl mx-auto">
+        <h2 className="text-2xl font-bold text-center mb-4 text-shadow-readable">Mine real conversations</h2>
+        <p className="text-gray-400 text-center mb-12 max-w-xl mx-auto text-shadow-readable">
           Unlike tools that only scan Reddit, GapLens pulls from five public sources—giving you a fuller picture of what people actually complain about.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           {SOURCES.map((s) => (
             <span
               key={s.name}
-              className={`px-4 py-2 rounded-lg text-sm font-medium border ${s.color}`}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border ${s.color}`}
             >
+              <s.Icon size={18} />
               {s.name}
             </span>
           ))}
@@ -155,8 +158,8 @@ export default function LandingPage() {
 
       {/* CTA */}
       <section className="relative z-10 px-6 py-24 max-w-3xl mx-auto text-center">
-        <h2 className="text-3xl font-bold mb-4">Don&apos;t build until you&apos;re sure</h2>
-        <p className="text-gray-400 mb-8">
+        <h2 className="text-3xl font-bold mb-4 text-shadow-readable">Don&apos;t build until you&apos;re sure</h2>
+        <p className="text-gray-400 mb-8 text-shadow-readable">
           Find the pain first. Then build the solution.
         </p>
         <Link
@@ -173,9 +176,9 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Logo size={20} className="text-gray-500" />
-            <span className="text-sm text-gray-500">GapLens</span>
+            <span className="text-sm text-gray-500 text-shadow-readable">GapLens</span>
           </div>
-          <p className="text-xs text-gray-600">© {new Date().getFullYear()} GapLens</p>
+          <p className="text-xs text-gray-600 text-shadow-readable">© {new Date().getFullYear()} GapLens</p>
         </div>
       </footer>
     </div>

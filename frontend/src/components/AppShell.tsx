@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { Inter } from "next/font/google";
 import { MdChevronLeft, MdMenu, MdLightMode, MdDarkMode, MdPerson } from "react-icons/md";
 import { Sidebar } from "@/components/Sidebar";
 import { Logo } from "@/components/Logo";
@@ -10,8 +9,6 @@ import { useTheme } from "@/components/ThemeProvider";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { RefreshSearchesProvider } from "@/contexts/RefreshSearchesContext";
 import { SearchResult, listSearches } from "@/lib/api";
-
-const inter = Inter({ weight: "400", subsets: ["latin"], display: "swap" });
 
 interface AppShellProps {
   children: ReactNode;
@@ -53,7 +50,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
   };
 
   return (
-    <div className={`${inter.className} flex flex-col h-screen overflow-hidden`}>
+    <div className="flex flex-col h-screen overflow-hidden">
       {backendUnavailable && (
         <div className="shrink-0 px-4 py-2.5 bg-amber-500/15 dark:bg-amber-500/10 border-b border-amber-500/30 dark:border-amber-500/20 flex items-center justify-between gap-4">
           <p className="text-sm text-amber-800 dark:text-amber-200">

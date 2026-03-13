@@ -28,7 +28,7 @@ export default function LandingPage() {
           className="absolute inset-0 w-full h-full object-cover opacity-60"
           style={{ objectPosition: "center center" }}
         >
-          <source src="/video/Futuristic_Data_Device_Looping_Video.mp4" type="video/mp4" />
+          <source src="/video/K_Stunning_Wood_Video_Creation.mp4" type="video/mp4" />
         </video>
         {/* Dark overlay so text stays readable */}
         <div className="absolute inset-0 bg-[#0a0a0a]/50" />

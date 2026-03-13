@@ -8,6 +8,31 @@ import { ClusterWithQuery, listAllClusters } from "@/lib/api";
 
 type SortField = "opportunity_score" | "frequency_score" | "emotion_score" | "urgency_score" | "relevance_score" | "created_at";
 
+const ROTATING_TIPS = [
+  "Sort by opportunity to find the biggest gaps first.",
+  "Compare two clusters to spot patterns or trade-offs.",
+  "High emotion + high urgency = build now.",
+  "Export to Markdown to share insights with your team.",
+  "Use filters to focus on specific niches or timeframes.",
+  "Click any cluster to see raw complaints and suggested solutions.",
+  "Average authenticity >70% means real user frustrations.",
+];
+
+function ReportsHeaderContent() {
+  const [tipIndex, setTipIndex] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTipIndex((i) => (i + 1) % ROTATING_TIPS.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 min-w-0 max-w-2xl">
+      {ROTATING_TIPS[tipIndex]}
+    </p>
+  );
+}
+
 export default function ReportsPage() {
   const [clusters, setClusters] = useState<ClusterWithQuery[]>([]);
   const [loading, setLoading] = useState(true);
@@ -144,6 +169,22 @@ export default function ReportsPage() {
     return clusters.filter((c) => compareIds.has(c.id));
   }, [clusters, compareIds]);
 
+  // Dynamic metrics from filtered
+  const { avgOpportunity, highestCluster } = useMemo(() => {
+    if (filtered.length === 0) return { avgOpportunity: 0, highestCluster: null as ClusterWithQuery | null };
+    const avg = filtered.reduce((s, c) => s + c.opportunity_score, 0) / filtered.length;
+    const highest = filtered.reduce((a, b) =>
+      a.opportunity_score >= b.opportunity_score ? a : b
+    );
+    return { avgOpportunity: avg, highestCluster: highest };
+  }, [filtered]);
+
+  function resetFilters() {
+    setNicheFilter("all");
+    setMinScore(0);
+    setDateFilter("all");
+  }
+
   if (loading) {
     return (
       <AppShell>
@@ -197,16 +238,34 @@ export default function ReportsPage() {
   }
 
   return (
-    <AppShell>
+    <AppShell headerCenter={<ReportsHeaderContent />}>
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Toolbar */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-black shrink-0">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Opportunity Reports</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                {filtered.length} opportunities across {niches.length} {niches.length === 1 ? "niche" : "niches"}
-              </p>
+              {filtered.length === 0 ? (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  No reports match your filters.{" "}
+                  <button
+                    onClick={resetFilters}
+                    className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                  >
+                    Reset filters
+                  </button>
+                </p>
+              ) : (
+                <>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    {filtered.length} opportunities across {niches.length} {niches.length === 1 ? "niche" : "niches"}
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                    Avg opportunity: {avgOpportunity.toFixed(1)} · Highest: {highestCluster?.opportunity_score.toFixed(1)}{" "}
+                    ({highestCluster?.label.slice(0, 30)}{highestCluster && highestCluster.label.length > 30 ? "…" : ""})
+                  </p>
+                </>
+              )}
             </div>
             <div className="flex items-center gap-2">
               {compareIds.size === 2 && (
@@ -303,8 +362,14 @@ export default function ReportsPage() {
         {/* Cluster Table */}
         <div className="flex-1 overflow-y-auto">
           {filtered.length === 0 ? (
-            <div className="flex items-center justify-center h-48 text-sm text-gray-500 dark:text-gray-400">
-              No opportunities match your filters
+            <div className="flex flex-col items-center justify-center h-48 gap-2 text-sm text-gray-500 dark:text-gray-400">
+              <p>No opportunities match your filters</p>
+              <button
+                onClick={resetFilters}
+                className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+              >
+                Reset filters
+              </button>
             </div>
           ) : (
             <table className="w-full text-sm">

@@ -52,12 +52,12 @@ export default function LandingPage() {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </div>
 
-      {/* Header - fixed, content scrolls behind it; gradient blends into video */}
+      {/* Header - fixed, content scrolls behind it; solid bg so content is hidden underneath */}
       <header
         className="fixed top-0 left-0 right-0 z-[100] transition-all duration-300"
         style={{
           background: headerTransparent
-            ? "transparent"
+            ? "rgba(10,10,10,0.98)"
             : "linear-gradient(to bottom, #0a0a0a 0%, rgba(10,10,10,0.85) 50%, rgba(10,10,10,0.2) 85%, transparent 100%)",
         }}
       >

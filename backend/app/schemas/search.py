@@ -20,6 +20,10 @@ class WorkspaceResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ValidateMinimalRequest(BaseModel):
+    idea: str = Field(..., min_length=2, max_length=500)
+
+
 class SearchCreate(BaseModel):
     query: str = Field(..., min_length=2, max_length=500)
     sources: list[str] = Field(default=["reddit", "hackernews", "amazon"])

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { SearchBar, SourceFilters } from "@/components/SearchBar";
 import { MdExpandMore, MdExpandLess } from "react-icons/md";
 import { AppShell } from "@/components/AppShell";
@@ -20,13 +21,35 @@ import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { useRefreshSearches } from "@/contexts/RefreshSearchesContext";
 
 export default function DiscoverPage() {
+  const searchParams = useSearchParams();
   const [activeSearch, setActiveSearch] = useState<SearchResult | null>(null);
   const [clusters, setClusters] = useState<Cluster[]>([]);
   const [selectedReport, setSelectedReport] = useState<OpportunityReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [sources, setSources] = useState<string[]>(["reddit", "hackernews", "amazon"]);
+  const router = useRouter();
   const { activeWorkspaceId } = useWorkspace();
   const refreshSearches = useRefreshSearches();
+
+  // Handle ?search_id= from Validate flow redirect
+  const urlSearchId = searchParams.get("search_id");
+  useEffect(() => {
+    if (!urlSearchId) return;
+    (async () => {
+      try {
+        const search = await getSearch(urlSearchId);
+        setActiveSearch(search);
+        refreshSearches();
+        if (search.status === "completed") {
+          const clusterData = await getClusters(search.id);
+          setClusters(clusterData);
+        }
+        router.replace("/discover", { scroll: false });
+      } catch (e) {
+        console.error("Failed to load search from URL:", e);
+      }
+    })();
+  }, [urlSearchId, router, refreshSearches]);
 
   const toggleSource = (id: string) => {
     setSources((prev) =>

@@ -10,6 +10,58 @@ client = AsyncOpenAI(api_key=settings.openai_api_key)
 MODEL = settings.openai_model
 
 
+def _log_openai_usage(endpoint: str, resp) -> None:
+    """Log OpenAI token usage for Experiment 1 (cost per search)."""
+    if resp.usage:
+        inp = getattr(resp.usage, "input_tokens", None) or getattr(resp.usage, "prompt_tokens", 0)
+        out = getattr(resp.usage, "output_tokens", None) or getattr(resp.usage, "completion_tokens", 0)
+        logger.info(
+            "OPENAI_USAGE endpoint=%s model=%s input_tokens=%s output_tokens=%s",
+            endpoint, resp.model, inp, out,
+        )
+
+
+async def extract_keywords_from_idea(idea: str) -> list[str]:
+    """
+    Extract exactly 3 search keywords from a product idea.
+    Used for Experiment 2 (minimal Validate flow).
+    Returns keywords suitable for OR-query search.
+    """
+    prompt = f"""A user has this product idea: "{idea}"
+
+Extract exactly 3 keywords or short phrases that would best surface real complaints,
+frustrations, and pain points when searching Reddit, Hacker News, Amazon, G2, or YouTube.
+
+Rules:
+- Each keyword should be 1-4 words
+- Choose terms people actually use when complaining (e.g. "email deliverability", "spam folder", "open rate")
+- Avoid generic terms; be specific to the idea
+- Return ONLY a JSON array of exactly 3 strings. No markdown, no explanation."""
+
+    try:
+        resp = await client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+            max_tokens=200,
+        )
+        _log_openai_usage("extract_keywords_from_idea", resp)
+        data = json.loads(_strip_json_fences(resp.choices[0].message.content))
+        if isinstance(data, list) and len(data) >= 3:
+            return [str(k).strip() for k in data[:3]]
+        if isinstance(data, list):
+            keywords = [str(k).strip() for k in data if k]
+            fallback = idea.split() or [idea]
+            while len(keywords) < 3:
+                keywords.append(fallback[len(keywords) % len(fallback)])
+            return keywords[:3]
+        return [idea] * 3
+    except Exception as e:
+        logger.error(f"Keyword extraction error: {e}")
+        words = idea.split()[:3]
+        return words if len(words) >= 3 else [idea] * 3
+
+
 def _strip_json_fences(content: str) -> str:
     content = content.strip()
     if content.startswith("```"):
@@ -64,6 +116,7 @@ Return ONLY valid JSON. No markdown, no explanation."""
             temperature=0.3,
             max_tokens=1500,
         )
+        _log_openai_usage("expand_query", resp)
         data = json.loads(_strip_json_fences(resp.choices[0].message.content))
         if "subtopics" not in data or not data["subtopics"]:
             data["subtopics"] = [query]
@@ -196,6 +249,7 @@ Return ONLY a valid JSON array. No markdown, no explanation."""
                 temperature=0.1,
                 max_tokens=3000,
             )
+            _log_openai_usage("detect_complaints_and_relevance", resp)
             batch_results = json.loads(_strip_json_fences(resp.choices[0].message.content))
             for item in batch_results:
                 item["index"] = item["index"] + i
@@ -241,6 +295,7 @@ Do NOT use bullet points or headers. Return ONLY the summary text."""
             temperature=0.3,
             max_tokens=300,
         )
+        _log_openai_usage("generate_search_summary", resp)
         return resp.choices[0].message.content.strip()
     except Exception as e:
         logger.error(f"Search summary error: {e}")
@@ -295,6 +350,7 @@ Return ONLY a valid JSON array. No markdown, no explanation."""
             temperature=0.3,
             max_tokens=4000,
         )
+        _log_openai_usage("cluster_complaints", resp)
         return json.loads(_strip_json_fences(resp.choices[0].message.content))
     except Exception as e:
         logger.error(f"Clustering error: {e}")
@@ -409,6 +465,7 @@ Return ONLY valid JSON. No markdown code fences, no explanation outside the JSON
             temperature=0.4,
             max_tokens=3000,
         )
+        _log_openai_usage("generate_prd", resp)
         return json.loads(_strip_json_fences(resp.choices[0].message.content))
     except Exception as e:
         logger.error(f"PRD generation error: {e}")

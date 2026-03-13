@@ -77,6 +77,12 @@ export default function LandingPage() {
             Discover
           </Link>
           <Link
+            href="/validate"
+            className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
+          >
+            Validate
+          </Link>
+          <Link
             href="/reports"
             className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
           >

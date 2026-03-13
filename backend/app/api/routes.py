@@ -10,11 +10,12 @@ from ..core.database import get_db
 from ..models.search import Workspace, Search, RawPost, PainCluster, PRDDraft
 from ..schemas.search import (
     WorkspaceCreate, WorkspaceUpdate, WorkspaceResponse,
-    SearchCreate, SearchResponse, ClusterResponse,
+    ValidateMinimalRequest, SearchCreate, SearchResponse, ClusterResponse,
     ClusterWithSearchResponse,
     PRDResponse, OpportunityReport, RawPostResponse,
 )
 from ..services.pipeline import run_search_pipeline, generate_prd_for_cluster
+from ..services import ai_service
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -72,6 +73,31 @@ async def delete_workspace(workspace_id: UUID, db: AsyncSession = Depends(get_db
     await db.delete(workspace)
     await db.commit()
     return {"status": "deleted"}
+
+
+# --- Validate (Experiment 2) ---
+
+@router.post("/validate-minimal", response_model=SearchResponse)
+async def validate_minimal(
+    payload: ValidateMinimalRequest,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Minimal Validate flow: idea -> 3 keywords -> OR query -> existing pipeline.
+    Returns SearchResponse; frontend redirects to /discover?search_id=<id>.
+    """
+    keywords = await ai_service.extract_keywords_from_idea(payload.idea)
+    query = " OR ".join(kw[:50] for kw in keywords)  # cap length per keyword
+    sources = ["reddit", "hackernews", "amazon"]
+
+    search = Search(query=query, sources=sources, workspace_id=None)
+    db.add(search)
+    await db.commit()
+    await db.refresh(search)
+
+    background_tasks.add_task(_run_pipeline_with_session, search.id, query, sources)
+    return search
 
 
 # --- Searches ---

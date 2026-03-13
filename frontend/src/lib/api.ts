@@ -187,3 +187,11 @@ export async function generatePRD(clusterId: string): Promise<PRD> {
 export async function deleteSearch(id: string): Promise<void> {
   await fetchJSON(`/searches/${id}`, { method: "DELETE" });
 }
+
+/** Minimal Validate flow: idea -> 3 keywords -> OR query -> pipeline. Returns SearchResult. */
+export async function validateMinimal(idea: string): Promise<SearchResult> {
+  return fetchJSON<SearchResult>("/validate-minimal", {
+    method: "POST",
+    body: JSON.stringify({ idea }),
+  });
+}

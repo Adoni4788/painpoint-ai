@@ -18,7 +18,7 @@ interface SidebarProps {
 const NAV_ITEMS = [
   {
     label: "Discover",
-    href: "/",
+    href: "/discover",
     icon: <MdSearch size={16} />,
   },
   {
@@ -70,7 +70,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
       <aside className="w-14 bg-[#f2f2f2] dark:bg-[#171717] flex flex-col shrink-0">
         <div className="flex flex-col gap-0.5 px-2 pt-3 pb-2">
           {NAV_ITEMS.map((item) => {
-            const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+            const isActive = item.href === "/discover" ? pathname === "/discover" : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
@@ -109,7 +109,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
       {/* Navigation Links */}
       <div className="flex flex-col gap-0.5 px-3 pt-3 pb-2">
         {NAV_ITEMS.map((item) => {
-          const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          const isActive = item.href === "/discover" ? pathname === "/discover" : pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}

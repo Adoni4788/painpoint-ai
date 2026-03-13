@@ -46,7 +46,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
 
   const handleSelectSearch = async (search: SearchResult) => {
     onSelectSearch?.(search);
-    router.push("/");
+    router.push("/discover");
   };
 
   return (

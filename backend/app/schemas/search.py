@@ -4,19 +4,38 @@ from uuid import UUID
 from typing import Optional
 
 
+class WorkspaceCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200)
+
+
+class WorkspaceUpdate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200)
+
+
+class WorkspaceResponse(BaseModel):
+    id: UUID
+    name: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
 class SearchCreate(BaseModel):
     query: str = Field(..., min_length=2, max_length=500)
     sources: list[str] = Field(default=["reddit", "hackernews", "amazon"])
+    workspace_id: Optional[UUID] = None
 
 
 class SearchResponse(BaseModel):
     id: UUID
+    workspace_id: Optional[UUID] = None
     query: str
     status: str
     sources: list[str]
     total_posts_fetched: int
     total_complaints_found: int
     total_relevant_complaints: int = 0
+    summary: Optional[str] = None
     created_at: datetime
     completed_at: Optional[datetime] = None
 

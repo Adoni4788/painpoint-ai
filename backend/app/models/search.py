@@ -6,19 +6,32 @@ from sqlalchemy.dialects.postgresql import UUID
 from ..core.database import Base
 
 
+class Workspace(Base):
+    __tablename__ = "workspaces"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    searches: Mapped[list["Search"]] = relationship(back_populates="workspace", cascade="save-update")
+
+
 class Search(Base):
     __tablename__ = "searches"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    workspace_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("workspaces.id"), nullable=True, index=True)
     query: Mapped[str] = mapped_column(String(500), nullable=False, index=True)
     status: Mapped[str] = mapped_column(String(50), default="pending")
     sources: Mapped[dict] = mapped_column(JSON, default=lambda: ["reddit", "hackernews", "amazon"])
     total_posts_fetched: Mapped[int] = mapped_column(Integer, default=0)
     total_complaints_found: Mapped[int] = mapped_column(Integer, default=0)
     total_relevant_complaints: Mapped[int] = mapped_column(Integer, default=0)
+    summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     completed_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
+    workspace: Mapped["Workspace | None"] = relationship(back_populates="searches")
     raw_posts: Mapped[list["RawPost"]] = relationship(back_populates="search", cascade="all, delete-orphan")
     clusters: Mapped[list["PainCluster"]] = relationship(back_populates="search", cascade="all, delete-orphan")
 

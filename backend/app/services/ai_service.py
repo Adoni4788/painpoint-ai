@@ -82,12 +82,15 @@ Return ONLY valid JSON. No markdown, no explanation."""
 
 
 async def detect_complaints_and_relevance(
-    query: str, texts: list[dict], niche_keywords: list[str] | None = None
+    query: str,
+    texts: list[dict],
+    niche_keywords: list[str] | None = None,
+    niche_description: str | None = None,
 ) -> list[dict]:
     """
     Combined pass: for each text, determine if it's a complaint AND whether
-    it's relevant to the search query. Uses expanded niche keywords for
-    more accurate relevance classification.
+    it's relevant to the search query. Uses expanded niche keywords and
+    niche_description for more accurate relevance classification.
 
     Returns list of dicts with: index, is_complaint, complaint_score,
     relevance (directly_relevant | somewhat_relevant | unrelated), relevance_score
@@ -99,6 +102,10 @@ async def detect_complaints_and_relevance(
     if niche_keywords:
         keyword_context = f"\nKey terms in this niche: {', '.join(niche_keywords[:15])}"
 
+    niche_context = ""
+    if niche_description:
+        niche_context = f"\nNiche context: {niche_description}"
+
     results = []
     batch_size = 15
 
@@ -108,7 +115,7 @@ async def detect_complaints_and_relevance(
             f"[{j}] {item['text'][:600]}" for j, item in enumerate(batch)
         )
 
-        prompt = f"""You are analyzing public posts for a user researching the niche: "{query}"{keyword_context}
+        prompt = f"""You are analyzing public posts for a user researching the niche: "{query}"{keyword_context}{niche_context}
 
 For EACH numbered text below, determine:
 1. Is it a complaint, frustration, pain point, or unmet need?
@@ -125,9 +132,17 @@ complaint is about something adjacent (e.g., a general marketing complaint when 
 is specifically about email marketing software).
 
 A post is "unrelated" if the complaint has nothing to do with {query} — even if it is
-a genuine complaint about something else entirely. Be STRICT here. A complaint about
-cars, jobs, politics, or unrelated software is "unrelated" even if it was found in
-the same search results.
+a genuine complaint about something else entirely. Be STRICT here.
+
+CRITICAL — Mark as "unrelated" if the post is about a DIFFERENT product category, even when
+it uses similar words (e.g., "search", "discovery"). Examples:
+- For niche "product discovery tool": A complaint about Gemini's web search is UNRELATED
+  (AI assistant, not product discovery software for PMs). A complaint about Titanium
+  mobile framework is UNRELATED (different product category entirely).
+- For niche "email marketing software": A complaint about Gmail search is UNRELATED
+  (email client, not marketing tool).
+- The post must be about the SAME category of product/service as "{query}". If it's
+  about AI assistants, mobile frameworks, unrelated SaaS, etc., mark it unrelated.
 
 Content types — classify each post as ONE of:
 - "firsthand_complaint": the author personally experienced the problem and is expressing frustration
@@ -197,6 +212,39 @@ Return ONLY a valid JSON array. No markdown, no explanation."""
                 })
 
     return results
+
+
+async def generate_search_summary(query: str, cluster_labels_and_summaries: list[dict]) -> str:
+    """
+    Generate a 2-3 sentence executive summary of the key insights from a search.
+    """
+    if not cluster_labels_and_summaries:
+        return ""
+
+    items = "\n".join(
+        f"- {c.get('label', 'Unknown')}: {c.get('summary', '')[:150]}"
+        for c in cluster_labels_and_summaries[:8]
+    )
+
+    prompt = f"""A user researched the niche "{query}" and found these pain point clusters:
+
+{items}
+
+Write a 2-3 sentence executive summary that captures the key insights. Focus on the most
+actionable opportunities and recurring themes. Be concise and specific to the niche.
+Do NOT use bullet points or headers. Return ONLY the summary text."""
+
+    try:
+        resp = await client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=300,
+        )
+        return resp.choices[0].message.content.strip()
+    except Exception as e:
+        logger.error(f"Search summary error: {e}")
+        return ""
 
 
 async def cluster_complaints(query: str, complaints: list[dict]) -> list[dict]:

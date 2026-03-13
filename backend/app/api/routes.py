@@ -7,8 +7,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from ..core.database import get_db
-from ..models.search import Search, RawPost, PainCluster, PRDDraft
+from ..models.search import Workspace, Search, RawPost, PainCluster, PRDDraft
 from ..schemas.search import (
+    WorkspaceCreate, WorkspaceUpdate, WorkspaceResponse,
     SearchCreate, SearchResponse, ClusterResponse,
     ClusterWithSearchResponse,
     PRDResponse, OpportunityReport, RawPostResponse,
@@ -18,6 +19,62 @@ from ..services.pipeline import run_search_pipeline, generate_prd_for_cluster
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
+# --- Workspaces ---
+
+@router.post("/workspaces", response_model=WorkspaceResponse)
+async def create_workspace(payload: WorkspaceCreate, db: AsyncSession = Depends(get_db)):
+    """Create a new workspace."""
+    workspace = Workspace(name=payload.name)
+    db.add(workspace)
+    await db.commit()
+    await db.refresh(workspace)
+    return workspace
+
+
+@router.get("/workspaces", response_model=list[WorkspaceResponse])
+async def list_workspaces(db: AsyncSession = Depends(get_db)):
+    """List all workspaces."""
+    result = await db.execute(select(Workspace).order_by(Workspace.created_at.desc()))
+    return result.scalars().all()
+
+
+@router.get("/workspaces/{workspace_id}", response_model=WorkspaceResponse)
+async def get_workspace(workspace_id: UUID, db: AsyncSession = Depends(get_db)):
+    """Get a workspace by ID."""
+    workspace = await db.get(Workspace, workspace_id)
+    if not workspace:
+        raise HTTPException(status_code=404, detail="Workspace not found")
+    return workspace
+
+
+@router.patch("/workspaces/{workspace_id}", response_model=WorkspaceResponse)
+async def update_workspace(workspace_id: UUID, payload: WorkspaceUpdate, db: AsyncSession = Depends(get_db)):
+    """Update a workspace name."""
+    workspace = await db.get(Workspace, workspace_id)
+    if not workspace:
+        raise HTTPException(status_code=404, detail="Workspace not found")
+    workspace.name = payload.name
+    await db.commit()
+    await db.refresh(workspace)
+    return workspace
+
+
+@router.delete("/workspaces/{workspace_id}")
+async def delete_workspace(workspace_id: UUID, db: AsyncSession = Depends(get_db)):
+    """Delete a workspace and unlink its searches."""
+    workspace = await db.get(Workspace, workspace_id)
+    if not workspace:
+        raise HTTPException(status_code=404, detail="Workspace not found")
+    # Unlink searches instead of cascading delete
+    for search in workspace.searches:
+        search.workspace_id = None
+    await db.delete(workspace)
+    await db.commit()
+    return {"status": "deleted"}
+
+
+# --- Searches ---
 
 @router.post("/searches", response_model=SearchResponse)
 async def create_search(
@@ -31,7 +88,7 @@ async def create_search(
     if not sources:
         sources = ["reddit", "hackernews", "amazon"]
 
-    search = Search(query=payload.query, sources=sources)
+    search = Search(query=payload.query, sources=sources, workspace_id=payload.workspace_id)
     db.add(search)
     await db.commit()
     await db.refresh(search)
@@ -57,11 +114,12 @@ async def _run_pipeline_with_session(search_id: UUID, query: str, sources: list[
 
 
 @router.get("/searches", response_model=list[SearchResponse])
-async def list_searches(db: AsyncSession = Depends(get_db)):
-    """List all searches, newest first."""
-    result = await db.execute(
-        select(Search).order_by(Search.created_at.desc()).limit(50)
-    )
+async def list_searches(workspace_id: UUID | None = None, db: AsyncSession = Depends(get_db)):
+    """List all searches, newest first. Optionally filter by workspace_id."""
+    q = select(Search).order_by(Search.created_at.desc()).limit(50)
+    if workspace_id is not None:
+        q = q.where(Search.workspace_id == workspace_id)
+    result = await db.execute(q)
     return result.scalars().all()
 
 
@@ -86,15 +144,18 @@ async def get_clusters(search_id: UUID, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/clusters", response_model=list[ClusterWithSearchResponse])
-async def list_all_clusters(db: AsyncSession = Depends(get_db)):
-    """Get all clusters across all completed searches, ranked by opportunity score."""
-    result = await db.execute(
+async def list_all_clusters(workspace_id: UUID | None = None, db: AsyncSession = Depends(get_db)):
+    """Get all clusters across all completed searches, ranked by opportunity score. Optionally filter by workspace."""
+    q = (
         select(PainCluster)
         .join(Search, PainCluster.search_id == Search.id)
         .where(Search.status == "completed")
         .order_by(PainCluster.opportunity_score.desc())
         .options(selectinload(PainCluster.search))
     )
+    if workspace_id is not None:
+        q = q.where(Search.workspace_id == workspace_id)
+    result = await db.execute(q)
     clusters = result.scalars().all()
     return [
         ClusterWithSearchResponse(

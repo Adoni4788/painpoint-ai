@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Cluster } from "@/lib/api";
 
 interface ClusterListProps {
@@ -8,7 +9,13 @@ interface ClusterListProps {
   onSelectCluster: (cluster: Cluster) => void;
 }
 
+const INITIAL_SHOW_COUNT = 5;
+
 export function ClusterList({ clusters, selectedClusterId, onSelectCluster }: ClusterListProps) {
+  const [showAll, setShowAll] = useState(false);
+  const displayed = showAll ? clusters : clusters.slice(0, INITIAL_SHOW_COUNT);
+  const hasMore = clusters.length > INITIAL_SHOW_COUNT;
+
   return (
     <div className="text-left min-w-0">
       <div className="mb-6">
@@ -19,7 +26,7 @@ export function ClusterList({ clusters, selectedClusterId, onSelectCluster }: Cl
       </div>
 
       <div className="grid gap-4 min-w-0">
-        {clusters.map((cluster, idx) => (
+        {displayed.map((cluster, idx) => (
           <ClusterCard
             key={cluster.id}
             cluster={cluster}
@@ -29,6 +36,17 @@ export function ClusterList({ clusters, selectedClusterId, onSelectCluster }: Cl
           />
         ))}
       </div>
+
+      {hasMore && (
+        <div className="mt-4 flex justify-center">
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+          >
+            {showAll ? "Show less" : `Show all ${clusters.length} clusters`}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

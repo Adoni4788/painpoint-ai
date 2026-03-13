@@ -1,3 +1,4 @@
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import DeclarativeBase
 from .config import get_settings
@@ -27,3 +28,9 @@ async def get_db() -> AsyncSession:
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # Migration: add summary column to searches if missing
+        await conn.execute(text("ALTER TABLE searches ADD COLUMN IF NOT EXISTS summary TEXT"))
+        # Migration: add workspace_id to searches if missing (run after workspaces table exists)
+        await conn.execute(text(
+            "ALTER TABLE searches ADD COLUMN IF NOT EXISTS workspace_id UUID REFERENCES workspaces(id)"
+        ))

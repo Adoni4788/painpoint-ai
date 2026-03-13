@@ -70,6 +70,7 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
         expansion = await ai_service.expand_query(query)
         subtopics = expansion.get("subtopics", [query])
         niche_keywords = expansion.get("keywords", [])
+        niche_description = expansion.get("niche_description")
 
         logger.info(f"Expanded '{query}' into {len(subtopics)} subtopics: {subtopics}")
 
@@ -116,7 +117,10 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
 
         texts_for_analysis = [{"text": p.text} for p in all_posts]
         analysis_results = await ai_service.detect_complaints_and_relevance(
-            query, texts_for_analysis, niche_keywords=niche_keywords
+            query,
+            texts_for_analysis,
+            niche_keywords=niche_keywords,
+            niche_description=niche_description,
         )
 
         all_complaint_posts = []
@@ -269,6 +273,13 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
             for i in member_indices:
                 if i < len(relevant_complaints):
                     relevant_complaints[i]["record"].cluster_id = cluster.id
+
+        # --- EXECUTIVE SUMMARY ---
+        cluster_summaries = [
+            {"label": c.get("label", ""), "summary": c.get("summary", "")}
+            for c in cluster_data
+        ]
+        search.summary = await ai_service.generate_search_summary(query, cluster_summaries)
 
         search.status = "completed"
         search.completed_at = datetime.utcnow()

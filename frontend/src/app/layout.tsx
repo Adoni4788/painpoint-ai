@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -22,7 +23,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark:bg-black" suppressHydrationWarning>
       <body className={`${poppins.className} bg-white text-gray-900 dark:bg-black dark:text-gray-100 antialiased transition-colors`} suppressHydrationWarning>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+        <WorkspaceProvider>{children}</WorkspaceProvider>
+      </ThemeProvider>
       </body>
     </html>
   );

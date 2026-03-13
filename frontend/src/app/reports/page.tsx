@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { MdAssessment, MdFilterList, MdContentCopy, MdFileDownload, MdCompareArrows, MdClose, MdCheckBox, MdCheckBoxOutlineBlank, MdExpandMore } from "react-icons/md";
 import { AppShell } from "@/components/AppShell";
+import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { ClusterWithQuery, listAllClusters } from "@/lib/api";
 
 type SortField = "opportunity_score" | "frequency_score" | "emotion_score" | "urgency_score" | "relevance_score" | "created_at";
@@ -11,6 +12,7 @@ export default function ReportsPage() {
   const [clusters, setClusters] = useState<ClusterWithQuery[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { activeWorkspaceId } = useWorkspace();
 
   // Filters
   const [nicheFilter, setNicheFilter] = useState<string>("all");
@@ -25,14 +27,10 @@ export default function ReportsPage() {
   // Export
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    loadClusters();
-  }, []);
-
-  async function loadClusters() {
+  const loadClusters = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await listAllClusters();
+      const data = await listAllClusters(activeWorkspaceId ?? undefined);
       setClusters(data);
     } catch (e) {
       setError("Failed to load clusters");
@@ -40,7 +38,11 @@ export default function ReportsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [activeWorkspaceId]);
+
+  useEffect(() => {
+    loadClusters();
+  }, [loadClusters]);
 
   // Unique niches for filter dropdown
   const niches = useMemo(() => {

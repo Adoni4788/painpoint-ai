@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { SearchBar, SourceFilters } from "@/components/SearchBar";
+import { MdExpandMore, MdExpandLess } from "react-icons/md";
 import { AppShell } from "@/components/AppShell";
 import { ClusterList } from "@/components/ClusterList";
 import { ReportPanel } from "@/components/ReportPanel";
@@ -15,6 +16,8 @@ import {
   getOpportunityReport,
   createSearch,
 } from "@/lib/api";
+import { useWorkspace } from "@/contexts/WorkspaceContext";
+import { useRefreshSearches } from "@/contexts/RefreshSearchesContext";
 
 export default function Home() {
   const [activeSearch, setActiveSearch] = useState<SearchResult | null>(null);
@@ -22,6 +25,8 @@ export default function Home() {
   const [selectedReport, setSelectedReport] = useState<OpportunityReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [sources, setSources] = useState<string[]>(["reddit", "hackernews", "amazon"]);
+  const { activeWorkspaceId } = useWorkspace();
+  const refreshSearches = useRefreshSearches();
 
   const toggleSource = (id: string) => {
     setSources((prev) =>
@@ -56,8 +61,9 @@ export default function Home() {
     setClusters([]);
     setSelectedReport(null);
     try {
-      const search = await createSearch(query, sources);
+      const search = await createSearch(query, sources, activeWorkspaceId ?? undefined);
       setActiveSearch(search);
+      refreshSearches();
     } catch (e) {
       console.error("Search failed:", e);
     } finally {
@@ -111,6 +117,9 @@ export default function Home() {
 
       <div className="flex-1 flex overflow-hidden min-w-0 w-full">
         <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-6 transition-all">
+          {activeSearch?.status === "completed" && activeSearch.summary && (
+            <KeyInsightsSummary summary={activeSearch.summary} />
+          )}
           {clusters.length > 0 ? (
             <ClusterList
               clusters={clusters}
@@ -140,6 +149,26 @@ export default function Home() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+function KeyInsightsSummary({ summary }: { summary: string }) {
+  const [expanded, setExpanded] = useState(true);
+  return (
+    <div className="mb-6 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-[#171717]/50 overflow-hidden">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-100/50 dark:hover:bg-white/5 transition-colors"
+      >
+        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Key insights</span>
+        {expanded ? <MdExpandLess size={20} className="text-gray-500" /> : <MdExpandMore size={20} className="text-gray-500" />}
+      </button>
+      {expanded && (
+        <p className="px-4 pb-4 pt-0 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+          {summary}
+        </p>
+      )}
+    </div>
   );
 }
 

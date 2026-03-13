@@ -6,6 +6,8 @@ import { MdChevronLeft, MdMenu, MdLightMode, MdDarkMode, MdPerson } from "react-
 import { Sidebar } from "@/components/Sidebar";
 import { Logo } from "@/components/Logo";
 import { useTheme } from "@/components/ThemeProvider";
+import { useWorkspace } from "@/contexts/WorkspaceContext";
+import { RefreshSearchesProvider } from "@/contexts/RefreshSearchesContext";
 import { SearchResult, listSearches } from "@/lib/api";
 
 interface AppShellProps {
@@ -21,12 +23,13 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [backendUnavailable, setBackendUnavailable] = useState(false);
   const { theme, toggle: toggleTheme } = useTheme();
+  const { activeWorkspaceId } = useWorkspace();
   const router = useRouter();
 
   const loadSearches = useCallback(async () => {
     try {
       setBackendUnavailable(false);
-      const data = await listSearches();
+      const data = await listSearches(activeWorkspaceId ?? undefined);
       setSearches(data);
     } catch (e) {
       console.error("Failed to load searches:", e);
@@ -35,7 +38,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
         setBackendUnavailable(true);
       }
     }
-  }, []);
+  }, [activeWorkspaceId]);
 
   useEffect(() => {
     loadSearches();
@@ -131,7 +134,9 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
         />
 
         <main className="flex-1 flex flex-col overflow-hidden min-w-0 bg-white dark:bg-black rounded-tl-2xl border-t border-l border-gray-200 dark:border-white/10">
-          {children}
+          <RefreshSearchesProvider refresh={loadSearches}>
+            {children}
+          </RefreshSearchesProvider>
         </main>
       </div>
     </div>

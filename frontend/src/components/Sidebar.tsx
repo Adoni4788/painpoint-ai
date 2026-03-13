@@ -1,9 +1,11 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MdSearch, MdAssessment, MdSettings } from "react-icons/md";
+import { MdSearch, MdAssessment, MdSettings, MdFolder, MdAdd, MdExpandMore, MdEdit, MdDelete } from "react-icons/md";
 import { SearchResult } from "@/lib/api";
+import { useWorkspace } from "@/contexts/WorkspaceContext";
 
 interface SidebarProps {
   searches: SearchResult[];
@@ -33,6 +35,35 @@ const NAV_ITEMS = [
 
 export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSearch }: SidebarProps) {
   const pathname = usePathname();
+  const {
+    workspaces,
+    activeWorkspaceId,
+    setActiveWorkspaceId,
+    createWorkspace,
+    updateWorkspace,
+    deleteWorkspace,
+  } = useWorkspace();
+  const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
+  const [createMode, setCreateMode] = useState(false);
+  const [newWorkspaceName, setNewWorkspaceName] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setWorkspaceMenuOpen(false);
+        setCreateMode(false);
+        setEditingId(null);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const activeWorkspace = workspaces.find((w) => w.id === activeWorkspaceId);
+  const displayName = activeWorkspace?.name ?? "All workspaces";
 
   if (!isOpen) {
     return (
@@ -96,6 +127,153 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             </Link>
           );
         })}
+      </div>
+
+      {/* Workspace Selector */}
+      <div className="px-3 py-2" ref={menuRef}>
+        <div className="px-2 mb-1.5">
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Workspace</p>
+        </div>
+        <div className="relative">
+          <button
+            onClick={() => setWorkspaceMenuOpen(!workspaceMenuOpen)}
+            className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100/80 dark:bg-[#262626] rounded-lg hover:bg-gray-200/80 dark:hover:bg-[#333333] transition-colors border border-transparent"
+          >
+            <span className="flex items-center gap-2 truncate">
+              <MdFolder size={16} className="text-gray-500 shrink-0" />
+              <span className="truncate">{displayName}</span>
+            </span>
+            <MdExpandMore size={16} className={`shrink-0 transition-transform ${workspaceMenuOpen ? "rotate-180" : ""}`} />
+          </button>
+          {workspaceMenuOpen && (
+            <div className="absolute top-full left-0 right-0 mt-1 py-1 bg-white dark:bg-[#171717] rounded-lg shadow-lg border border-gray-200 dark:border-white/10 z-20 max-h-56 overflow-y-auto">
+              <button
+                onClick={() => {
+                  setActiveWorkspaceId(null);
+                  setWorkspaceMenuOpen(false);
+                }}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-[#262626] ${!activeWorkspaceId ? "bg-gray-100 dark:bg-[#262626] font-medium" : ""}`}
+              >
+                <MdFolder size={14} className="text-gray-400" />
+                All workspaces
+              </button>
+              {workspaces.map((w) =>
+                editingId === w.id ? (
+                  <div key={w.id} className="flex items-center gap-1 px-2 py-1.5" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          updateWorkspace(w.id, editName).then(() => setEditingId(null));
+                        }
+                        if (e.key === "Escape") setEditingId(null);
+                      }}
+                      className="flex-1 px-2 py-1 text-sm border border-gray-200 dark:border-white/10 rounded bg-white dark:bg-[#262626] focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-white/20"
+                      autoFocus
+                    />
+                    <button
+                      onClick={() => updateWorkspace(w.id, editName).then(() => setEditingId(null))}
+                      className="p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-950/40 rounded"
+                      title="Save"
+                      aria-label="Save rename"
+                    >
+                      <MdEdit size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    key={w.id}
+                    className={`group flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-[#262626] ${activeWorkspaceId === w.id ? "bg-gray-100 dark:bg-[#262626] font-medium" : ""}`}
+                  >
+                    <button
+                      onClick={() => {
+                        setActiveWorkspaceId(w.id);
+                        setWorkspaceMenuOpen(false);
+                      }}
+                      className="flex-1 flex items-center gap-2 truncate text-left"
+                    >
+                      <MdFolder size={14} className="text-gray-400 shrink-0" />
+                      <span className="truncate">{w.name}</span>
+                    </button>
+                    <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingId(w.id);
+                          setEditName(w.name);
+                        }}
+                        className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded"
+                        title="Rename"
+                      >
+                        <MdEdit size={14} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm(`Delete "${w.name}"? Searches will be unassigned.`)) {
+                            deleteWorkspace(w.id);
+                          }
+                        }}
+                        className="p-1 text-gray-400 hover:text-red-500 rounded"
+                        title="Delete"
+                      >
+                        <MdDelete size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )
+              )}
+              {createMode ? (
+                <div className="flex items-center gap-1 px-2 py-1.5 border-t border-gray-100 dark:border-white/10" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    value={newWorkspaceName}
+                    onChange={(e) => setNewWorkspaceName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && newWorkspaceName.trim()) {
+                        createWorkspace(newWorkspaceName.trim()).then(() => {
+                          setCreateMode(false);
+                          setNewWorkspaceName("");
+                        });
+                      }
+                      if (e.key === "Escape") {
+                        setCreateMode(false);
+                        setNewWorkspaceName("");
+                      }
+                    }}
+                    placeholder="Workspace name"
+                    className="flex-1 px-2 py-1 text-sm border border-gray-200 dark:border-white/10 rounded bg-white dark:bg-[#262626] focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-white/20"
+                    autoFocus
+                  />
+                  <button
+                    onClick={() => {
+                      if (newWorkspaceName.trim()) {
+                        createWorkspace(newWorkspaceName.trim()).then(() => {
+                          setCreateMode(false);
+                          setNewWorkspaceName("");
+                        });
+                      }
+                    }}
+                    disabled={!newWorkspaceName.trim()}
+                    className="p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-950/40 rounded disabled:opacity-50"
+                    title="Create workspace"
+                    aria-label="Create workspace"
+                  >
+                    <MdAdd size={18} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setCreateMode(true)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 dark:hover:bg-[#262626] border-t border-gray-100 dark:border-white/10"
+                >
+                  <MdAdd size={16} />
+                  New workspace
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Divider */}

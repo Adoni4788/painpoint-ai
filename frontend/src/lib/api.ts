@@ -1,13 +1,21 @@
 const API_BASE = "/api";
 
+export interface Workspace {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
 export interface SearchResult {
   id: string;
+  workspace_id: string | null;
   query: string;
   status: string;
   sources: string[];
   total_posts_fetched: number;
   total_complaints_found: number;
   total_relevant_complaints: number;
+  summary: string | null;
   created_at: string;
   completed_at: string | null;
 }
@@ -117,15 +125,38 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
   throw new Error("Request failed after retries");
 }
 
-export async function createSearch(query: string, sources: string[]): Promise<SearchResult> {
+export async function createSearch(query: string, sources: string[], workspaceId?: string | null): Promise<SearchResult> {
   return fetchJSON<SearchResult>("/searches", {
     method: "POST",
-    body: JSON.stringify({ query, sources }),
+    body: JSON.stringify({ query, sources, workspace_id: workspaceId ?? null }),
   });
 }
 
-export async function listSearches(): Promise<SearchResult[]> {
-  return fetchJSON<SearchResult[]>("/searches");
+export async function listSearches(workspaceId?: string | null): Promise<SearchResult[]> {
+  const params = workspaceId ? `?workspace_id=${workspaceId}` : "";
+  return fetchJSON<SearchResult[]>(`/searches${params}`);
+}
+
+export async function listWorkspaces(): Promise<Workspace[]> {
+  return fetchJSON<Workspace[]>("/workspaces");
+}
+
+export async function createWorkspace(name: string): Promise<Workspace> {
+  return fetchJSON<Workspace>("/workspaces", {
+    method: "POST",
+    body: JSON.stringify({ name }),
+  });
+}
+
+export async function updateWorkspace(id: string, name: string): Promise<Workspace> {
+  return fetchJSON<Workspace>(`/workspaces/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ name }),
+  });
+}
+
+export async function deleteWorkspace(id: string): Promise<void> {
+  return fetchJSON(`/workspaces/${id}`, { method: "DELETE" });
 }
 
 export async function getSearch(id: string): Promise<SearchResult> {
@@ -136,8 +167,9 @@ export async function getClusters(searchId: string): Promise<Cluster[]> {
   return fetchJSON<Cluster[]>(`/searches/${searchId}/clusters`);
 }
 
-export async function listAllClusters(): Promise<ClusterWithQuery[]> {
-  return fetchJSON<ClusterWithQuery[]>("/clusters");
+export async function listAllClusters(workspaceId?: string | null): Promise<ClusterWithQuery[]> {
+  const params = workspaceId ? `?workspace_id=${workspaceId}` : "";
+  return fetchJSON<ClusterWithQuery[]>(`/clusters${params}`);
 }
 
 export async function getCluster(clusterId: string): Promise<Cluster> {

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MdSearch, MdAssessment, MdSettings, MdFolder, MdAdd, MdExpandMore, MdEdit, MdDelete } from "react-icons/md";
+import { MdSearch, MdAssessment, MdSettings, MdFolder, MdAdd, MdExpandMore, MdEdit, MdDelete, MdLightbulb } from "react-icons/md";
 import { SearchResult } from "@/lib/api";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 
@@ -20,6 +20,11 @@ const NAV_ITEMS = [
     label: "Discover",
     href: "/discover",
     icon: <MdSearch size={16} />,
+  },
+  {
+    label: "Validate",
+    href: "/validate",
+    icon: <MdLightbulb size={16} />,
   },
   {
     label: "Reports",

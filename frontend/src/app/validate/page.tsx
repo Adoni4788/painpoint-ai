@@ -2,17 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Logo } from "@/components/Logo";
-import { useTheme } from "@/components/ThemeProvider";
-import { MdArrowForward, MdLightMode, MdDarkMode } from "react-icons/md";
+import { AppShell } from "@/components/AppShell";
 import { validateMinimal } from "@/lib/api";
 
 export default function ValidatePage() {
   const [idea, setIdea] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { theme, toggle: toggleTheme } = useTheme();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,43 +27,16 @@ export default function ValidatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] dark:bg-[#0a0a0a] text-white flex flex-col">
-      <header className="flex items-center justify-between px-6 py-5 max-w-6xl mx-auto w-full">
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <Logo size={32} color="#4d7c7a" className="logo-carved group-hover:opacity-90 transition-opacity" />
-          <span className="text-xl font-semibold tracking-tight text-carved">
-            <span style={{ color: "#4d7c7a" }}>Gap</span>
-            <span style={{ color: "#d97706" }}>Lens</span>
-          </span>
-        </Link>
-        <nav className="flex items-center gap-4">
-          <Link href="/discover" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">
-            Discover
-          </Link>
-          <Link href="/reports" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">
-            Reports
-          </Link>
-          <button
-            onClick={toggleTheme}
-            className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
-            title={theme === "dark" ? "Light mode" : "Dark mode"}
-          >
-            {theme === "dark" ? <MdLightMode size={18} /> : <MdDarkMode size={18} />}
-          </button>
-          <Link
-            href="/discover"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white text-black rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            Discover
-            <MdArrowForward size={16} />
-          </Link>
-        </nav>
-      </header>
-
-      <main className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-xl">
-          <h1 className="text-2xl font-bold mb-2">Validate your idea</h1>
-          <p className="text-gray-400 mb-8">
+    <AppShell>
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="max-w-xl">
+          <div className="w-14 h-14 bg-gray-50/80 dark:bg-white/5 rounded-xl flex items-center justify-center mb-4">
+            <svg className="w-7 h-7 text-amber-500 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Validate your idea</h2>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">
             Describe your product idea in a sentence. GapLens will search for real pain points to validate demand.
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -75,23 +44,23 @@ export default function ValidatePage() {
               value={idea}
               onChange={(e) => setIdea(e.target.value)}
               placeholder="e.g. A tool that helps email marketers improve deliverability and avoid spam folders"
-              className="w-full h-32 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 resize-none"
+              className="w-full h-32 px-4 py-3 rounded-xl bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 resize-none"
               disabled={loading}
               maxLength={500}
             />
             {error && (
-              <p className="text-sm text-red-400">{error}</p>
+              <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
             )}
             <button
               type="submit"
               disabled={loading || !idea.trim()}
-              className="w-full py-3 px-6 rounded-xl font-semibold bg-white text-black hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-6 py-3 rounded-xl font-semibold bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? "Searching for pain points…" : "Validate idea"}
             </button>
           </form>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

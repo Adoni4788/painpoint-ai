@@ -118,6 +118,10 @@ class NewSourceCollector(BaseCollector):
 
 Register it in `backend/app/services/pipeline.py` in the `COLLECTOR_MAP`.
 
+## Experiment Scripts
+
+See [scripts/README.md](scripts/README.md) for running cost-per-search experiments (50 test searches, log parsing).
+
 ## Deployment
 
 See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for deploying to Render (backend, frontend, PostgreSQL).

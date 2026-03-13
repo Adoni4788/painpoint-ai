@@ -52,11 +52,14 @@ export default function LandingPage() {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </div>
 
-      {/* Header - fixed, becomes transparent when scrolled */}
+      {/* Header - fixed, content scrolls behind it; gradient blends into video */}
       <header
-        className={`fixed top-0 left-0 right-0 z-20 transition-colors duration-300 ${
-          headerTransparent ? "bg-transparent" : "bg-[#0a0a0a]"
-        }`}
+        className="fixed top-0 left-0 right-0 z-[100] transition-all duration-300"
+        style={{
+          background: headerTransparent
+            ? "transparent"
+            : "linear-gradient(to bottom, #0a0a0a 0%, rgba(10,10,10,0.85) 50%, rgba(10,10,10,0.2) 85%, transparent 100%)",
+        }}
       >
         <div className="flex items-center justify-between px-6 py-5 max-w-6xl mx-auto">
         <Link href="/" className="flex items-center gap-2.5 group">
@@ -97,8 +100,8 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero - pt accounts for fixed header */}
-      <section className="relative z-10 px-6 pt-24 pb-24 max-w-4xl mx-auto text-center">
+      {/* Hero - pt accounts for fixed header; z-[5] so content scrolls behind header */}
+      <section className="relative z-[5] px-6 pt-24 pb-24 max-w-4xl mx-auto text-center">
         <p className="text-sm font-medium text-blue-400/90 uppercase tracking-widest mb-6 text-shadow-readable">
           Opportunity Discovery Engine
         </p>
@@ -118,7 +121,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="relative z-10 px-6 py-20 max-w-5xl mx-auto">
+      <section className="relative z-[5] px-6 py-20 max-w-5xl mx-auto">
         <h2 className="text-2xl font-bold text-center mb-16 text-shadow-readable">How it works</h2>
         <div className="grid md:grid-cols-3 gap-12">
           <div className="text-center">
@@ -154,7 +157,7 @@ export default function LandingPage() {
       </section>
 
       {/* Data sources */}
-      <section className="relative z-10 px-6 py-20 max-w-5xl mx-auto">
+      <section className="relative z-[5] px-6 py-20 max-w-5xl mx-auto">
         <h2 className="text-2xl font-bold text-center mb-4 text-shadow-readable">Mine real conversations</h2>
         <p className="text-gray-400 text-center mb-12 max-w-xl mx-auto text-shadow-readable">
           Unlike tools that only scan Reddit, GapLens pulls from five public sources—giving you a fuller picture of what people actually complain about.
@@ -188,7 +191,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/5 py-8">
+      <footer className="relative z-[5] border-t border-white/5 py-8">
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Logo size={20} color="#4d7c7a" className="logo-carved" />

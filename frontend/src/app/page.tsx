@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { useTheme } from "@/components/ThemeProvider";
@@ -17,6 +18,15 @@ const SOURCES = [
 
 export default function LandingPage() {
   const { theme, toggle: toggleTheme } = useTheme();
+  const [headerTransparent, setHeaderTransparent] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setHeaderTransparent(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] dark:bg-[#0a0a0a] text-white overflow-x-hidden">
@@ -42,8 +52,13 @@ export default function LandingPage() {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </div>
 
-      {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-6 py-5 max-w-6xl mx-auto">
+      {/* Header - fixed, becomes transparent when scrolled */}
+      <header
+        className={`fixed top-0 left-0 right-0 z-20 transition-colors duration-300 ${
+          headerTransparent ? "bg-transparent" : "bg-[#0a0a0a]"
+        }`}
+      >
+        <div className="flex items-center justify-between px-6 py-5 max-w-6xl mx-auto">
         <Link href="/" className="flex items-center gap-2.5 group">
           <Logo size={32} className="text-white group-hover:opacity-90 transition-opacity" />
           <span className="text-xl font-semibold tracking-tight">GapLens</span>
@@ -76,18 +91,16 @@ export default function LandingPage() {
             <MdArrowForward size={16} />
           </Link>
         </nav>
+        </div>
       </header>
 
-      {/* Hero */}
-      <section className="relative z-10 px-6 pt-16 pb-24 max-w-4xl mx-auto text-center">
+      {/* Hero - pt accounts for fixed header */}
+      <section className="relative z-10 px-6 pt-24 pb-24 max-w-4xl mx-auto text-center">
         <p className="text-sm font-medium text-blue-400/90 uppercase tracking-widest mb-6 text-shadow-readable">
           Opportunity Discovery Engine
         </p>
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6 text-shadow-readable">
-          Turn public complaints into{" "}
-          <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-            product opportunities
-          </span>
+          Turn public complaints into product opportunities
         </h1>
         <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed text-shadow-readable">
           Search any niche, product, or market. GapLens mines Reddit, Hacker News, Amazon, and more—finding real pain points people are begging to solve.

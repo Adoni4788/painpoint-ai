@@ -76,7 +76,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
         </div>
       )}
       {/* Full-width header */}
-      <header className="bg-[#f2f2f2] dark:bg-[#171717] px-4 py-4 shrink-0 z-10">
+      <header className="bg-[#e9edf5] dark:bg-[#171717] px-4 py-4 shrink-0 z-10">
         <div className="flex items-center gap-3">
           {/* Left: logo + toggle — matches sidebar width (w-64) */}
           <div className="w-64 flex items-center gap-2 shrink-0">
@@ -127,7 +127,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
       </header>
 
       {/* Body: sidebar + content */}
-      <div className="flex flex-1 overflow-hidden bg-[#f2f2f2] dark:bg-[#171717]">
+      <div className="flex flex-1 overflow-hidden bg-[#e9edf5] dark:bg-[#171717]">
         <Sidebar
           searches={searches}
           activeSearchId={activeSearchId ?? null}

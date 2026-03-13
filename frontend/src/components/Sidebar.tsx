@@ -72,7 +72,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
 
   if (!isOpen) {
     return (
-      <aside className="w-14 bg-[#f2f2f2] dark:bg-[#171717] flex flex-col shrink-0">
+      <aside className="w-14 bg-[#e9edf5] dark:bg-[#171717] flex flex-col shrink-0">
         <div className="flex flex-col gap-0.5 px-2 pt-3 pb-2">
           {NAV_ITEMS.map((item) => {
             const isActive = item.href === "/discover" ? pathname === "/discover" : pathname.startsWith(item.href);
@@ -110,7 +110,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   }
 
   return (
-    <aside className="w-64 bg-[#f2f2f2] dark:bg-[#171717] flex flex-col shrink-0">
+    <aside className="w-64 bg-[#e9edf5] dark:bg-[#171717] flex flex-col shrink-0">
       {/* Navigation Links */}
       <div className="flex flex-col gap-0.5 px-3 pt-3 pb-2">
         {NAV_ITEMS.map((item) => {

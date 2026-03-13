@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef, useEffect } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { useTheme } from "@/components/ThemeProvider";
@@ -16,54 +15,22 @@ const SOURCES = [
 
 export default function LandingPage() {
   const { theme, toggle: toggleTheme } = useTheme();
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const updateVideoFromScroll = () => {
-      const scrollY = window.scrollY;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = maxScroll > 0 ? Math.min(scrollY / maxScroll, 1) : 0;
-      if (video.duration && isFinite(video.duration)) {
-        video.currentTime = progress * video.duration;
-      }
-    };
-
-    const handleScroll = () => {
-      requestAnimationFrame(updateVideoFromScroll);
-    };
-
-    const handleLoadedMetadata = () => {
-      updateVideoFromScroll();
-    };
-
-    video.addEventListener("loadedmetadata", handleLoadedMetadata);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    if (video.readyState >= 1) handleLoadedMetadata();
-
-    return () => {
-      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] dark:bg-[#0a0a0a] text-white overflow-x-hidden">
-      {/* Hero background video - scroll-driven: video progresses as you scroll */}
+      {/* Hero background video - plays continuously in the background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <video
-          ref={videoRef}
+          autoPlay
+          loop
           muted
           playsInline
-          preload="auto"
           className="absolute inset-0 w-full h-full object-cover opacity-60"
           style={{ objectPosition: "center center" }}
         >
           <source src="/video/Futuristic_Data_Device_Looping_Video.mp4" type="video/mp4" />
         </video>
-        {/* Lighter overlay so video is more visible, text still readable */}
+        {/* Dark overlay so text stays readable */}
         <div className="absolute inset-0 bg-[#0a0a0a]/50" />
       </div>
       {/* Subtle gradient mesh (layered above video) */}

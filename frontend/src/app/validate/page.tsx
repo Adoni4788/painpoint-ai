@@ -6,6 +6,7 @@ import { MdCasino } from "react-icons/md";
 import { AppShell } from "@/components/AppShell";
 import { validateMinimal } from "@/lib/api";
 import { captureEvent } from "@/lib/analytics";
+import posthog from "@/lib/posthog";
 
 const ROTATING_TIPS = [
   "Be specific – include who it's for and the problem it solves.",
@@ -92,6 +93,9 @@ export default function ValidatePage() {
     try {
       const search = await validateMinimal(idea.trim());
       captureEvent("validate_redirect_to_discover", { search_id: search.id });
+      if (typeof (posthog as { flush?: () => Promise<void> }).flush === "function") {
+        await (posthog as { flush: () => Promise<void> }).flush();
+      }
       setSubmitted(true);
       await new Promise((r) => setTimeout(r, 400));
       router.push(`/discover?search_id=${search.id}`);

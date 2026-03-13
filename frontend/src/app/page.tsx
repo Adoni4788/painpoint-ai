@@ -18,10 +18,25 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] dark:bg-[#0a0a0a] text-white overflow-x-hidden">
-      {/* Subtle gradient mesh background */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(59,130,246,0.15),transparent)]" />
-        <div className="absolute top-1/2 -right-1/4 w-1/2 h-1/2 bg-[radial-gradient(ellipse_60%_40%_at_80%_50%,rgba(34,197,94,0.08),transparent)]" />
+      {/* Hero background video - place your video at /hero-video.mp4 in the public folder */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-40"
+          style={{ objectPosition: "center center" }}
+        >
+          <source src="/video/Futuristic_Data_Device_Looping_Video.mp4" type="video/mp4" />
+        </video>
+        {/* Dark overlay so text stays readable */}
+        <div className="absolute inset-0 bg-[#0a0a0a]/70" />
+      </div>
+      {/* Subtle gradient mesh (layered above video) */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(59,130,246,0.12),transparent)]" />
+        <div className="absolute top-1/2 -right-1/4 w-1/2 h-1/2 bg-[radial-gradient(ellipse_60%_40%_at_80%_50%,rgba(34,197,94,0.06),transparent)]" />
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </div>
 

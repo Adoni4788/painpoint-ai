@@ -54,7 +54,7 @@ export default function ValidatePage() {
             <button
               type="submit"
               disabled={loading || !idea.trim()}
-              className="px-6 py-3 rounded-xl font-semibold bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full py-3 rounded-xl font-semibold bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? "Searching for pain points…" : "Validate idea"}
             </button>

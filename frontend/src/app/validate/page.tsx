@@ -1,15 +1,82 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { MdCasino } from "react-icons/md";
 import { AppShell } from "@/components/AppShell";
 import { validateMinimal } from "@/lib/api";
+
+const ROTATING_TIPS = [
+  "Be specific – include who it's for and the problem it solves.",
+  "We scan Reddit, HN, Amazon, G2, and YouTube for real complaints.",
+  "More details = better keyword extraction = more relevant results.",
+  "Think about the pain point, not just the solution.",
+  "Try mentioning your target user, like 'for freelancers' or 'for remote teams'.",
+  "The best ideas focus on a clear frustration people actually talk about.",
+  "Not sure where to start? Click the dice for a random idea!",
+];
+
+const IDEA_ROULETTE = [
+  "A tool that helps remote teams run better daily standups.",
+  "An app that reminds you to drink water throughout the day.",
+  "A platform connecting local farmers directly with restaurants.",
+  "A browser extension that summarizes YouTube videos into key points.",
+  "A service for freelancers that automatically sends payment reminders.",
+  "An app that tracks your mood and suggests activities to improve it.",
+  "A tool that scans your inbox and unsubscribes you from spam.",
+  "A platform for trading used textbooks among college students.",
+  "A meal planner that adapts to your dietary restrictions.",
+  "A habit tracker that turns your goals into a game with rewards.",
+  "A password manager that works seamlessly across all devices.",
+  "A meditation app that lets you practice with a friend remotely.",
+  "A service that finds the cheapest gas stations near you.",
+  "A tool that checks your writing for tone and clarity.",
+  "A platform for discovering local volunteer opportunities.",
+];
+
+function ValidateHeaderContent({
+  onRandomIdea,
+}: {
+  onRandomIdea: () => void;
+}) {
+  const [tipIndex, setTipIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTipIndex((i) => (i + 1) % ROTATING_TIPS.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="flex items-center justify-center gap-3 w-full max-w-2xl">
+      <button
+        type="button"
+        onClick={onRandomIdea}
+        className="shrink-0 p-2 rounded-lg text-amber-500 dark:text-amber-400 hover:bg-amber-500/10 dark:hover:bg-amber-500/10 transition-colors"
+        title="Random idea"
+        aria-label="Get a random idea"
+      >
+        <MdCasino size={22} />
+      </button>
+      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 min-w-0">
+        {ROTATING_TIPS[tipIndex]}
+      </p>
+    </div>
+  );
+}
 
 export default function ValidatePage() {
   const [idea, setIdea] = useState("");
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  const handleRandomIdea = () => {
+    const random = IDEA_ROULETTE[Math.floor(Math.random() * IDEA_ROULETTE.length)];
+    setIdea(random);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +85,8 @@ export default function ValidatePage() {
     setError(null);
     try {
       const search = await validateMinimal(idea.trim());
+      setSubmitted(true);
+      await new Promise((r) => setTimeout(r, 400));
       router.push(`/discover?search_id=${search.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Validation failed");
@@ -27,7 +96,11 @@ export default function ValidatePage() {
   };
 
   return (
-    <AppShell>
+    <AppShell
+      headerCenter={
+        <ValidateHeaderContent onRandomIdea={handleRandomIdea} />
+      }
+    >
       <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center min-h-0">
         <div className="max-w-xl w-full mx-auto">
           <div className="w-14 h-14 bg-gray-50/80 dark:bg-white/5 rounded-xl flex items-center justify-center mb-4">
@@ -54,9 +127,13 @@ export default function ValidatePage() {
             <button
               type="submit"
               disabled={loading || !idea.trim()}
-              className="w-full py-3 rounded-xl font-semibold bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className={`w-full py-3 rounded-xl font-semibold transition-all ${
+                submitted
+                  ? "bg-green-600 dark:bg-green-500 text-white"
+                  : "bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              }`}
             >
-              {loading ? "Searching for pain points…" : "Validate idea"}
+              {submitted ? "✓ Validating…" : loading ? "Searching for pain points…" : "Validate idea"}
             </button>
           </form>
         </div>

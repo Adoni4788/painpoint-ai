@@ -117,8 +117,10 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
               )}
             </button>
             <button
+              onClick={() => router.push("/settings")}
               className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#262626] flex items-center justify-center ring-2 ring-gray-400/40 hover:ring-amber-500 dark:hover:ring-amber-500 transition-all"
-              title="Profile"
+              title="Settings"
+              aria-label="Open settings"
             >
               <MdPerson size={16} className="text-gray-500 dark:text-gray-400" />
             </button>

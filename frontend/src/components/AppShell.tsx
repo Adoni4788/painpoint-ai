@@ -108,7 +108,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 </p>
                 {/* Curved element at bottom-left: canvas color slopes up into tab */}
                 <svg
-                  className="absolute bottom-0 -left-6 w-6 h-6 pointer-events-none"
+                  className="absolute bottom-0 -left-4 w-4 h-4 pointer-events-none"
                   viewBox="0 0 24 24"
                   aria-hidden
                 >
@@ -130,7 +130,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 </svg>
                 {/* Curved element at bottom-right (outside): white slopes up into tab */}
                 <svg
-                  className="absolute bottom-0 -right-6 w-6 h-6 pointer-events-none"
+                  className="absolute bottom-0 -right-4 w-4 h-4 pointer-events-none"
                   viewBox="0 0 24 24"
                   aria-hidden
                 >

@@ -37,18 +37,9 @@ const IDEA_ROULETTE = [
   "A platform for discovering local volunteer opportunities.",
 ];
 
-function ValidateHeaderContent({ onRandomIdea }: { onRandomIdea: () => void }) {
+function ValidateHeaderContent() {
   return (
-    <div className="flex items-center justify-center gap-3 w-full max-w-2xl">
-      <button
-        type="button"
-        onClick={onRandomIdea}
-        className="shrink-0 p-2 rounded-lg text-amber-500 dark:text-amber-400 hover:bg-amber-500/10 dark:hover:bg-amber-500/10 transition-colors"
-        title="Random idea"
-        aria-label="Get a random idea"
-      >
-        <MdCasino size={22} />
-      </button>
+    <div className="flex items-center justify-center w-full max-w-2xl">
       <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 min-w-0">
         <RotatingTips tips={VALIDATE_TIPS} />
       </p>
@@ -119,9 +110,7 @@ export default function ValidatePage() {
 
   return (
     <AppShell
-      headerCenter={
-        <ValidateHeaderContent onRandomIdea={handleRandomIdea} />
-      }
+      headerCenter={<ValidateHeaderContent />}
     >
       <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center min-h-0">
         <div className="max-w-xl w-full mx-auto">
@@ -133,16 +122,27 @@ export default function ValidatePage() {
             <label htmlFor="validate-idea-input" className="sr-only">
               Describe your product idea
             </label>
-            <textarea
-              id="validate-idea-input"
-              value={idea}
-              onChange={(e) => setIdea(e.target.value)}
-              placeholder="e.g. A tool that helps email marketers improve deliverability and avoid spam folders"
-              className="w-full h-32 px-4 py-3 rounded-xl bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 resize-none"
-              disabled={loading}
-              maxLength={500}
-              aria-label="Describe your product idea in a sentence"
-            />
+            <div className="relative rounded-xl bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-500/50">
+              <textarea
+                id="validate-idea-input"
+                value={idea}
+                onChange={(e) => setIdea(e.target.value)}
+                placeholder="e.g. A tool that helps email marketers improve deliverability and avoid spam folders"
+                className="w-full h-32 px-4 pt-3 pb-10 rounded-xl bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none resize-none"
+                disabled={loading}
+                maxLength={500}
+                aria-label="Describe your product idea in a sentence"
+              />
+              <button
+                type="button"
+                onClick={handleRandomIdea}
+                className="absolute bottom-2 left-2 p-1.5 rounded-lg text-amber-500 dark:text-amber-400 hover:bg-amber-500/10 dark:hover:bg-amber-500/10 transition-colors"
+                title="Random idea"
+                aria-label="Get a random idea"
+              >
+                <MdCasino size={20} />
+              </button>
+            </div>
             {error && (
               <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
             )}

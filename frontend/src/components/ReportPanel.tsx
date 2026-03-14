@@ -38,41 +38,44 @@ export function ReportPanel({ report, onClose, onReportUpdate, analyticsSource }
   return (
     <div className="flex flex-col h-full min-w-0 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-white/10 bg-white dark:bg-black min-w-0">
-        <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{cluster.label}</h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Opportunity Report</p>
+      <div className="bg-white dark:bg-black min-w-0">
+        <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 text-left">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{cluster.label}</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Opportunity Report</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded shrink-0"
+            title="Close report"
+            aria-label="Close report"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
-        <button
-          onClick={onClose}
-          className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded shrink-0"
-          title="Close report"
-          aria-label="Close report"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <div className="mx-4 sm:mx-6 border-b border-gray-100 dark:border-white/10" />
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-gray-200 dark:border-white/10 px-6">
+      {/* Tabs — left-aligned */}
+      <div className="flex justify-start gap-6 px-4 sm:px-6 text-left">
         <button
           onClick={() => setActiveTab("report")}
-          className={`py-3 px-1 text-sm font-medium border-b-2 transition-colors mr-6 ${
+          className={`py-3 px-0 text-sm font-medium border-b-2 transition-colors -mb-px ${
             activeTab === "report"
-              ? "border-gray-900 text-gray-900 dark:text-gray-100"
-              : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+              ? "border-gray-600 text-gray-600 dark:border-gray-400 dark:text-gray-400"
+              : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
           }`}
         >
           Report
         </button>
         <button
           onClick={() => prd ? setActiveTab("prd") : handleGeneratePRD()}
-          className={`py-3 px-1 text-sm font-medium border-b-2 transition-colors ${
+          className={`py-3 px-0 text-sm font-medium border-b-2 transition-colors -mb-px ${
             activeTab === "prd"
-              ? "border-gray-900 text-gray-900 dark:text-gray-100"
-              : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+              ? "border-gray-600 text-gray-600 dark:border-gray-400 dark:text-gray-400"
+              : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
           }`}
         >
           PRD Draft
@@ -123,15 +126,15 @@ function ReportContent({
   return (
     <div className="space-y-6 min-w-0">
       {/* Opportunity Score */}
-      <div className="bg-gray-50 dark:bg-[#262626] rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-white/10 min-w-0">
+      <div className="rounded-xl p-4 sm:p-5 min-w-0 bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-white/10">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="shrink-0">
             <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Opportunity Score</p>
             <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{cluster.opportunity_score.toFixed(1)} <span className="text-lg font-normal text-gray-500 dark:text-gray-500">/ 10</span></p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center min-w-0">
-            <ScoreCell label="Relevance" value={cluster.relevance_score} />
-            <ScoreCell label="Frequency" value={cluster.frequency_score} />
+            <ScoreCell label="Relev." value={cluster.relevance_score} title="Relevance" />
+            <ScoreCell label="Frequ." value={cluster.frequency_score} title="Frequency" />
             <ScoreCell label="Emotion" value={cluster.emotion_score} />
             <ScoreCell label="Urgency" value={cluster.urgency_score} />
             <AuthenticityBadge value={cluster.avg_authenticity} variant="cell" />
@@ -324,9 +327,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function ScoreCell({ label, value }: { label: string; value: number }) {
+function ScoreCell({ label, value, title }: { label: string; value: number; title?: string }) {
   return (
-    <div>
+    <div title={title}>
       <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{label}</p>
       <p className="text-lg font-bold text-gray-900 dark:text-gray-200">{value.toFixed(1)}</p>
     </div>

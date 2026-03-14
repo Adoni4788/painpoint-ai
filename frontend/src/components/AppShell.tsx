@@ -31,7 +31,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
   const PAGE_LABELS: Record<string, string> = {
     "/discover": "Discover",
     "/validate": "Validate",
-    "/reports": "Reports",
+    "/reports": "Opportunity Reports",
     "/settings": "Settings",
     "/test-sentry": "Test Sentry",
   };
@@ -105,6 +105,17 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 <p className="text-sm font-medium text-gray-800 dark:text-gray-200 text-left">
                   {currentPageLabel}
                 </p>
+                {/* Curved element at bottom-right to blend tab into content */}
+                <svg
+                  className="absolute bottom-0 right-0 w-6 h-6 pointer-events-none"
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                >
+                  <path
+                    d="M 0 24 L 24 24 L 24 0 A 24 24 0 0 1 0 24 Z"
+                    className="fill-white dark:fill-black"
+                  />
+                </svg>
               </div>
               {pathname === "/discover" && onNewSearch && (
                 <button

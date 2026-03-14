@@ -204,17 +204,20 @@ export default function DiscoverPage() {
           {activeSearch && <StatusBanner search={activeSearch} />}
 
           <div className="flex-1 flex overflow-hidden min-w-0 w-full">
-            {/* Left panel: header fixed, content scrolls behind it */}
+            {/* Left panel: header fixed, content scrolls behind it. Full width when no report, constrained when report open. */}
             <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
               {/* Header — fixed, not scrollable */}
               {(activeSearch?.status === "completed" && (activeSearch.summary || clusters.length > 0)) && (
-                <div className="shrink-0 px-6 pt-4 pb-2 bg-white dark:bg-black min-w-0">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{activeSearch?.query}</h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Key insights</p>
+                <div className="shrink-0 bg-white dark:bg-black min-w-0">
+                  <div className="px-6 pt-4 pb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{activeSearch?.query}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Key insights</p>
+                  </div>
+                  <div className="border-b border-gray-200 dark:border-white/10" />
                 </div>
               )}
-              {/* Scrollable content — scrolls behind header */}
-              <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-6 transition-all scrollbar-dark">
+              {/* Scrollable content — full width when no report, padded when report open */}
+              <div className={`flex-1 min-w-0 overflow-y-auto overflow-x-hidden py-6 transition-all scrollbar-dark ${selectedReport ? "px-6" : "px-6"}`}>
               {activeSearch?.status === "completed" && activeSearch.summary && (
                 <KeyInsightsSummary summary={activeSearch.summary} />
               )}

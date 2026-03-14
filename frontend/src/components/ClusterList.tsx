@@ -69,10 +69,10 @@ function ClusterCard({
   return (
     <button
       onClick={onClick}
-      className={`w-full min-w-0 text-left p-5 rounded-xl border-2 transition-all hover:shadow-md overflow-hidden ${
+      className={`w-full min-w-0 text-left p-5 rounded-xl border transition-all hover:shadow-md overflow-hidden ${
         isSelected
-          ? "border-gray-900 bg-gray-50 shadow-md dark:bg-[#262626] dark:border-white/30"
-          : "border-gray-200 bg-white hover:border-gray-300 dark:border-white/10 dark:bg-[#262626] dark:hover:border-white/20"
+          ? "border-2 border-[#4d7c7a] bg-gray-50 shadow-md dark:bg-[#262626] dark:border-white/30"
+          : "border border-gray-200 bg-white hover:border-gray-300 dark:border-white/10 dark:bg-[#262626] dark:hover:border-white/20"
       }`}
     >
       <div className="flex items-start justify-between gap-4">

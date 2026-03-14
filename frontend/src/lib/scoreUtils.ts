@@ -3,19 +3,19 @@
  * Used by ClusterList, ReportPanel, and reports page.
  */
 
-/** Opportunity score thresholds: >=7 green, >=5 yellow, else gray */
+/** Opportunity score — toast-like: subtle bg + border that highlights */
 export function getScoreColorClasses(score: number, options?: { includeBorder?: boolean }): string {
   const border = options?.includeBorder !== false;
   if (score >= 7) {
-    const base = "text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-950/40";
-    return border ? `${base} border-green-200 dark:border-green-800` : base;
+    const base = "text-emerald-700 bg-emerald-50/80 dark:text-emerald-300 dark:bg-emerald-950/30";
+    return border ? `${base} border border-emerald-200 dark:border-emerald-700/50` : base;
   }
   if (score >= 5) {
-    const base = "text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-950/40";
-    return border ? `${base} border-yellow-200 dark:border-yellow-800` : base;
+    const base = "text-amber-700 bg-amber-50/80 dark:text-amber-300 dark:bg-amber-950/30";
+    return border ? `${base} border border-amber-200 dark:border-amber-700/50` : base;
   }
-  const base = "text-gray-600 bg-gray-50 dark:text-gray-400 dark:bg-[#262626]";
-  return border ? `${base} border-gray-200 dark:border-white/10` : base;
+  const base = "text-slate-600 bg-slate-50/80 dark:text-slate-300 dark:bg-slate-800/30";
+  return border ? `${base} border border-slate-200 dark:border-slate-600/50` : base;
 }
 
 /** Compact score color for inline text (no bg/border) */

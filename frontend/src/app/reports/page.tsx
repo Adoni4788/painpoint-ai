@@ -236,10 +236,10 @@ export default function ReportsPage() {
     <AppShell headerCenter={<ReportsHeaderContent />}>
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Toolbar */}
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-black shrink-0">
+        <div className="py-4 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-black shrink-0">
+          <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Opportunity Reports</h1>
               {filtered.length === 0 ? (
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                   No reports match your filters.{" "}
@@ -353,6 +353,7 @@ export default function ReportsPage() {
               </button>
             )}
           </div>
+          </div>
         </div>
 
         {/* Cluster Table */}
@@ -369,7 +370,7 @@ export default function ReportsPage() {
             </div>
           ) : (
             <table className="w-full text-sm table-fixed">
-              <thead className="sticky top-0 bg-gray-50 dark:bg-black z-10">
+              <thead className="sticky top-0 bg-white dark:bg-black z-10">
                 <tr className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-white/10">
                   <th className="pl-6 pr-2 py-3 text-left w-8"><span className="sr-only">Select</span></th>
                   <th className="px-2 py-3 text-left w-8">#</th>

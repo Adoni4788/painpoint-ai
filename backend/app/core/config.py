@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     g2_api_key: str = ""
     youtube_api_key: str = ""
     cors_origins: str = "http://localhost:3000"
+    sentry_dsn: str = ""
+    rate_limit: str = "10/minute"
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 

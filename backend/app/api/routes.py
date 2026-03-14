@@ -1,12 +1,14 @@
 import asyncio
 import logging
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from ..core.database import get_db
+from ..core.config import get_settings
+from ..core.limiter import limiter
 from ..models.search import Workspace, Search, RawPost, PainCluster, PRDDraft
 from ..schemas.search import (
     WorkspaceCreate, WorkspaceUpdate, WorkspaceResponse,
@@ -78,7 +80,9 @@ async def delete_workspace(workspace_id: UUID, db: AsyncSession = Depends(get_db
 # --- Validate (Experiment 2) ---
 
 @router.post("/validate-minimal", response_model=SearchResponse)
+@limiter.limit(get_settings().rate_limit)
 async def validate_minimal(
+    request: Request,
     payload: ValidateMinimalRequest,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
@@ -228,7 +232,12 @@ async def get_opportunity_report(cluster_id: UUID, db: AsyncSession = Depends(ge
 
 
 @router.post("/clusters/{cluster_id}/prd", response_model=PRDResponse)
-async def create_prd(cluster_id: UUID, db: AsyncSession = Depends(get_db)):
+@limiter.limit(get_settings().rate_limit)
+async def create_prd(
+    request: Request,
+    cluster_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
     """Generate a PRD draft for a pain point cluster."""
     try:
         prd = await generate_prd_for_cluster(cluster_id, db)

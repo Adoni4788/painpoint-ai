@@ -102,8 +102,11 @@ export default function LandingPage() {
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6 text-shadow-readable">
           Find problems worth solving – before you build.
         </h1>
-        <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed text-shadow-readable">
-          GapLens mines Reddit, Hacker News, Amazon, and G2 for real complaints people are begging to solve. Stop guessing. Start building what&apos;s actually needed.
+        <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-4 leading-relaxed text-shadow-readable">
+          GapLens mines Reddit, Hacker News, Amazon, G2, and YouTube for real complaints—with authenticity scoring so you see evidence, not hype. Stop guessing. Start building what&apos;s actually needed.
+        </p>
+        <p className="text-sm text-gray-500 max-w-xl mx-auto mb-10 text-shadow-readable">
+          Got an idea from IdeaBrowser or elsewhere? Validate it here.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
           <Link
@@ -165,7 +168,7 @@ export default function LandingPage() {
       <section className="relative z-[5] px-6 py-20 max-w-5xl mx-auto">
         <h2 className="text-2xl font-bold text-center mb-4 text-shadow-readable">Mine real conversations</h2>
         <p className="text-gray-400 text-center mb-12 max-w-xl mx-auto text-shadow-readable">
-          Unlike tools that only scan Reddit, GapLens pulls from five public sources—giving you a fuller picture of what people actually complain about.
+          Unlike tools that only scan Reddit, GapLens pulls from five public sources. We score authenticity—so you see real user frustration, not promotional content.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           {SOURCES.map((s) => (

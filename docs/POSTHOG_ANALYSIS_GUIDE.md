@@ -10,7 +10,7 @@ Use this guide to analyze your PostHog data and inform product decisions.
 |-------|------|----------------|
 | `validate_page_view` | User lands on Validate page | — |
 | `validate_idea_submitted` | User submits an idea | `idea_length` |
-| `pricing_feedback` | User answers pricing modal | `response` (yes/no/maybe/skipped), `search_id`, `idea_length` |
+| `pricing_feedback` | User answers pricing modal | `response` (yes/no/maybe/skipped), `search_id`, `idea_length`, `price_question` (e.g. 15_month_or_99_year) |
 | `validate_redirect_to_discover` | User clicks Yes/No/Maybe and goes to Discover | `search_id` |
 | `validate_results_viewed` | User arrives at Discover with a search_id (from Validate) | `search_id` |
 | `discover_page_view` | User lands on Discover page | — |

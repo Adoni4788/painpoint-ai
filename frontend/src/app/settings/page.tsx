@@ -28,36 +28,45 @@ export default function SettingsPage() {
           <section className="rounded-xl bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-xl border border-gray-200/60 dark:border-white/10 shadow-xl shadow-black/10 dark:shadow-black/10 p-5 mb-6">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Appearance</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Choose light or dark mode.</p>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => theme !== "light" && toggleTheme()}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+            <fieldset className="flex gap-2 border-0 p-0 m-0">
+              <legend className="sr-only">Theme</legend>
+              <label
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition-colors ${
                   theme === "light"
                     ? "bg-gray-900 text-white dark:bg-white dark:text-black"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#262626] dark:text-gray-400 dark:hover:bg-[#333333]"
                 }`}
-                aria-pressed={theme === "light"}
-                aria-label="Light mode"
               >
-                <MdLightMode size={18} />
+                <input
+                  type="radio"
+                  name="theme"
+                  value="light"
+                  checked={theme === "light"}
+                  onChange={() => theme !== "light" && toggleTheme()}
+                  className="sr-only"
+                />
+                <MdLightMode size={18} aria-hidden />
                 Light
-              </button>
-              <button
-                type="button"
-                onClick={() => theme !== "dark" && toggleTheme()}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              </label>
+              <label
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition-colors ${
                   theme === "dark"
                     ? "bg-gray-900 text-white dark:bg-white dark:text-black"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#262626] dark:text-gray-400 dark:hover:bg-[#333333]"
                 }`}
-                aria-pressed={theme === "dark"}
-                aria-label="Dark mode"
               >
-                <MdDarkMode size={18} />
+                <input
+                  type="radio"
+                  name="theme"
+                  value="dark"
+                  checked={theme === "dark"}
+                  onChange={() => theme !== "dark" && toggleTheme()}
+                  className="sr-only"
+                />
+                <MdDarkMode size={18} aria-hidden />
                 Dark
-              </button>
-            </div>
+              </label>
+            </fieldset>
           </section>
 
           {/* Default workspace */}

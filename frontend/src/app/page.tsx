@@ -99,6 +99,7 @@ export default function LandingPage() {
 
       {/* Hero - pt accounts for fixed header; z-[5] so content scrolls behind header */}
       <section id="main-content" className="relative z-[5] px-6 pt-24 pb-24 max-w-4xl mx-auto text-center">
+        <p className="text-sm text-gray-400 mb-3 text-shadow-readable">Idea validation engine</p>
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6 text-shadow-readable">
           Find problems worth solving – before you build.
         </h1>

@@ -50,26 +50,39 @@
   background: #525252;
 }
 
-/* Scrollbar for sidebar — matches sidebar background */
+/* Scrollbar for sidebar — hidden until sidebar is hovered */
 .scrollbar-sidebar::-webkit-scrollbar {
   width: 10px;
 }
 .scrollbar-sidebar::-webkit-scrollbar-track {
-  background: #e9edf5;
+  background: transparent;
 }
 .scrollbar-sidebar::-webkit-scrollbar-thumb {
-  background: #c5cad6;
+  background: transparent;
   border-radius: 5px;
+  transition: background 0.2s ease;
 }
 .scrollbar-sidebar::-webkit-scrollbar-thumb:hover {
+  background: transparent;
+}
+.scrollbar-sidebar::-webkit-scrollbar-track {
+  transition: background 0.2s ease;
+}
+.sidebar-aside:hover .scrollbar-sidebar::-webkit-scrollbar-track {
+  background: #e9edf5;
+}
+.sidebar-aside:hover .scrollbar-sidebar::-webkit-scrollbar-thumb {
+  background: #c5cad6;
+}
+.sidebar-aside:hover .scrollbar-sidebar::-webkit-scrollbar-thumb:hover {
   background: #a8aebd;
 }
-.dark .scrollbar-sidebar::-webkit-scrollbar-track {
+.dark .sidebar-aside:hover .scrollbar-sidebar::-webkit-scrollbar-track {
   background: #171717;
 }
-.dark .scrollbar-sidebar::-webkit-scrollbar-thumb {
+.dark .sidebar-aside:hover .scrollbar-sidebar::-webkit-scrollbar-thumb {
   background: #404040;
 }
-.dark .scrollbar-sidebar::-webkit-scrollbar-thumb:hover {
+.dark .sidebar-aside:hover .scrollbar-sidebar::-webkit-scrollbar-thumb:hover {
   background: #525252;
 }

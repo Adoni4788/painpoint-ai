@@ -130,15 +130,17 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   }
 
   return (
-    <aside className="w-64 bg-[#e9edf5] dark:bg-[#171717] flex flex-col shrink-0">
+    <aside className="sidebar-aside w-60 bg-[#e9edf5] dark:bg-[#171717] flex flex-col shrink-0">
       {/* Sidebar header: logo, name, collapse */}
       <div className="shrink-0 flex flex-col">
         <div className="flex items-center gap-2 px-3 py-4">
-          <Logo size={28} color={theme === "dark" ? "#ffffff" : "#4d7c7a"} className="logo-app shrink-0" />
-          <span className="text-lg font-semibold tracking-tight truncate">
-            <span style={{ color: theme === "dark" ? "#ffffff" : "#4d7c7a" }}>Gap</span>
-            <span style={{ color: theme === "dark" ? "#ffffff" : "#d97706" }}>Lens</span>
-          </span>
+          <div className="flex items-center gap-2 opacity-85">
+            <Logo size={22} color={theme === "dark" ? "#ffffff" : "#4d7c7a"} className="logo-app shrink-0" />
+            <span className="text-lg font-semibold tracking-tight truncate">
+              <span style={{ color: theme === "dark" ? "#ffffff" : "#4d7c7a" }}>Gap</span>
+              <span style={{ color: theme === "dark" ? "#ffffff" : "#d97706" }}>Lens</span>
+            </span>
+          </div>
           <button
             onClick={onToggle}
             className="ml-auto p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-200/60 dark:hover:bg-[#262626] transition-colors"
@@ -346,7 +348,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-medium truncate mr-2">{s.query}</span>
+                    <span className="text-[13px] font-medium truncate mr-2">{s.query}</span>
                     <StatusDot status={s.status} />
                   </div>
                   <div className="flex items-center gap-2 mt-1 text-xs text-gray-400 dark:text-gray-500">

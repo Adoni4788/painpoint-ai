@@ -97,16 +97,27 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
         />
 
         {/* bg matches canvas so rounded-tr-2xl corner on content div shows the correct color */}
-        <main id="main-content" className="flex-1 flex flex-col overflow-hidden min-w-0 bg-[#e9edf5] dark:bg-[#171717] rounded-2xl border-t border-l border-gray-200 dark:border-white/10">
+        <main id="main-content" className="flex-1 flex flex-col overflow-hidden min-w-0 bg-[#e9edf5] dark:bg-[#171717] rounded-2xl rounded-t-none rounded-bl-xl border-t border-l border-t-[#e9edf5] dark:border-t-[#171717] border-l-[#e9edf5] dark:border-l-[#171717] mr-2 mb-2">
           {/* Tab bar */}
-          <div className="shrink-0 flex items-end gap-1 pl-0 pr-4 pt-3 pb-0 bg-[#e9edf5] dark:bg-[#171717]">
+          <div className="shrink-0 flex items-end gap-1 pl-0 pr-4 pt-2.5 pb-0 bg-[#e9edf5] dark:bg-[#171717]">
             {/* Tab + plus button — vertically aligned */}
             <div className="flex items-center gap-1 -mb-px">
-              <div className="-ml-px pl-6 pr-8 py-3 rounded-t-xl bg-white dark:bg-black border-x border-t border-gray-200 dark:border-white/10 relative z-10">
+              <div className="-ml-px pl-6 pr-8 py-2.5 rounded-t-xl bg-white dark:bg-black border-x border-t border-gray-200 dark:border-white/10 relative z-10">
                 <p className="text-sm font-medium text-gray-800 dark:text-gray-200 text-left">
                   {currentPageLabel}
                 </p>
-                {/* Curved element at bottom-right to blend tab into content */}
+                {/* Curved element at bottom-left: canvas color slopes up into tab */}
+                <svg
+                  className="absolute bottom-0 -left-6 w-6 h-6 pointer-events-none"
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                >
+                  <path
+                    d="M 24 24 L 0 24 L 0 0 A 24 24 0 0 0 24 24 Z"
+                    className="fill-[#e9edf5] dark:fill-[#171717]"
+                  />
+                </svg>
+                {/* Curved element at bottom-right (inside): blends tab into content area below */}
                 <svg
                   className="absolute bottom-0 right-0 w-6 h-6 pointer-events-none"
                   viewBox="0 0 24 24"
@@ -114,6 +125,17 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 >
                   <path
                     d="M 0 24 L 24 24 L 24 0 A 24 24 0 0 1 0 24 Z"
+                    className="fill-white dark:fill-black"
+                  />
+                </svg>
+                {/* Curved element at bottom-right (outside): white slopes up into tab */}
+                <svg
+                  className="absolute bottom-0 -right-6 w-6 h-6 pointer-events-none"
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                >
+                  <path
+                    d="M 24 24 L 0 24 L 0 0 A 24 24 0 0 0 24 24 Z"
                     className="fill-white dark:fill-black"
                   />
                 </svg>
@@ -129,10 +151,10 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 </button>
               )}
             </div>
-            <div className="flex-1 flex items-center justify-center min-w-0 pb-2">
+            <div className="flex-1 flex items-center justify-center min-w-0 pb-1.5">
               {headerCenter}
             </div>
-            <div className="shrink-0 flex items-center gap-2 pb-2">
+            <div className="shrink-0 flex items-center gap-2 pb-1.5">
               {headerRight}
               <button
                 onClick={toggleTheme}
@@ -155,7 +177,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
               </button>
             </div>
           </div>
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-black border-t border-r border-gray-200 dark:border-white/10 rounded-tr-2xl rounded-br-2xl">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-black border-t border-r border-gray-200 dark:border-white/10 rounded-tr-xl rounded-br-2xl">
             <RefreshSearchesProvider refresh={loadSearches}>
               {children}
             </RefreshSearchesProvider>

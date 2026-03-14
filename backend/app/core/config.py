@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000"
     sentry_dsn: str = ""
     rate_limit: str = "10/minute"
+    debug: bool = False  # When True, 500 responses include the actual error
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 

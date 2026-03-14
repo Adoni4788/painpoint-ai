@@ -169,59 +169,85 @@ export default function DiscoverPage() {
     }
   };
 
+  const handleNewSearch = () => {
+    setActiveSearch(null);
+    setClusters([]);
+    setSelectedReport(null);
+  };
+
   return (
     <AppShell
       activeSearchId={activeSearch?.id}
       onSelectSearch={handleSelectSearch}
-      headerCenter={
-        <div className="w-full max-w-lg">
-          <SearchBar onSearch={handleSearch} loading={loading} />
-        </div>
-      }
+      onNewSearch={handleNewSearch}
+      pageLabel={activeSearch ? "Recent Search" : undefined}
     >
-      {/* Top bar: sources dropdown in main content area, left-aligned with main content */}
-      <div className="flex items-center justify-start gap-4 px-6 pt-4 pb-3 shrink-0 border-b border-gray-200/60 dark:border-white/5">
-        <SourceFilters sources={sources} onToggle={toggleSource} />
-      </div>
+      {!activeSearch ? (
+        /* Empty state: source bar + hero + search bar */
+        <>
+          <div className="shrink-0 flex items-center justify-start gap-4 px-6 pt-4 pb-3 border-b border-gray-200/60 dark:border-white/5">
+            <SourceFilters sources={sources} onToggle={toggleSource} />
+          </div>
+          <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center min-h-0">
+            <div className="max-w-xl w-full mx-auto">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Discover Pain Points</h2>
+              <p className="text-gray-500 dark:text-gray-400 mb-6">
+                Enter a keyword, niche, competitor, or product category to find real frustrations people are sharing online.
+              </p>
+              <SearchBar onSearch={handleSearch} loading={loading} />
+            </div>
+          </div>
+        </>
+      ) : (
+        /* Results state (recent search): no search bar, just banner + results */
+        <>
+          {activeSearch && <StatusBanner search={activeSearch} />}
 
-      {activeSearch && (
-        <StatusBanner search={activeSearch} />
-      )}
-
-      <div className="flex-1 flex overflow-hidden min-w-0 w-full">
-        <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-6 transition-all">
-          {activeSearch?.status === "completed" && activeSearch.summary && (
-            <KeyInsightsSummary summary={activeSearch.summary} />
-          )}
-          {clusters.length > 0 ? (
-            <ClusterList
-              clusters={clusters}
-              selectedClusterId={selectedReport?.cluster.id ?? null}
-              onSelectCluster={handleSelectCluster}
-            />
-          ) : activeSearch?.status === "completed" && clusters.length === 0 ? (
-            <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
-              <div className="text-center">
-                <p className="text-lg font-medium">No pain points found</p>
-                <p className="text-sm mt-1">Try a different keyword or broaden your search</p>
+          <div className="flex-1 flex overflow-hidden min-w-0 w-full">
+            {/* Left panel: header fixed, content scrolls behind it */}
+            <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
+              {/* Header — fixed, not scrollable */}
+              {(activeSearch?.status === "completed" && (activeSearch.summary || clusters.length > 0)) && (
+                <div className="shrink-0 px-6 pt-4 pb-2 bg-white dark:bg-black min-w-0">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{activeSearch?.query}</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Key insights</p>
+                </div>
+              )}
+              {/* Scrollable content — scrolls behind header */}
+              <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-6 transition-all scrollbar-dark">
+              {activeSearch?.status === "completed" && activeSearch.summary && (
+                <KeyInsightsSummary summary={activeSearch.summary} />
+              )}
+              {clusters.length > 0 ? (
+                <ClusterList
+                  clusters={clusters}
+                  selectedClusterId={selectedReport?.cluster.id ?? null}
+                  onSelectCluster={handleSelectCluster}
+                />
+              ) : activeSearch?.status === "completed" && clusters.length === 0 ? (
+                <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
+                  <div className="text-center">
+                    <p className="text-lg font-medium">No pain points found</p>
+                    <p className="text-sm mt-1">Try a different keyword or broaden your search</p>
+                  </div>
+                </div>
+              ) : null}
               </div>
             </div>
-          ) : !activeSearch ? (
-            <EmptyState />
-          ) : null}
-        </div>
 
-        {selectedReport && (
-          <div className="flex-1 min-w-0 border-l border-gray-200 dark:border-white/10 overflow-y-auto overflow-x-hidden bg-white dark:bg-black">
-            <ReportPanel
-              report={selectedReport}
-              onClose={() => setSelectedReport(null)}
-              onReportUpdate={setSelectedReport}
-              analyticsSource={analyticsSource}
-            />
+            {selectedReport && (
+              <div className="flex-1 min-w-0 border-l border-gray-200 dark:border-white/10 overflow-y-auto overflow-x-hidden bg-white dark:bg-black scrollbar-dark">
+                <ReportPanel
+                  report={selectedReport}
+                  onClose={() => setSelectedReport(null)}
+                  onReportUpdate={setSelectedReport}
+                  analyticsSource={analyticsSource}
+                />
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      )}
     </AppShell>
   );
 }
@@ -234,7 +260,7 @@ function KeyInsightsSummary({ summary }: { summary: string }) {
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-100/50 dark:hover:bg-white/5 transition-colors"
       >
-        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Key insights</span>
+        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Summary</span>
         {expanded ? <MdExpandLess size={20} className="text-gray-500" /> : <MdExpandMore size={20} className="text-gray-500" />}
       </button>
       {expanded && (
@@ -246,20 +272,3 @@ function KeyInsightsSummary({ summary }: { summary: string }) {
   );
 }
 
-function EmptyState() {
-  return (
-    <div className="flex items-center justify-center h-full">
-      <div className="text-center max-w-md">
-        <div className="w-16 h-16 bg-gray-100 dark:bg-[#262626] rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Discover Pain Points</h2>
-        <p className="text-gray-500 dark:text-gray-400">
-          Enter a keyword, niche, competitor, or product category to find real frustrations people are sharing online.
-        </p>
-      </div>
-    </div>
-  );
-}

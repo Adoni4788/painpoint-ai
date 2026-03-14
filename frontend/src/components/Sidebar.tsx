@@ -3,9 +3,11 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MdSearch, MdAssessment, MdSettings, MdFolder, MdAdd, MdExpandMore, MdEdit, MdDelete, MdLightbulb } from "react-icons/md";
+import { MdSearch, MdAssessment, MdSettings, MdFolder, MdAdd, MdExpandMore, MdEdit, MdDelete, MdLightbulb, MdChevronLeft, MdMenu } from "react-icons/md";
 import { SearchResult } from "@/lib/api";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
+import { useTheme } from "@/components/ThemeProvider";
+import { Logo } from "@/components/Logo";
 
 interface SidebarProps {
   searches: SearchResult[];
@@ -40,6 +42,7 @@ const NAV_ITEMS = [
 
 export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSearch }: SidebarProps) {
   const pathname = usePathname();
+  const { theme } = useTheme();
   const {
     workspaces,
     activeWorkspaceId,
@@ -73,9 +76,26 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   if (!isOpen) {
     return (
       <aside className="w-14 bg-[#e9edf5] dark:bg-[#171717] flex flex-col shrink-0">
+        <div className="shrink-0 flex flex-col">
+          <div className="flex flex-col items-center gap-2 px-2 pt-4 pb-3">
+          <Logo size={24} color={theme === "dark" ? "#ffffff" : "#4d7c7a"} className="logo-app shrink-0" />
+          <button
+            onClick={onToggle}
+            className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-200/60 dark:hover:bg-[#262626] transition-colors"
+            title="Expand sidebar"
+            aria-label="Expand sidebar"
+          >
+            <MdMenu size={16} />
+          </button>
+          </div>
+          <div className="mx-2 border-b border-gray-200/60 dark:border-white/10" />
+        </div>
         <div className="flex flex-col gap-0.5 px-2 pt-3 pb-2">
           {NAV_ITEMS.map((item) => {
-            const isActive = item.href === "/discover" ? pathname === "/discover" : pathname.startsWith(item.href);
+            const isActive =
+              item.href === "/discover"
+                ? pathname === "/discover" && !activeSearchId
+                : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
@@ -111,10 +131,32 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
 
   return (
     <aside className="w-64 bg-[#e9edf5] dark:bg-[#171717] flex flex-col shrink-0">
+      {/* Sidebar header: logo, name, collapse */}
+      <div className="shrink-0 flex flex-col">
+        <div className="flex items-center gap-2 px-3 py-4">
+          <Logo size={28} color={theme === "dark" ? "#ffffff" : "#4d7c7a"} className="logo-app shrink-0" />
+          <span className="text-lg font-semibold tracking-tight truncate">
+            <span style={{ color: theme === "dark" ? "#ffffff" : "#4d7c7a" }}>Gap</span>
+            <span style={{ color: theme === "dark" ? "#ffffff" : "#d97706" }}>Lens</span>
+          </span>
+          <button
+            onClick={onToggle}
+            className="ml-auto p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-200/60 dark:hover:bg-[#262626] transition-colors"
+            title="Collapse sidebar"
+            aria-label="Collapse sidebar"
+          >
+            <MdChevronLeft size={16} />
+          </button>
+        </div>
+        <div className="mx-3 border-b border-gray-200/60 dark:border-white/10" />
+      </div>
       {/* Navigation Links */}
       <div className="flex flex-col gap-0.5 px-3 pt-3 pb-2">
         {NAV_ITEMS.map((item) => {
-          const isActive = item.href === "/discover" ? pathname === "/discover" : pathname.startsWith(item.href);
+          const isActive =
+            item.href === "/discover"
+              ? pathname === "/discover" && !activeSearchId
+              : pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}
@@ -142,7 +184,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
         <div className="relative">
           <button
             onClick={() => setWorkspaceMenuOpen(!workspaceMenuOpen)}
-            className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100/80 dark:bg-[#262626] rounded-lg hover:bg-gray-200/80 dark:hover:bg-[#333333] transition-colors border border-transparent"
+            className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100/80 dark:bg-black rounded-lg hover:bg-gray-200/80 dark:hover:bg-[#262626] transition-colors border border-transparent"
           >
             <span className="flex items-center gap-2 truncate">
               <MdFolder size={16} className="text-gray-500 shrink-0" />
@@ -151,7 +193,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             <MdExpandMore size={16} className={`shrink-0 transition-transform ${workspaceMenuOpen ? "rotate-180" : ""}`} />
           </button>
           {workspaceMenuOpen && (
-            <div className="absolute top-full left-0 right-0 mt-1 py-1 bg-white dark:bg-[#171717] rounded-lg shadow-lg border border-gray-200 dark:border-white/10 z-20 max-h-56 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-1 py-1 bg-white dark:bg-black rounded-lg shadow-lg border border-gray-200 dark:border-white/10 z-20 max-h-56 overflow-y-auto">
               <button
                 onClick={() => {
                   setActiveWorkspaceId(null);
@@ -285,19 +327,19 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
       <div className="mx-4 border-t border-gray-100 dark:border-white/10" />
 
       {/* Recent Searches */}
-      <nav className="flex-1 overflow-y-auto py-3">
+      <nav className="flex-1 overflow-y-auto py-3 scrollbar-sidebar">
         <div className="px-3 mb-2">
           <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-2">Recent Searches</p>
         </div>
         {searches.length === 0 ? (
           <p className="px-5 py-3 text-sm text-gray-400 dark:text-gray-500">No searches yet</p>
         ) : (
-          <ul className="space-y-0">
+          <ul className="space-y-0 pl-4">
             {searches.map((s) => (
               <li key={s.id}>
                 <button
                   onClick={() => onSelectSearch(s)}
-                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors border-0 ring-0 rounded-l-full rounded-tr-xl rounded-br-xl -mr-4 pr-5 relative z-10 ${
+                  className={`w-full text-left pl-5 pr-4 py-2.5 text-sm transition-colors border-0 ring-0 -ml-4 rounded-r-full rounded-tl-xl rounded-bl-xl relative z-10 ${
                     s.id === activeSearchId
                       ? "bg-white text-gray-900 dark:bg-black dark:text-gray-100"
                       : "text-gray-700 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:bg-[#262626]"

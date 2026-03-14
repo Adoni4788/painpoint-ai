@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback, ReactNode } from "react";
-import { useRouter } from "next/navigation";
-import { MdChevronLeft, MdMenu, MdLightMode, MdDarkMode, MdPerson } from "react-icons/md";
+import { useRouter, usePathname } from "next/navigation";
+import { MdLightMode, MdDarkMode, MdPerson, MdAdd } from "react-icons/md";
 import { Sidebar } from "@/components/Sidebar";
-import { Logo } from "@/components/Logo";
 import { useTheme } from "@/components/ThemeProvider";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { RefreshSearchesProvider } from "@/contexts/RefreshSearchesContext";
@@ -16,15 +15,27 @@ interface AppShellProps {
   headerRight?: ReactNode;
   activeSearchId?: string | null;
   onSelectSearch?: (search: SearchResult) => void;
+  onNewSearch?: () => void;
+  pageLabel?: string;
 }
 
-export function AppShell({ children, headerCenter, headerRight, activeSearchId, onSelectSearch }: AppShellProps) {
+export function AppShell({ children, headerCenter, headerRight, activeSearchId, onSelectSearch, onNewSearch, pageLabel }: AppShellProps) {
   const [searches, setSearches] = useState<SearchResult[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [backendUnavailable, setBackendUnavailable] = useState(false);
   const { theme, toggle: toggleTheme } = useTheme();
   const { activeWorkspaceId } = useWorkspace();
   const router = useRouter();
+  const pathname = usePathname();
+
+  const PAGE_LABELS: Record<string, string> = {
+    "/discover": "Discover",
+    "/validate": "Validate",
+    "/reports": "Reports",
+    "/settings": "Settings",
+    "/test-sentry": "Test Sentry",
+  };
+  const currentPageLabel = pageLabel ?? PAGE_LABELS[pathname] ?? pathname?.replace(/^\//, "") ?? "GapLens";
 
   const loadSearches = useCallback(async () => {
     try {
@@ -75,60 +86,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
           </div>
         </div>
       )}
-      {/* Full-width header */}
-      <header className="bg-[#e9edf5] dark:bg-[#171717] px-4 py-4 shrink-0 z-10">
-        <div className="flex items-center gap-3">
-          {/* Left: logo + toggle — matches sidebar width (w-64) */}
-          <div className="w-64 flex items-center gap-2 shrink-0">
-            <Logo size={28} color={theme === "dark" ? "#ffffff" : "#4d7c7a"} className="logo-app shrink-0" />
-            <span className="text-lg font-semibold tracking-tight hidden sm:inline">
-              <span style={{ color: theme === "dark" ? "#ffffff" : "#4d7c7a" }}>Gap</span>
-              <span style={{ color: theme === "dark" ? "#ffffff" : "#d97706" }}>Lens</span>
-            </span>
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
-            >
-              {sidebarOpen ? (
-                <MdChevronLeft size={16} />
-              ) : (
-                <MdMenu size={16} />
-              )}
-            </button>
-          </div>
-
-          {/* Center: search bar centered in header */}
-          <div className="flex-1 flex justify-center min-w-0 pl-2">
-            {headerCenter}
-          </div>
-
-          {/* Right: page-specific actions + theme toggle + profile avatar */}
-          <div className="shrink-0 flex items-center gap-2">
-            {headerRight}
-            <button
-              onClick={toggleTheme}
-              className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
-              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            >
-              {theme === "dark" ? (
-                <MdLightMode size={16} />
-              ) : (
-                <MdDarkMode size={16} />
-              )}
-            </button>
-            <button
-              onClick={() => router.push("/settings")}
-              className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#262626] flex items-center justify-center ring-2 ring-gray-400/40 hover:ring-amber-500 dark:hover:ring-amber-500 transition-all"
-              title="Settings"
-              aria-label="Open settings"
-            >
-              <MdPerson size={16} className="text-gray-500 dark:text-gray-400" />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Body: sidebar + content */}
+      {/* Body: sidebar + main content */}
       <div className="flex flex-1 overflow-hidden bg-[#e9edf5] dark:bg-[#171717]">
         <Sidebar
           searches={searches}
@@ -139,9 +97,57 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
         />
 
         <main id="main-content" className="flex-1 flex flex-col overflow-hidden min-w-0 bg-white dark:bg-black rounded-tl-2xl border-t border-l border-gray-200 dark:border-white/10">
-          <RefreshSearchesProvider refresh={loadSearches}>
-            {children}
-          </RefreshSearchesProvider>
+          {/* Tab bar — PostHog-style: dark bar with tab that matches content, hangs over */}
+          <div className="shrink-0 flex items-end gap-1 pl-0 pr-4 pt-3 pb-0 bg-[#e9edf5] dark:bg-[#171717]">
+            {/* Tab + plus button — vertically aligned */}
+            <div className="flex items-center gap-1 -mb-px">
+              <div className="-ml-px pl-6 pr-8 py-3 rounded-t-xl bg-white dark:bg-black border-x border-t border-gray-200 dark:border-white/10 relative z-10">
+                <p className="text-sm font-medium text-gray-800 dark:text-gray-200 text-left">
+                  {currentPageLabel}
+                </p>
+              </div>
+              {pathname === "/discover" && onNewSearch && (
+                <button
+                  onClick={onNewSearch}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-[#262626] transition-colors shrink-0"
+                  title="New search"
+                  aria-label="New search"
+                >
+                  <MdAdd size={18} />
+                </button>
+              )}
+            </div>
+            <div className="flex-1 flex items-center justify-center min-w-0 pb-2">
+              {headerCenter}
+            </div>
+            <div className="shrink-0 flex items-center gap-2 pb-2">
+              {headerRight}
+              <button
+                onClick={toggleTheme}
+                className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
+                title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              >
+                {theme === "dark" ? (
+                  <MdLightMode size={16} />
+                ) : (
+                  <MdDarkMode size={16} />
+                )}
+              </button>
+              <button
+                onClick={() => router.push("/settings")}
+                className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#262626] flex items-center justify-center ring-1 ring-gray-300/50 dark:ring-white/10 hover:ring-amber-500/60 dark:hover:ring-amber-500/60 transition-all"
+                title="Settings"
+                aria-label="Open settings"
+              >
+                <MdPerson size={16} className="text-gray-500 dark:text-gray-400" />
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-black border-t border-gray-200 dark:border-white/10">
+            <RefreshSearchesProvider refresh={loadSearches}>
+              {children}
+            </RefreshSearchesProvider>
+          </div>
         </main>
       </div>
     </div>

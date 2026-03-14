@@ -38,7 +38,7 @@ export function ReportPanel({ report, onClose, onReportUpdate, analyticsSource }
   return (
     <div className="flex flex-col h-full min-w-0 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-[#262626]/80 min-w-0">
+      <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-white/10 bg-white dark:bg-black min-w-0">
         <div className="min-w-0 flex-1">
           <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{cluster.label}</h3>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Opportunity Report</p>
@@ -80,7 +80,7 @@ export function ReportPanel({ report, onClose, onReportUpdate, analyticsSource }
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 min-w-0">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 min-w-0 scrollbar-dark">
         {activeTab === "report" ? (
           <ReportContent
             cluster={cluster}

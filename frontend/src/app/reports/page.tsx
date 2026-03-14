@@ -290,8 +290,8 @@ export default function ReportsPage() {
           </div>
 
           {/* Filters */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex items-center gap-3 flex-nowrap">
+            <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 shrink-0">
               <MdFilterList size={14} />
               Filters
             </div>
@@ -300,6 +300,7 @@ export default function ReportsPage() {
               value={nicheFilter}
               onChange={(e) => setNicheFilter(e.target.value)}
               aria-label="Filter by niche"
+              className="min-w-0 max-w-[140px]"
             >
               <option value="all">All niches</option>
               {niches.map((n) => (
@@ -355,7 +356,7 @@ export default function ReportsPage() {
         </div>
 
         {/* Cluster Table */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden min-w-0">
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-48 gap-2 text-sm text-gray-500 dark:text-gray-400">
               <p>No opportunities match your filters</p>
@@ -367,13 +368,13 @@ export default function ReportsPage() {
               </button>
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <table className="w-full text-sm table-fixed">
               <thead className="sticky top-0 bg-gray-50 dark:bg-black z-10">
                 <tr className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-white/10">
                   <th className="pl-6 pr-2 py-3 text-left w-8"><span className="sr-only">Select</span></th>
                   <th className="px-2 py-3 text-left w-8">#</th>
-                  <th className="px-3 py-3 text-left">Opportunity</th>
-                  <th className="px-3 py-3 text-left">Niche</th>
+                  <th className="px-3 py-3 text-left w-[22%]">Opportunity</th>
+                  <th className="px-3 py-3 text-left w-[12%]">Niche</th>
                   <th className="px-3 py-3 text-center w-20">Score</th>
                   <th className="px-3 py-3 text-center w-16">Rel</th>
                   <th className="px-3 py-3 text-center w-16">Freq</th>
@@ -416,20 +417,22 @@ function FilterSelect({
   value,
   onChange,
   "aria-label": ariaLabel,
+  className = "",
   children,
 }: {
   value: string | number;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   "aria-label"?: string;
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative inline-flex">
+    <div className={`relative inline-flex min-w-0 ${className}`.trim()}>
       <select
         value={value}
         onChange={onChange}
         aria-label={ariaLabel}
-        className="text-xs pl-3 pr-9 py-2 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-[#262626] text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-white/20 focus:border-transparent appearance-none cursor-pointer"
+        className="text-xs pl-3 pr-9 py-2 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-[#262626] text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-white/20 focus:border-transparent appearance-none cursor-pointer w-full min-w-0"
       >
         {children}
       </select>
@@ -471,14 +474,16 @@ function ClusterRow({
         </button>
       </td>
       <td className="px-2 py-3 text-xs font-bold text-gray-400 dark:text-gray-500">{rank}</td>
-      <td className="px-3 py-3">
-        <div className="font-medium text-gray-900 dark:text-gray-100 truncate max-w-xs">{cluster.label}</div>
+      <td className="px-3 py-3 max-w-0">
+        <div className="font-medium text-gray-900 dark:text-gray-100 truncate" title={cluster.label}>{cluster.label}</div>
         {cluster.summary && (
-          <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs mt-0.5">{cluster.summary}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5 line-clamp-1" title={cluster.summary}>
+            {cluster.summary.length > 65 ? `${cluster.summary.slice(0, 65)}…` : cluster.summary}
+          </div>
         )}
       </td>
-      <td className="px-3 py-3">
-        <span className="inline-flex px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-600 dark:text-gray-400 rounded-full truncate max-w-[140px]">
+      <td className="px-3 py-3 max-w-0">
+        <span className="inline-flex px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-600 dark:text-gray-400 rounded-full truncate max-w-full" title={cluster.search_query}>
           {cluster.search_query}
         </span>
       </td>

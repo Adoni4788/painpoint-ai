@@ -22,7 +22,7 @@ export function SearchBar({ onSearch, loading }: SearchBarProps) {
   return (
     <form onSubmit={handleSubmit}>
       <div
-        className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors ${
+        className={`flex items-center gap-2 px-3 py-2.5 rounded-full border transition-colors ${
           focused
             ? "border-gray-400 shadow-[0_0_0_1px_rgba(0,0,0,0.1)] bg-white dark:bg-[#262626]"
             : "border-gray-300 dark:border-white/10 hover:border-gray-400 dark:hover:border-white/20 bg-white dark:bg-[#262626]"
@@ -46,7 +46,7 @@ export function SearchBar({ onSearch, loading }: SearchBarProps) {
         <button
           type="submit"
           disabled={loading || !query.trim()}
-          className="shrink-0 px-4 py-1 bg-black text-white text-xs font-semibold rounded-full hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors dark:bg-white dark:text-black dark:hover:bg-gray-200"
+          className="shrink-0 px-4 py-2 bg-black text-white text-xs font-semibold rounded-full hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors dark:bg-white dark:text-black dark:hover:bg-gray-200"
         >
           {loading ? (
             <span className="flex items-center gap-1.5">

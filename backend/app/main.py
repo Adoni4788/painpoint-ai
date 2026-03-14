@@ -69,10 +69,8 @@ app.include_router(router, prefix="/api")
 async def global_exception_handler(request: Request, exc: Exception):
     """Return structured error response for unhandled exceptions."""
     logger.exception("Unhandled exception: %s", exc)
-    return JSONResponse(
-        status_code=500,
-        content={"detail": "An unexpected error occurred. Please try again."},
-    )
+    detail = str(exc) if get_settings().debug else "An unexpected error occurred. Please try again."
+    return JSONResponse(status_code=500, content={"detail": detail})
 
 
 @app.get("/health")

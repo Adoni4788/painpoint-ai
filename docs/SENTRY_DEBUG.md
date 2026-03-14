@@ -4,6 +4,20 @@ If the "Sentry test" error doesn't appear in Sentry, work through this list.
 
 ---
 
+## 0a. Use the test page (recommended)
+
+Errors thrown in the DevTools Console often run in a different context and may not be captured by Sentry.
+
+**Use the app test page instead:**
+
+1. Visit **https://your-frontend-url.onrender.com/test-sentry** (e.g. `https://painpoint-ai-frontend.onrender.com/test-sentry`).
+2. Click **"Send test error (captureException)"** — this explicitly sends an error to Sentry.
+3. Check your Sentry Issues feed within 30–60 seconds.
+
+This is more reliable than `throw new Error("Sentry test")` in the Console.
+
+---
+
 ## 0. Quick check: Is the DSN in the build?
 
 Visit **https://your-frontend-url.onrender.com/debug-sentry** (e.g. `https://painpoint-ai-frontend.onrender.com/debug-sentry`).

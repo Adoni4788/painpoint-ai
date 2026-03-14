@@ -107,7 +107,16 @@ export default function LandingPage() {
           GapLens mines Reddit, Hacker News, Amazon, G2, and YouTube for real complaints—with authenticity scoring so you see evidence, not hype. Stop guessing. Start building what&apos;s actually needed.
         </p>
         <p className="text-sm text-gray-500 max-w-xl mx-auto mb-10">
-          Got an idea from IdeaBrowser or elsewhere? Validate it here.
+          Got an idea from{" "}
+          <a
+            href="https://www.ideabrowser.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-400 hover:text-white underline underline-offset-2 transition-colors"
+          >
+            IdeaBrowser
+          </a>{" "}
+          or elsewhere? Validate it here.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
           <Link

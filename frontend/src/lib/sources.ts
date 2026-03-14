@@ -12,15 +12,17 @@ export interface SourceConfig {
   color: string;
   /** For landing page badges */
   landingColor: string;
-  Icon: React.ComponentType<{ size?: number }>;
+  /** Icon brand color (Tailwind text class) for landing page */
+  iconColor: string;
+  Icon: React.ComponentType<{ size?: number; className?: string }>;
 }
 
 export const SOURCES: SourceConfig[] = [
-  { id: "reddit", label: "Reddit", icon: "R", color: "bg-orange-500", landingColor: "bg-orange-500/25 text-orange-300 border-orange-500/50", Icon: SiReddit },
-  { id: "hackernews", label: "Hacker News", icon: "Y", color: "bg-amber-500", landingColor: "bg-amber-500/25 text-amber-300 border-amber-500/50", Icon: SiYcombinator },
-  { id: "amazon", label: "Amazon Reviews", icon: "A", color: "bg-yellow-600", landingColor: "bg-amber-600/25 text-amber-300 border-amber-600/50", Icon: FaAmazon },
-  { id: "g2", label: "G2", icon: "G", color: "bg-green-600", landingColor: "bg-emerald-500/25 text-emerald-300 border-emerald-500/50", Icon: SiG2 },
-  { id: "youtube", label: "YouTube", icon: "▶", color: "bg-red-600", landingColor: "bg-red-500/25 text-red-300 border-red-500/50", Icon: SiYoutube },
+  { id: "reddit", label: "Reddit", icon: "R", color: "bg-orange-500", landingColor: "bg-orange-500/25 text-white border-orange-500/50", iconColor: "text-orange-400", Icon: SiReddit },
+  { id: "hackernews", label: "Hacker News", icon: "Y", color: "bg-amber-500", landingColor: "bg-amber-500/25 text-white border-amber-500/50", iconColor: "text-amber-400", Icon: SiYcombinator },
+  { id: "amazon", label: "Amazon Reviews", icon: "A", color: "bg-yellow-600", landingColor: "bg-amber-600/25 text-white border-amber-600/50", iconColor: "text-amber-400", Icon: FaAmazon },
+  { id: "g2", label: "G2", icon: "G", color: "bg-green-600", landingColor: "bg-emerald-500/25 text-white border-emerald-500/50", iconColor: "text-emerald-400", Icon: SiG2 },
+  { id: "youtube", label: "YouTube", icon: "▶", color: "bg-red-600", landingColor: "bg-red-500/25 text-white border-red-500/50", iconColor: "text-red-400", Icon: SiYoutube },
 ];
 
 /** For SearchBar/SourceFilters – same structure, backward compatible */

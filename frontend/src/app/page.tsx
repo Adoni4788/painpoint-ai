@@ -177,7 +177,9 @@ export default function LandingPage() {
               key={s.id}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border ${s.landingColor}`}
             >
-              <s.Icon size={18} />
+              <span className={`shrink-0 ${s.iconColor}`}>
+                <s.Icon size={18} className="inline-block" />
+              </span>
               {s.label}
             </span>
           ))}

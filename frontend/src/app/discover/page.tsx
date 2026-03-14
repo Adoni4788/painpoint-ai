@@ -213,7 +213,13 @@ export default function DiscoverPage() {
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{activeSearch?.query}</h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Key insights</p>
                   </div>
-                  <div className="border-b border-gray-200 dark:border-white/10" />
+                  {selectedReport ? (
+                    <div className="px-6">
+                      <div className="border-b border-gray-200 dark:border-white/10" />
+                    </div>
+                  ) : (
+                    <div className="border-b border-gray-200 dark:border-white/10" />
+                  )}
                 </div>
               )}
               {/* Scrollable content — full width when no report, padded when report open */}
@@ -239,7 +245,7 @@ export default function DiscoverPage() {
             </div>
 
             {selectedReport && (
-              <div className="flex-1 min-w-0 border-l border-gray-200 dark:border-white/10 overflow-y-auto overflow-x-hidden bg-white dark:bg-black scrollbar-dark">
+              <div className="flex-1 min-w-0 border-l border-gray-200 dark:border-white/10 overflow-y-auto overflow-x-hidden bg-white dark:bg-black scrollbar-dark rounded-tr-2xl rounded-br-2xl">
                 <ReportPanel
                   report={selectedReport}
                   onClose={() => setSelectedReport(null)}

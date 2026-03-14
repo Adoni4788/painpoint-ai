@@ -37,9 +37,9 @@ export function ReportPanel({ report, onClose, onReportUpdate, analyticsSource }
 
   return (
     <div className="flex flex-col h-full min-w-0 overflow-hidden">
-      {/* Header */}
+      {/* Header — same height as Key insight area (pt-4 pb-2) */}
       <div className="bg-white dark:bg-black min-w-0">
-        <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 text-left">
+        <div className="flex items-center justify-between gap-3 px-4 sm:px-6 pt-4 pb-2 text-left">
           <div className="min-w-0 flex-1">
             <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{cluster.label}</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Opportunity Report</p>
@@ -55,7 +55,7 @@ export function ReportPanel({ report, onClose, onReportUpdate, analyticsSource }
             </svg>
           </button>
         </div>
-        <div className="mx-4 sm:mx-6 border-b border-gray-100 dark:border-white/10" />
+        <div className="mx-4 sm:mx-6 border-b border-gray-200 dark:border-white/10" />
       </div>
 
       {/* Tabs — left-aligned */}

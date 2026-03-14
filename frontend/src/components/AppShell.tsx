@@ -61,7 +61,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col h-screen overflow-hidden bg-[#e9edf5] dark:bg-[#171717]">
       {backendUnavailable && (
         <div className="shrink-0 px-4 py-2.5 bg-amber-500/15 dark:bg-amber-500/10 border-b border-amber-500/30 dark:border-amber-500/20 flex items-center justify-between gap-4">
           <p className="text-sm text-amber-800 dark:text-amber-200">
@@ -96,8 +96,9 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
           onSelectSearch={handleSelectSearch}
         />
 
-        <main id="main-content" className="flex-1 flex flex-col overflow-hidden min-w-0 bg-white dark:bg-black rounded-tl-2xl border-t border-l border-gray-200 dark:border-white/10">
-          {/* Tab bar — PostHog-style: dark bar with tab that matches content, hangs over */}
+        {/* bg matches canvas so rounded-tr-2xl corner on content div shows the correct color */}
+        <main id="main-content" className="flex-1 flex flex-col overflow-hidden min-w-0 bg-[#e9edf5] dark:bg-[#171717] rounded-2xl border-t border-l border-gray-200 dark:border-white/10">
+          {/* Tab bar */}
           <div className="shrink-0 flex items-end gap-1 pl-0 pr-4 pt-3 pb-0 bg-[#e9edf5] dark:bg-[#171717]">
             {/* Tab + plus button — vertically aligned */}
             <div className="flex items-center gap-1 -mb-px">
@@ -154,7 +155,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
               </button>
             </div>
           </div>
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-black border-t border-gray-200 dark:border-white/10">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-black border-t border-r border-gray-200 dark:border-white/10 rounded-tr-2xl rounded-br-2xl">
             <RefreshSearchesProvider refresh={loadSearches}>
               {children}
             </RefreshSearchesProvider>

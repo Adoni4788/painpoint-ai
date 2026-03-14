@@ -3,6 +3,7 @@ Main analysis pipeline that orchestrates query expansion, data collection,
 complaint detection, relevance filtering, clustering, scoring, and report generation.
 """
 import asyncio
+import json
 import logging
 import uuid
 from datetime import datetime
@@ -324,13 +325,26 @@ async def generate_prd_for_cluster(cluster_id: uuid.UUID, db: AsyncSession) -> P
         solution=cluster.suggested_solution or "",
     )
 
+    mvp_raw = prd_data.get("mvp_suggestion", "")
+    if isinstance(mvp_raw, dict):
+        parts = []
+        if mvp_raw.get("description"):
+            parts.append(mvp_raw["description"])
+        if mvp_raw.get("build_time"):
+            parts.append(f"Build time: {mvp_raw['build_time']}")
+        if mvp_raw.get("focus"):
+            parts.append(f"Focus: {mvp_raw['focus']}")
+        mvp_suggestion = " ".join(parts) if parts else json.dumps(mvp_raw)
+    else:
+        mvp_suggestion = str(mvp_raw) if mvp_raw else ""
+
     prd = PRDDraft(
         cluster_id=cluster_id,
         product_concept=prd_data.get("product_concept", ""),
         target_user=prd_data.get("target_user", ""),
         problem_statement=prd_data.get("problem_statement", ""),
         core_features=prd_data.get("core_features", []),
-        mvp_suggestion=prd_data.get("mvp_suggestion", ""),
+        mvp_suggestion=mvp_suggestion,
         full_text=prd_data.get("full_text", ""),
     )
     db.add(prd)

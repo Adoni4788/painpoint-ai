@@ -99,14 +99,14 @@ export default function LandingPage() {
 
       {/* Hero - pt accounts for fixed header; z-[5] so content scrolls behind header */}
       <section id="main-content" className="relative z-[5] px-6 pt-24 pb-24 max-w-4xl mx-auto text-center">
-        <p className="text-sm text-gray-400 mb-3 text-shadow-readable">Idea validation engine</p>
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6 text-shadow-readable">
+        <p className="text-sm text-gray-400 mb-3">Idea validation engine</p>
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
           Find problems worth solving – before you build.
         </h1>
-        <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-4 leading-relaxed text-shadow-readable">
+        <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-4 leading-relaxed">
           GapLens mines Reddit, Hacker News, Amazon, G2, and YouTube for real complaints—with authenticity scoring so you see evidence, not hype. Stop guessing. Start building what&apos;s actually needed.
         </p>
-        <p className="text-sm text-gray-500 max-w-xl mx-auto mb-10 text-shadow-readable">
+        <p className="text-sm text-gray-500 max-w-xl mx-auto mb-10">
           Got an idea from IdeaBrowser or elsewhere? Validate it here.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
@@ -124,7 +124,7 @@ export default function LandingPage() {
             See how it works
           </a>
         </div>
-        <p className="text-sm text-gray-500 text-shadow-readable">
+        <p className="text-sm text-gray-500">
           Free to try · No credit card required
         </p>
       </section>

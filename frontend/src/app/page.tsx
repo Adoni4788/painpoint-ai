@@ -5,16 +5,7 @@ import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { useTheme } from "@/components/ThemeProvider";
 import { MdSearch, MdAssessment, MdLightMode, MdDarkMode, MdArrowForward } from "react-icons/md";
-import { SiReddit, SiYcombinator, SiG2, SiYoutube } from "react-icons/si";
-import { FaAmazon } from "react-icons/fa";
-
-const SOURCES = [
-  { name: "Reddit", color: "bg-orange-500/20 text-orange-400 border-orange-500/30", Icon: SiReddit },
-  { name: "Hacker News", color: "bg-amber-500/20 text-amber-400 border-amber-500/30", Icon: SiYcombinator },
-  { name: "Amazon", color: "bg-sky-500/20 text-sky-400 border-sky-500/30", Icon: FaAmazon },
-  { name: "G2", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30", Icon: SiG2 },
-  { name: "YouTube", color: "bg-red-500/20 text-red-400 border-red-500/30", Icon: SiYoutube },
-];
+import { SOURCES } from "@/lib/sources";
 
 export default function LandingPage() {
   const { theme, toggle: toggleTheme } = useTheme();
@@ -107,7 +98,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero - pt accounts for fixed header; z-[5] so content scrolls behind header */}
-      <section className="relative z-[5] px-6 pt-24 pb-24 max-w-4xl mx-auto text-center">
+      <section id="main-content" className="relative z-[5] px-6 pt-24 pb-24 max-w-4xl mx-auto text-center">
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6 text-shadow-readable">
           Find problems worth solving – before you build.
         </h1>
@@ -179,11 +170,11 @@ export default function LandingPage() {
         <div className="flex flex-wrap justify-center gap-3">
           {SOURCES.map((s) => (
             <span
-              key={s.name}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border ${s.color}`}
+              key={s.id}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border ${s.landingColor}`}
             >
               <s.Icon size={18} />
-              {s.name}
+              {s.label}
             </span>
           ))}
         </div>

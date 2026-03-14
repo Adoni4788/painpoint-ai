@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Cluster } from "@/lib/api";
+import { AuthenticityBadge } from "@/components/AuthenticityBadge";
+import { getScoreColorClasses, getScoreBarColor } from "@/lib/scoreUtils";
 
 interface ClusterListProps {
   clusters: Cluster[];
@@ -62,11 +64,7 @@ function ClusterCard({
   isSelected: boolean;
   onClick: () => void;
 }) {
-  const scoreColor = cluster.opportunity_score >= 7
-    ? "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-950/40 dark:border-green-800"
-    : cluster.opportunity_score >= 5
-    ? "text-yellow-600 bg-yellow-50 border-yellow-200 dark:text-yellow-400 dark:bg-yellow-950/40 dark:border-yellow-800"
-    : "text-gray-600 bg-gray-50 border-gray-200 dark:text-gray-400 dark:bg-[#262626] dark:border-white/10";
+  const scoreColor = getScoreColorClasses(cluster.opportunity_score);
 
   return (
     <button
@@ -117,20 +115,9 @@ function ClusterCard({
   );
 }
 
-function AuthenticityBadge({ value }: { value: number }) {
-  const pct = Math.round(value * 100);
-  const color = value >= 0.7 ? "text-green-600 dark:text-green-400" : value >= 0.4 ? "text-yellow-600 dark:text-yellow-400" : "text-red-500 dark:text-red-400";
-  const label = value >= 0.7 ? "Strong evidence" : value >= 0.4 ? "Mixed evidence" : "Weak evidence";
-  return (
-    <span className={`font-medium ${color}`} title={label}>
-      {pct}% authentic
-    </span>
-  );
-}
-
 function ScoreMini({ label, value }: { label: string; value: number }) {
   const pct = (value / 10) * 100;
-  const barColor = value >= 7 ? "bg-green-400" : value >= 5 ? "bg-yellow-400" : "bg-gray-300 dark:bg-[#404040]";
+  const barColor = getScoreBarColor(value);
 
   return (
     <div>

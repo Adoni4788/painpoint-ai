@@ -79,8 +79,34 @@ export interface OpportunityReport {
   prd: PRD | null;
 }
 
+function toUserFriendlyMessage(err: unknown): string {
+  if (err instanceof Error) {
+    if (err.message.startsWith("API error ")) {
+      const match = err.message.match(/API error (\d+): (.+)/);
+      if (match) {
+        const [, status, body] = match;
+        const statusNum = parseInt(status, 10);
+        if (statusNum === 500) return "Something went wrong on our end. Please try again.";
+        if (statusNum === 502 || statusNum === 503) return "The service is starting up or temporarily unavailable. Please try again in a minute.";
+        if (statusNum >= 400 && statusNum < 500) {
+          try {
+            const parsed = JSON.parse(body);
+            if (parsed.detail) return typeof parsed.detail === "string" ? parsed.detail : "Invalid request.";
+          } catch {
+            return body.length < 80 ? body : "Invalid request.";
+          }
+        }
+      }
+    }
+    if (err.name === "AbortError") return "The request timed out. The service may be starting—please try again.";
+    if (err instanceof TypeError && err.message.includes("fetch")) return "Unable to connect. Check your connection and try again.";
+  }
+  return "Something went wrong. Please try again.";
+}
+
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
   const maxAttempts = 5;
+  let lastError: unknown = null;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const controller = new AbortController();
@@ -98,6 +124,7 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
 
       // Retry on 502/503 (backend cold start on Render free tier)
       if ((res.status === 502 || res.status === 503) && attempt < maxAttempts) {
+        lastError = new Error(`API error ${res.status}: ${await res.text()}`);
         await new Promise((r) => setTimeout(r, attempt === 1 ? 8000 : 5000));
         continue;
       }
@@ -109,6 +136,7 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
       return res.json();
     } catch (err) {
       clearTimeout(timer);
+      lastError = err;
 
       if (attempt < maxAttempts && err instanceof DOMException && err.name === "AbortError") {
         continue;
@@ -122,7 +150,7 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
     }
   }
 
-  throw new Error("Request failed after retries");
+  throw new Error(toUserFriendlyMessage(lastError));
 }
 
 export async function createSearch(query: string, sources: string[], workspaceId?: string | null): Promise<SearchResult> {

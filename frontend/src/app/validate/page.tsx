@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { MdCasino } from "react-icons/md";
 import { AppShell } from "@/components/AppShell";
+import { FocusTrap } from "@/components/FocusTrap";
+import { RotatingTips } from "@/components/RotatingTips";
 import { validateMinimal } from "@/lib/api";
 import { captureEvent } from "@/lib/analytics";
 
-const ROTATING_TIPS = [
+const VALIDATE_TIPS = [
   "Be specific – include who it's for and the problem it solves.",
   "We scan Reddit, HN, Amazon, G2, and YouTube for real complaints.",
   "More details = better keyword extraction = more relevant results.",
@@ -35,20 +37,7 @@ const IDEA_ROULETTE = [
   "A platform for discovering local volunteer opportunities.",
 ];
 
-function ValidateHeaderContent({
-  onRandomIdea,
-}: {
-  onRandomIdea: () => void;
-}) {
-  const [tipIndex, setTipIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTipIndex((i) => (i + 1) % ROTATING_TIPS.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
+function ValidateHeaderContent({ onRandomIdea }: { onRandomIdea: () => void }) {
   return (
     <div className="flex items-center justify-center gap-3 w-full max-w-2xl">
       <button
@@ -61,7 +50,7 @@ function ValidateHeaderContent({
         <MdCasino size={22} />
       </button>
       <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 min-w-0">
-        {ROTATING_TIPS[tipIndex]}
+        <RotatingTips tips={VALIDATE_TIPS} />
       </p>
     </div>
   );
@@ -85,21 +74,29 @@ export default function ValidatePage() {
     setIdea(random);
   };
 
-  const handleFeedbackResponse = (response: "yes" | "no" | "maybe" | "skipped") => {
-    if (pendingSearch) {
-      captureEvent("pricing_feedback", {
-        response,
-        search_id: pendingSearch.id,
-        idea_length: idea.trim().length,
-      });
-    }
-    setShowFeedbackModal(false);
-    setPendingSearch(null);
-    if (pendingSearch) {
-      captureEvent("validate_redirect_to_discover", { search_id: pendingSearch.id });
-      router.push(`/discover?search_id=${pendingSearch.id}`);
-    }
-  };
+  const handleFeedbackResponse = useCallback(
+    (response: "yes" | "no" | "maybe" | "skipped") => {
+      const searchId = pendingSearch?.id;
+      if (pendingSearch) {
+        captureEvent("pricing_feedback", {
+          response,
+          search_id: pendingSearch.id,
+          idea_length: idea.trim().length,
+        });
+      }
+      setShowFeedbackModal(false);
+      setPendingSearch(null);
+      if (searchId) {
+        captureEvent("validate_redirect_to_discover", { search_id: searchId });
+        router.push(`/discover?search_id=${searchId}`);
+      }
+    },
+    [pendingSearch, idea, router]
+  );
+
+  const handleEscapeModal = useCallback(() => {
+    handleFeedbackResponse("skipped");
+  }, [handleFeedbackResponse]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,13 +129,18 @@ export default function ValidatePage() {
             Describe your product idea in a sentence. GapLens will search for real pain points to validate demand.
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <label htmlFor="validate-idea-input" className="sr-only">
+              Describe your product idea
+            </label>
             <textarea
+              id="validate-idea-input"
               value={idea}
               onChange={(e) => setIdea(e.target.value)}
               placeholder="e.g. A tool that helps email marketers improve deliverability and avoid spam folders"
               className="w-full h-32 px-4 py-3 rounded-xl bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 resize-none"
               disabled={loading}
               maxLength={500}
+              aria-label="Describe your product idea in a sentence"
             />
             {error && (
               <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
@@ -160,42 +162,52 @@ export default function ValidatePage() {
 
       {/* Pricing feedback modal – shown after successful validation */}
       {showFeedbackModal && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white dark:bg-[#171717] rounded-2xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-white/10">
-            <p className="text-base font-medium text-gray-900 dark:text-gray-100 mb-4">
-              Would you pay $5/month for unlimited validations?
-            </p>
-            <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => handleFeedbackResponse("yes")}
-                className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium transition-colors"
-              >
-                Yes, I&apos;d pay
-              </button>
-              <button
-                type="button"
-                onClick={() => handleFeedbackResponse("no")}
-                className="w-full py-2.5 px-4 rounded-xl bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-900 dark:text-gray-100 font-medium transition-colors"
-              >
-                No
-              </button>
-              <button
-                type="button"
-                onClick={() => handleFeedbackResponse("maybe")}
-                className="w-full py-2.5 px-4 rounded-xl bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-900 dark:text-gray-100 font-medium transition-colors"
-              >
-                Maybe
-              </button>
-              <button
-                type="button"
-                onClick={() => handleFeedbackResponse("skipped")}
-                className="mt-2 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-              >
-                Skip
-              </button>
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50"
+          role="presentation"
+        >
+          <FocusTrap active={showFeedbackModal} onEscape={handleEscapeModal}>
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="feedback-modal-title"
+              className="bg-white dark:bg-[#171717] rounded-2xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-white/10"
+            >
+              <p id="feedback-modal-title" className="text-base font-medium text-gray-900 dark:text-gray-100 mb-4">
+                Would you pay $5/month for unlimited validations?
+              </p>
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleFeedbackResponse("yes")}
+                  className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium transition-colors"
+                >
+                  Yes, I&apos;d pay
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleFeedbackResponse("no")}
+                  className="w-full py-2.5 px-4 rounded-xl bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-900 dark:text-gray-100 font-medium transition-colors"
+                >
+                  No
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleFeedbackResponse("maybe")}
+                  className="w-full py-2.5 px-4 rounded-xl bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-900 dark:text-gray-100 font-medium transition-colors"
+                >
+                  Maybe
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleFeedbackResponse("skipped")}
+                  className="mt-2 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                >
+                  Skip
+                </button>
+              </div>
             </div>
-          </div>
+          </FocusTrap>
         </div>
       )}
     </AppShell>

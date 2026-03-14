@@ -1,0 +1,311 @@
+{
+  "standard": [
+    {
+      "id": "c312c73a-aecc-4a94-9f79-0c9440858161",
+      "query": "email marketing software",
+      "status": "completed",
+      "clusters": 18
+    },
+    {
+      "id": "8a854790-1353-48e7-8ff7-23922434aa2c",
+      "query": "project management tool",
+      "status": "completed",
+      "clusters": 13
+    },
+    {
+      "id": "03b3236b-170c-495c-b141-48bed08ea7a8",
+      "query": "CRM for small business",
+      "status": "completed",
+      "clusters": 16
+    },
+    {
+      "id": "006ec2c9-c15f-4253-ac30-56f66be3ecc2",
+      "query": "invoicing for freelancers",
+      "status": "completed",
+      "clusters": 17
+    },
+    {
+      "id": "292c4ab4-30fd-4541-b451-03dd6ff969c7",
+      "query": "password manager",
+      "status": "completed",
+      "clusters": 25
+    },
+    {
+      "id": "b8ec60fb-06d8-4c7d-aaca-29688d804b68",
+      "query": "meal planning app",
+      "status": "completed",
+      "clusters": 4
+    },
+    {
+      "id": "a3ac6727-1a28-4f0f-b9de-77d7eaa7b75e",
+      "query": "habit tracker",
+      "status": "completed",
+      "clusters": 1
+    },
+    {
+      "id": "5c16b870-e5bd-4936-b254-5e1c2dee6a0e",
+      "query": "meditation app",
+      "status": "completed",
+      "clusters": 3
+    },
+    {
+      "id": "b827f34c-86c4-40ba-9dbc-63ff464fd1c6",
+      "query": "browser extension productivity",
+      "status": "completed",
+      "clusters": 9
+    },
+    {
+      "id": "260d6077-5977-4cd0-8272-46bf5c4812d2",
+      "query": "note taking app"
+    },
+    {
+      "query": "note taking app",
+      "error": "HTTPSConnectionPool(host='painpoint-ai-backend.onrender.com', port=443): Read timed out. (read timeout=10)"
+    },
+    {
+      "id": "2833ac40-c1c4-4295-bbcf-7817510574df",
+      "query": "calendar scheduling",
+      "status": "completed",
+      "clusters": 8
+    },
+    {
+      "id": "e3d295b7-39b5-481b-a92d-75e8dec76ac1",
+      "query": "expense tracking",
+      "status": "completed",
+      "clusters": 16
+    },
+    {
+      "id": "c19d8d3c-ac8f-41cc-a9f3-a2786865d762",
+      "query": "team communication",
+      "status": "completed",
+      "clusters": 33
+    },
+    {
+      "id": "8e2b3ca9-5c6e-4de0-98bc-5eedd33e136e",
+      "query": "video editing software",
+      "status": "completed",
+      "clusters": 19
+    },
+    {
+      "id": "8a5fb62d-bc32-4974-a9cd-7b782148770f",
+      "query": "design tool for non-designers",
+      "status": "completed",
+      "clusters": 3
+    },
+    {
+      "id": "82e28a13-f5a7-49e4-a4d7-779ad8ba2977",
+      "query": "customer support software",
+      "status": "completed",
+      "clusters": 11
+    },
+    {
+      "id": "01093bde-ecc9-4cb6-a161-21552920e933",
+      "query": "ecommerce platform",
+      "status": "completed",
+      "clusters": 19
+    },
+    {
+      "id": "2ee98e21-2226-4862-be40-6893e493f70a",
+      "query": "landing page builder",
+      "status": "completed",
+      "clusters": 9
+    },
+    {
+      "id": "5276746a-bc53-407a-9715-63ad43011611",
+      "query": "email deliverability",
+      "status": "completed",
+      "clusters": 28
+    },
+    {
+      "id": "7ddd6608-933b-4e33-bed4-de8ea71072fc",
+      "query": "remote work tools",
+      "status": "completed",
+      "clusters": 12
+    },
+    {
+      "id": "5ba503d6-5665-47d6-9f70-650baa3ff1d9",
+      "query": "developer documentation",
+      "status": "completed",
+      "clusters": 26
+    },
+    {
+      "id": "f60521bb-27c3-4c07-8f0a-310cc9fee791",
+      "query": "API integration",
+      "status": "completed",
+      "clusters": 14
+    },
+    {
+      "id": "20a22382-a926-4703-a272-0a0c764b989b",
+      "query": "data backup",
+      "status": "completed",
+      "clusters": 20
+    },
+    {
+      "id": "2f526f8b-e07a-423d-9322-66651bb4ae19",
+      "query": "cloud storage",
+      "status": "completed",
+      "clusters": 42
+    },
+    {
+      "id": "0318ac26-c513-41b4-8fcf-025eb46704cd",
+      "query": "task automation",
+      "status": "completed",
+      "clusters": 17
+    }
+  ],
+  "validate": [
+    {
+      "id": "0be1cd88-60a2-431c-88b2-ba7a2aef5a45",
+      "idea": "A tool that helps remote teams run better daily standups.",
+      "status": "completed",
+      "clusters": 5
+    },
+    {
+      "id": "1001e6d2-45fc-4e49-8564-19b5959c9221",
+      "idea": "An app that reminds you to drink water throughout the day.",
+      "status": "completed",
+      "clusters": 14
+    },
+    {
+      "id": "33c18f9a-8674-4ecc-b8d1-5e74e1fe572d",
+      "idea": "A platform connecting local farmers directly with restaurants.",
+      "status": "completed",
+      "clusters": 2
+    },
+    {
+      "id": "78f2cbd0-81ef-4a72-87d6-407ed78c0e02",
+      "idea": "A browser extension that summarizes YouTube videos into key points.",
+      "status": "completed",
+      "clusters": 5
+    },
+    {
+      "id": "46e201fd-44c9-4d6e-9049-dd15a33314be",
+      "idea": "A service for freelancers that automatically sends payment reminders.",
+      "status": "completed",
+      "clusters": 24
+    },
+    {
+      "id": "ab35da1c-93d0-4b28-ad47-1ed3f1be6c12",
+      "idea": "An app that tracks your mood and suggests activities to improve it.",
+      "status": "completed",
+      "clusters": 3
+    },
+    {
+      "id": "3cd1a0ce-f38f-4696-9318-c12f8ef4d7e5",
+      "idea": "A tool that scans your inbox and unsubscribes you from spam.",
+      "status": "completed",
+      "clusters": 9
+    },
+    {
+      "id": "86b8fed7-7e71-454f-b67e-1cdc5b25ee59",
+      "idea": "A platform for trading used textbooks among college students.",
+      "status": "completed",
+      "clusters": 9
+    },
+    {
+      "id": "9f8e1e1b-2b88-4a6d-8361-70045c8e664d",
+      "idea": "A meal planner that adapts to your dietary restrictions.",
+      "status": "completed",
+      "clusters": 14
+    },
+    {
+      "id": "7702c779-dad8-476e-8df5-b85c6e487979",
+      "idea": "A habit tracker that turns your goals into a game with rewards.",
+      "status": "completed",
+      "clusters": 11
+    },
+    {
+      "id": "1b3dbef6-6dae-4d6f-af99-932d45a38cd2",
+      "idea": "A password manager that works seamlessly across all devices.",
+      "status": "completed",
+      "clusters": 26
+    },
+    {
+      "id": "5d8566f2-b51e-447c-bc2f-919d4481572f",
+      "idea": "A meditation app that lets you practice with a friend remotely.",
+      "status": "completed",
+      "clusters": 0
+    },
+    {
+      "id": "caf51f84-b60a-4315-89ec-79074eedd704",
+      "idea": "A service that finds the cheapest gas stations near you.",
+      "status": "completed",
+      "clusters": 0
+    },
+    {
+      "id": "cd54ff0b-ef46-428b-8b4e-694cf7bbe7f5",
+      "idea": "A tool that checks your writing for tone and clarity.",
+      "status": "completed",
+      "clusters": 8
+    },
+    {
+      "id": "1ba9e744-6a6d-461e-971a-1c0c843617dc",
+      "idea": "A platform for discovering local volunteer opportunities.",
+      "status": "completed",
+      "clusters": 20
+    },
+    {
+      "id": "93b6dda1-3d9d-4e30-bc3b-c799d90c93f7",
+      "idea": "A tool for small businesses to manage inventory and orders.",
+      "status": "completed",
+      "clusters": 6
+    },
+    {
+      "id": "eddaa013-6c53-464d-918d-ee59ae25311d",
+      "idea": "An app that helps parents coordinate pickups and dropoffs.",
+      "status": "completed",
+      "clusters": 5
+    },
+    {
+      "id": "a853c58e-9901-48a0-a1aa-ec6df117e283",
+      "idea": "A service that matches freelancers with short-term gigs.",
+      "status": "completed",
+      "clusters": 18
+    },
+    {
+      "id": "4c0b5d6a-05b1-4b2b-b988-d91f5de6fda8",
+      "idea": "A tool that converts meeting notes into action items.",
+      "status": "completed",
+      "clusters": 7
+    },
+    {
+      "id": "becd1063-68d2-4296-9950-c958ef8dfca8",
+      "idea": "An app that tracks recurring subscriptions and suggests cancellations.",
+      "status": "completed",
+      "clusters": 37
+    },
+    {
+      "id": "224044b2-b397-41f1-92d5-5db4257802a2",
+      "idea": "A platform for peer-to-peer skill swapping.",
+      "status": "completed",
+      "clusters": 17
+    },
+    {
+      "id": "7ecac43b-b09b-43a2-adb4-c8f0c445297f",
+      "idea": "A tool that helps writers overcome writer's block.",
+      "status": "completed",
+      "clusters": 13
+    },
+    {
+      "id": "8ec16394-44a6-4bfb-b7a1-cd248194cb94",
+      "idea": "An app that organizes family photos by face and event.",
+      "status": "completed",
+      "clusters": 14
+    },
+    {
+      "id": "2caa09e0-c73c-4460-b1c9-d05334ea8877",
+      "idea": "A service that audits your cloud spending and suggests savings."
+    },
+    {
+      "idea": "A service that audits your cloud spending and suggests savings.",
+      "error": "HTTPSConnectionPool(host='painpoint-ai-backend.onrender.com', port=443): Read timed out. (read timeout=10)"
+    },
+    {
+      "id": "46fd222f-53e1-4f25-be37-20afdb95826b",
+      "idea": "A tool that generates accessibility reports for websites.",
+      "status": "completed",
+      "clusters": 15
+    }
+  ],
+  "api_url": "https://painPoint-ai-backend.onrender.com"
+}

@@ -1,8 +1,14 @@
 "use client";
 
+import { MdLightMode, MdDarkMode } from "react-icons/md";
 import { AppShell } from "@/components/AppShell";
+import { useTheme } from "@/components/ThemeProvider";
+import { useWorkspace } from "@/contexts/WorkspaceContext";
 
 export default function SettingsPage() {
+  const { theme, toggle: toggleTheme } = useTheme();
+  const { workspaces, activeWorkspaceId, setActiveWorkspaceId } = useWorkspace();
+
   return (
     <AppShell>
       <div className="flex-1 overflow-y-auto p-6">
@@ -15,17 +21,70 @@ export default function SettingsPage() {
           </div>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Settings</h2>
           <p className="text-gray-500 dark:text-gray-400 mb-6">
-            Configure your data sources, filtering preferences, and account settings to customize how GapLens works for you.
+            Customize how GapLens looks and which workspace you see by default.
           </p>
-          <div className="rounded-xl bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-xl border border-gray-200/60 dark:border-white/10 shadow-xl shadow-black/10 dark:shadow-black/10 p-5">
-            <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">Coming soon</p>
-            <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
-              <p className="py-1">Default data source preferences</p>
-              <p className="py-1">Authenticity threshold tuning</p>
-              <p className="py-1">API key management</p>
-              <p className="py-1">Data export and cleanup</p>
+
+          {/* Appearance */}
+          <section className="rounded-xl bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-xl border border-gray-200/60 dark:border-white/10 shadow-xl shadow-black/10 dark:shadow-black/10 p-5 mb-6">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Appearance</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Choose light or dark mode.</p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => theme !== "light" && toggleTheme()}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  theme === "light"
+                    ? "bg-gray-900 text-white dark:bg-white dark:text-black"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#262626] dark:text-gray-400 dark:hover:bg-[#333333]"
+                }`}
+                aria-pressed={theme === "light"}
+                aria-label="Light mode"
+              >
+                <MdLightMode size={18} />
+                Light
+              </button>
+              <button
+                type="button"
+                onClick={() => theme !== "dark" && toggleTheme()}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  theme === "dark"
+                    ? "bg-gray-900 text-white dark:bg-white dark:text-black"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#262626] dark:text-gray-400 dark:hover:bg-[#333333]"
+                }`}
+                aria-pressed={theme === "dark"}
+                aria-label="Dark mode"
+              >
+                <MdDarkMode size={18} />
+                Dark
+              </button>
             </div>
-          </div>
+          </section>
+
+          {/* Default workspace */}
+          <section className="rounded-xl bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-xl border border-gray-200/60 dark:border-white/10 shadow-xl shadow-black/10 dark:shadow-black/10 p-5">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Default workspace</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+              Which workspace to show when you open GapLens. You can also change this from the sidebar.
+            </p>
+            <select
+              value={activeWorkspaceId ?? ""}
+              onChange={(e) => setActiveWorkspaceId(e.target.value || null)}
+              className="w-full max-w-xs px-3 py-2.5 text-sm font-medium bg-gray-100 dark:bg-[#262626] text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-white/20"
+              aria-label="Default workspace"
+            >
+              <option value="">All workspaces</option>
+              {workspaces.map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.name}
+                </option>
+              ))}
+            </select>
+            {workspaces.length === 0 && (
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                Create a workspace from the sidebar to organize your searches.
+              </p>
+            )}
+          </section>
         </div>
       </div>
     </AppShell>

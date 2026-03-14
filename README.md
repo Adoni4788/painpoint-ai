@@ -1,8 +1,10 @@
-# PainPoint AI
+# GapLens (PainPoint AI)
 
 **Opportunity Discovery Engine** — Turn public complaints into product opportunities.
 
-PainPoint AI collects public discussions from Reddit, Hacker News, and Amazon review communities, detects complaints and frustrations using AI, groups them into pain point clusters, scores each cluster by opportunity value, and generates actionable reports and PRD drafts.
+GapLens (product name; codebase alias PainPoint AI) collects public discussions from Reddit, Hacker News, Amazon, G2, and YouTube, detects complaints and frustrations using AI, groups them into pain point clusters, scores each cluster by opportunity value, and generates actionable reports and PRD drafts.
+
+See [docs/HANDOFF_OVERVIEW.md](docs/HANDOFF_OVERVIEW.md) for deployment context and recent work.
 
 ## Architecture
 
@@ -71,14 +73,24 @@ Open http://localhost:3000
 
 ## Environment Variables
 
+### Backend (`backend/.env`)
+
 | Variable | Description | Required |
 |---|---|---|
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `OPENAI_API_KEY` | OpenAI API key for AI analysis | Yes |
+| `DATABASE_URL` | PostgreSQL connection string (e.g. `postgresql+asyncpg://...`) | Yes |
+| `OPENAI_API_KEY` | OpenAI API key for AI analysis | Yes (validated at startup) |
 | `OPENAI_MODEL` | Model to use (default: gpt-4o-mini) | No |
 | `REDDIT_CLIENT_ID` | Reddit API client ID | No (uses public JSON API) |
 | `REDDIT_CLIENT_SECRET` | Reddit API client secret | No |
-| `CORS_ORIGINS` | Allowed CORS origins | No (default: http://localhost:3000) |
+| `CORS_ORIGINS` | Comma-separated allowed origins. Production: include `https://painpoint-ai-frontend.onrender.com` | No (default: http://localhost:3000) |
+
+### Frontend (`frontend/.env.local`)
+
+| Variable | Description | Required |
+|---|---|---|
+| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project API key | No |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog host (default: https://app.posthog.com) | No |
+| `NEXT_PUBLIC_API_URL` | Backend URL (for production; dev uses rewrites) | No |
 
 ## How It Works
 
@@ -94,10 +106,12 @@ Open http://localhost:3000
 
 | Method | Endpoint | Description |
 |---|---|---|
+| POST | `/api/validate-minimal` | Validate an idea (idea → keywords → pipeline) |
 | POST | `/api/searches` | Start a new search |
 | GET | `/api/searches` | List all searches |
 | GET | `/api/searches/{id}` | Get search status |
 | GET | `/api/searches/{id}/clusters` | Get clusters for a search |
+| GET | `/api/clusters` | List all clusters (optionally by workspace) |
 | GET | `/api/clusters/{id}` | Get single cluster |
 | GET | `/api/clusters/{id}/report` | Get full opportunity report |
 | POST | `/api/clusters/{id}/prd` | Generate PRD draft |

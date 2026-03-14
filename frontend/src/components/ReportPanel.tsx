@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { OpportunityReport, generatePRD } from "@/lib/api";
 import { captureEvent } from "@/lib/analytics";
+import { AuthenticityBadge } from "@/components/AuthenticityBadge";
+import { getAuthenticityColorClasses } from "@/lib/scoreUtils";
 
 interface ReportPanelProps {
   report: OpportunityReport;
@@ -132,7 +134,7 @@ function ReportContent({
             <ScoreCell label="Frequency" value={cluster.frequency_score} />
             <ScoreCell label="Emotion" value={cluster.emotion_score} />
             <ScoreCell label="Urgency" value={cluster.urgency_score} />
-            <AuthenticityCell value={cluster.avg_authenticity} />
+            <AuthenticityBadge value={cluster.avg_authenticity} variant="cell" />
           </div>
         </div>
       </div>
@@ -200,7 +202,7 @@ function ReportContent({
                 <div className="flex items-center gap-3 mt-2 text-xs text-gray-400 dark:text-gray-500">
                   <span className="capitalize">{post.source}</span>
                   {post.author && <span>by {post.author}</span>}
-                  <span title="Authenticity score" className={`font-medium ${post.authenticity_score >= 0.7 ? "text-green-600 dark:text-green-400" : post.authenticity_score >= 0.4 ? "text-yellow-600 dark:text-yellow-400" : "text-red-500 dark:text-red-400"}`}>
+                  <span title="Authenticity score" className={`font-medium ${getAuthenticityColorClasses(post.authenticity_score)}`}>
                     Auth: {post.authenticity_score.toFixed(1)}
                   </span>
                   {post.url && (
@@ -327,21 +329,6 @@ function ScoreCell({ label, value }: { label: string; value: number }) {
     <div>
       <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{label}</p>
       <p className="text-lg font-bold text-gray-900 dark:text-gray-200">{value.toFixed(1)}</p>
-    </div>
-  );
-}
-
-function AuthenticityCell({ value }: { value: number }) {
-  const pct = Math.round(value * 100);
-  const color = value >= 0.7 ? "text-green-700 dark:text-green-400" : value >= 0.4 ? "text-yellow-700 dark:text-yellow-400" : "text-red-600 dark:text-red-400";
-  const bg = value >= 0.7 ? "bg-green-50 dark:bg-green-950/40" : value >= 0.4 ? "bg-yellow-50 dark:bg-yellow-950/40" : "bg-red-50 dark:bg-red-950/40";
-  const label = value >= 0.7 ? "High" : value >= 0.4 ? "Mixed" : "Low";
-  return (
-    <div>
-      <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Evidence</p>
-      <p className={`text-sm font-bold ${color} ${bg} rounded px-1 py-0.5`} title={`${pct}% authentic — ${label} evidence quality`}>
-        {pct}% {label}
-      </p>
     </div>
   );
 }

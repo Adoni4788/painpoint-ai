@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-
-const SOURCE_OPTIONS = [
-  { id: "reddit", label: "Reddit", icon: "R", color: "bg-orange-500" },
-  { id: "hackernews", label: "Hacker News", icon: "Y", color: "bg-amber-500" },
-  { id: "amazon", label: "Amazon Reviews", icon: "A", color: "bg-yellow-600" },
-  { id: "g2", label: "G2", icon: "G", color: "bg-green-600" },
-  { id: "youtube", label: "YouTube", icon: "▶", color: "bg-red-600" },
-];
+import { SOURCE_OPTIONS } from "@/lib/sources";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -156,5 +149,3 @@ export function SourceFilters({
     </div>
   );
 }
-
-export { SOURCE_OPTIONS };

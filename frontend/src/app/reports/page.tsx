@@ -5,10 +5,12 @@ import { MdAssessment, MdFilterList, MdContentCopy, MdFileDownload, MdCompareArr
 import { AppShell } from "@/components/AppShell";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { ClusterWithQuery, listAllClusters } from "@/lib/api";
+import { RotatingTips } from "@/components/RotatingTips";
+import { getScoreColorClasses, getScoreTextColorClasses, getAuthenticityColorClasses } from "@/lib/scoreUtils";
 
 type SortField = "opportunity_score" | "frequency_score" | "emotion_score" | "urgency_score" | "relevance_score" | "created_at";
 
-const ROTATING_TIPS = [
+const REPORTS_TIPS = [
   "Sort by opportunity to find the biggest gaps first.",
   "Compare two clusters to spot patterns or trade-offs.",
   "High emotion + high urgency = build now.",
@@ -19,16 +21,9 @@ const ROTATING_TIPS = [
 ];
 
 function ReportsHeaderContent() {
-  const [tipIndex, setTipIndex] = useState(0);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTipIndex((i) => (i + 1) % ROTATING_TIPS.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
   return (
     <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 min-w-0 max-w-2xl">
-      {ROTATING_TIPS[tipIndex]}
+      <RotatingTips tips={REPORTS_TIPS} />
     </p>
   );
 }
@@ -459,18 +454,9 @@ function ClusterRow({
   canSelect: boolean;
   onToggle: () => void;
 }) {
-  const scoreColor = cluster.opportunity_score >= 7
-    ? "text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-950/40"
-    : cluster.opportunity_score >= 5
-    ? "text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-950/40"
-    : "text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-[#262626]";
-
+  const scoreColor = getScoreColorClasses(cluster.opportunity_score, { includeBorder: false });
   const authPct = Math.round(cluster.avg_authenticity * 100);
-  const authColor = cluster.avg_authenticity >= 0.7
-    ? "text-green-600 dark:text-green-400"
-    : cluster.avg_authenticity >= 0.4
-    ? "text-yellow-600 dark:text-yellow-400"
-    : "text-red-500 dark:text-red-400";
+  const authColor = getAuthenticityColorClasses(cluster.avg_authenticity);
 
   return (
     <tr className="hover:bg-gray-50/50 dark:hover:bg-[#262626]/50 transition-colors group">
@@ -525,10 +511,7 @@ function ClusterRow({
 
 
 function MiniScore({ value }: { value: number }) {
-  const color = value >= 7 ? "text-green-600 dark:text-green-400"
-    : value >= 5 ? "text-yellow-600 dark:text-yellow-400"
-    : "text-gray-500 dark:text-gray-400";
-  return <span className={`text-xs font-semibold ${color}`}>{value.toFixed(1)}</span>;
+  return <span className={`text-xs font-semibold ${getScoreTextColorClasses(value)}`}>{value.toFixed(1)}</span>;
 }
 
 
@@ -582,11 +565,7 @@ function ComparisonPanel({
 
 
 function CompareColumn({ cluster }: { cluster: ClusterWithQuery }) {
-  const scoreColor = cluster.opportunity_score >= 7
-    ? "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-950/40 dark:border-green-800"
-    : cluster.opportunity_score >= 5
-    ? "text-yellow-600 bg-yellow-50 border-yellow-200 dark:text-yellow-400 dark:bg-yellow-950/40 dark:border-yellow-800"
-    : "text-gray-600 bg-gray-50 border-gray-200 dark:text-gray-400 dark:bg-[#262626] dark:border-white/10";
+  const scoreColor = getScoreColorClasses(cluster.opportunity_score);
 
   return (
     <div>

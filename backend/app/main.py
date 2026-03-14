@@ -1,8 +1,9 @@
 # PainPoint AI backend - deploys on backend/** changes
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from .core.config import get_settings
 from .core.database import init_db
 from .api.routes import router
@@ -16,6 +17,10 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting PainPoint AI backend...")
+    if not settings.openai_api_key or not settings.openai_api_key.strip():
+        raise RuntimeError(
+            "OPENAI_API_KEY is not set. Set it in .env or environment variables before starting the backend."
+        )
     await init_db()
     logger.info("Database initialized")
     yield
@@ -38,6 +43,16 @@ app.add_middleware(
 )
 
 app.include_router(router, prefix="/api")
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Return structured error response for unhandled exceptions."""
+    logger.exception("Unhandled exception: %s", exc)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "An unexpected error occurred. Please try again."},
+    )
 
 
 @app.get("/health")

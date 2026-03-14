@@ -41,7 +41,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   }, [loadWorkspaces]);
 
   useEffect(() => {
-    const stored = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
+    const stored = typeof window !== "undefined"
+      ? (localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem("painpoint-active-workspace-id"))
+      : null;
     if (stored) {
       setActiveWorkspaceIdState(stored);
     }

@@ -28,6 +28,10 @@ services:
         value: gpt-4o-mini
       - key: CORS_ORIGINS
         value: https://painpoint-ai-frontend.onrender.com
+      - key: DEBUG
+        value: "false"
+      - key: RATE_LIMIT
+        value: "5/minute"
       - key: PYTHON_VERSION
         value: "3.11.0"
     buildFilter:

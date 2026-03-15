@@ -75,4 +75,13 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "PainPoint AI"}
+    from .core.database import async_session
+    from sqlalchemy import text
+    try:
+        async with async_session() as db:
+            await db.execute(text("SELECT 1"))
+        db_status = "ok"
+    except Exception as e:
+        logger.warning("Health check DB failure: %s", e)
+        db_status = "unavailable"
+    return {"status": "ok" if db_status == "ok" else "degraded", "service": "PainPoint AI", "db": db_status}

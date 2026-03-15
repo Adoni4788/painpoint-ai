@@ -120,9 +120,11 @@ class YouTubeCollector(BaseCollector):
             logger.warning("YOUTUBE_API_KEY not configured; skipping YouTube collection")
             return []
 
-        params_base = {"key": settings.youtube_api_key}
+        # Pass key via header to keep it out of request URLs and server logs
+        api_headers = {"X-goog-api-key": settings.youtube_api_key}
+        params_base: dict = {}
 
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=30.0, headers=api_headers) as client:
             try:
                 videos = await self._search_videos(client, query, params_base)
                 if not videos:

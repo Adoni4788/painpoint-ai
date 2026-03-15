@@ -107,13 +107,15 @@ async def validate_minimal(
 # --- Searches ---
 
 @router.post("/searches", response_model=SearchResponse)
+@limiter.limit(get_settings().rate_limit)
 async def create_search(
+    request: Request,
     payload: SearchCreate,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
     """Start a new pain point search."""
-    valid_sources = {"reddit", "hackernews", "amazon", "g2", "youtube"}
+    valid_sources = {"reddit", "hackernews", "amazon", "g2", "youtube", "facebook"}
     sources = [s for s in payload.sources if s in valid_sources]
     if not sources:
         sources = ["reddit", "hackernews", "amazon"]
@@ -129,14 +131,26 @@ async def create_search(
     return search
 
 
+PIPELINE_TIMEOUT_SECONDS = 600  # 10 minutes max per search
+
+
 async def _run_pipeline_with_session(search_id: UUID, query: str, sources: list[str]):
     """Run the pipeline with a fresh DB session (for background tasks)."""
     from ..core.database import async_session
     async with async_session() as db:
         try:
-            await run_search_pipeline(search_id, query, sources, db)
+            await asyncio.wait_for(
+                run_search_pipeline(search_id, query, sources, db),
+                timeout=PIPELINE_TIMEOUT_SECONDS,
+            )
+        except asyncio.TimeoutError:
+            logger.error("Pipeline timed out for search %s after %ds", search_id, PIPELINE_TIMEOUT_SECONDS)
+            search = await db.get(Search, search_id)
+            if search:
+                search.status = "failed"
+                await db.commit()
         except Exception as e:
-            logger.error(f"Background pipeline error: {e}")
+            logger.error("Background pipeline error for search %s: %s", search_id, e)
             search = await db.get(Search, search_id)
             if search:
                 search.status = "failed"

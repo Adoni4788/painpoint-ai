@@ -112,9 +112,17 @@ export default function ValidatePage() {
     <AppShell
       headerCenter={<ValidateHeaderContent />}
     >
+      {/* Page header with bottom border */}
+      <div className="shrink-0 bg-white dark:bg-black">
+        <div className="px-6 pt-4 pb-2">
+          <h3 className="font-semibold text-gray-900 dark:text-gray-100">Validate your idea</h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Check if there&apos;s real demand before you build</p>
+        </div>
+        <div className="border-b border-gray-200 dark:border-white/10" />
+      </div>
+
       <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center min-h-0">
         <div className="max-w-xl w-full mx-auto">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Validate your idea</h2>
           <p className="text-gray-500 dark:text-gray-400 mb-6">
             Describe your product idea in a sentence. GapLens will search for real pain points to validate demand.
           </p>
@@ -122,7 +130,7 @@ export default function ValidatePage() {
             <label htmlFor="validate-idea-input" className="sr-only">
               Describe your product idea
             </label>
-            <div className="relative rounded-xl bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-500/50">
+            <div className="relative rounded-xl bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 focus-within:ring-2 focus-within:ring-[#4d7c7a]/50 focus-within:border-[#4d7c7a]/60">
               <textarea
                 id="validate-idea-input"
                 value={idea}

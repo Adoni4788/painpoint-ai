@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback, ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { MdLightMode, MdDarkMode, MdAdd } from "react-icons/md";
-import { CircleUserIcon } from "@/components/SidebarIcons";
+import { MdAdd } from "react-icons/md";
+import { BellNotificationIcon, CircleUserIcon, DarkModeIcon, LightModeIcon } from "@/components/SidebarIcons";
 import { Sidebar } from "@/components/Sidebar";
 import { useTheme } from "@/components/ThemeProvider";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
@@ -163,10 +163,17 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               >
                 {theme === "dark" ? (
-                  <MdLightMode size={16} />
+                  <LightModeIcon size={16} />
                 ) : (
-                  <MdDarkMode size={16} />
+                  <DarkModeIcon size={16} />
                 )}
+              </button>
+              <button
+                className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
+                title="Notifications"
+                aria-label="Notifications"
+              >
+                <BellNotificationIcon size={18} />
               </button>
               <button
                 onClick={() => router.push("/settings")}
@@ -174,7 +181,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 title="Settings"
                 aria-label="Open settings"
               >
-                <CircleUserIcon size={16} className="text-gray-500 dark:text-gray-400" />
+                <CircleUserIcon size={28} className="text-gray-500 dark:text-gray-400" />
               </button>
             </div>
           </div>

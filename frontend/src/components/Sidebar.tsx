@@ -89,7 +89,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             <MdMenu size={20} />
           </button>
           </div>
-          <div className="mx-2 border-b border-gray-200/60 dark:border-white/10" />
+          <div className="mx-2 border-b border-gray-200 dark:border-white/20" />
         </div>
         <div className="flex flex-col gap-0.5 px-2 pt-3 pb-2">
           {NAV_ITEMS.map((item) => {
@@ -162,7 +162,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             <MdChevronLeft size={20} />
           </button>
         </div>
-        <div className="mx-3 border-b border-gray-200/60 dark:border-white/10" />
+        <div className="mx-3 border-b border-gray-200 dark:border-white/20" />
       </div>
       {/* Navigation Links */}
       <div className="flex flex-col gap-0.5 px-3 pt-3 pb-2">

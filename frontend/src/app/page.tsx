@@ -117,7 +117,7 @@ export default function LandingPage() {
           Find problems worth solving – before you build.
         </h1>
         <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-4 leading-relaxed">
-          GapLens mines Reddit, Hacker News, Amazon, G2, and YouTube for real complaints—with authenticity scoring so you see evidence, not hype. Stop guessing. Start building what&apos;s actually needed.
+          GapLens mines Reddit, Hacker News, Amazon, G2, YouTube, and Facebook for real complaints—with authenticity scoring so you see evidence, not hype. Stop guessing. Start building what&apos;s actually needed.
         </p>
         <p className="text-sm text-gray-500 max-w-xl mx-auto mb-10">
           Got an idea from{" "}
@@ -191,7 +191,7 @@ export default function LandingPage() {
       <section className="relative z-[5] px-6 py-20 max-w-5xl mx-auto">
         <h2 className="text-2xl font-bold text-center mb-4 text-shadow-readable">Mine real conversations</h2>
         <p className="text-gray-400 text-center mb-12 max-w-xl mx-auto text-shadow-readable">
-          Unlike tools that only scan Reddit, GapLens pulls from five public sources. We score authenticity—so you see real user frustration, not promotional content.
+          Unlike tools that only scan Reddit, GapLens pulls from six public sources. We score authenticity—so you see real user frustration, not promotional content.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           {SOURCES.map((s) => (

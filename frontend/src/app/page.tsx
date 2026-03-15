@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { useTheme } from "@/components/ThemeProvider";
 import { MdSearch, MdAssessment, MdLightMode, MdDarkMode, MdArrowForward } from "react-icons/md";
 import { SOURCES } from "@/lib/sources";
 
 export default function LandingPage() {
+  const router = useRouter();
   const { theme, toggle: toggleTheme } = useTheme();
   const [headerTransparent, setHeaderTransparent] = useState(false);
 
@@ -54,27 +56,37 @@ export default function LandingPage() {
       >
         <div className="flex items-center justify-between px-6 py-5 max-w-6xl mx-auto">
         <Link href="/" className="flex items-center gap-2.5 group">
-          <Logo size={32} color="#4d7c7a" className="logo-carved group-hover:opacity-90 transition-opacity" />
-          <span className="text-xl font-semibold tracking-tight text-carved">
-            <span style={{ color: "#4d7c7a" }}>Gap</span>
-            <span style={{ color: "#d97706" }}>Lens</span>
+          <Logo size={32} color="#4d7c7a" className="group-hover:opacity-90 transition-opacity" />
+          <span
+            className="text-xl font-semibold tracking-tight"
+            style={{
+              background: "linear-gradient(to right, #4d7c7a, #a16207)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            GapLens
           </span>
         </Link>
         <nav className="flex items-center gap-4">
           <Link
             href="/discover"
+            onClick={(e) => { e.preventDefault(); router.push("/discover"); }}
             className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
           >
             Discover
           </Link>
           <Link
             href="/validate"
+            onClick={(e) => { e.preventDefault(); router.push("/validate"); }}
             className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
           >
             Validate
           </Link>
           <Link
             href="/reports"
+            onClick={(e) => { e.preventDefault(); router.push("/reports"); }}
             className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
           >
             Reports
@@ -88,6 +100,7 @@ export default function LandingPage() {
           </button>
           <Link
             href="/discover"
+            onClick={(e) => { e.preventDefault(); router.push("/discover"); }}
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white text-black rounded-lg hover:bg-gray-200 transition-colors"
           >
             Get Started
@@ -98,7 +111,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero - pt accounts for fixed header; z-[5] so content scrolls behind header */}
-      <section id="main-content" className="relative z-[5] px-6 pt-24 pb-24 max-w-4xl mx-auto text-center">
+      <section id="main-content" className="relative z-[10] px-6 pt-24 pb-24 max-w-4xl mx-auto text-center">
         <p className="text-sm text-gray-400 mb-3">Idea validation engine</p>
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
           Find problems worth solving – before you build.
@@ -203,6 +216,7 @@ export default function LandingPage() {
         </p>
         <Link
           href="/validate"
+          onClick={(e) => { e.preventDefault(); router.push("/validate"); }}
           className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold bg-white text-black rounded-xl hover:bg-gray-100 transition-all"
         >
           Validate your idea – it&apos;s free
@@ -214,10 +228,17 @@ export default function LandingPage() {
       <footer className="relative z-[5] border-t border-white/5 py-8">
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Logo size={20} color="#4d7c7a" className="logo-carved" />
-            <span className="text-sm text-carved">
-              <span style={{ color: "#4d7c7a" }}>Gap</span>
-              <span style={{ color: "#d97706" }}>Lens</span>
+            <Logo size={20} color="#4d7c7a" />
+            <span
+              className="text-sm"
+              style={{
+                background: "linear-gradient(to right, #4d7c7a, #a16207)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              GapLens
             </span>
           </div>
           <p className="text-xs text-gray-600 text-shadow-readable">© {new Date().getFullYear()} GapLens</p>

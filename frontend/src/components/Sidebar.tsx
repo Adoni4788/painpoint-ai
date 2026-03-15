@@ -3,11 +3,12 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MdSearch, MdAssessment, MdSettings, MdFolder, MdAdd, MdExpandMore, MdEdit, MdDelete, MdLightbulb, MdChevronLeft, MdMenu } from "react-icons/md";
+import { MdAdd, MdExpandMore, MdEdit, MdDelete, MdChevronLeft, MdMenu } from "react-icons/md";
 import { SearchResult } from "@/lib/api";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { useTheme } from "@/components/ThemeProvider";
 import { Logo } from "@/components/Logo";
+import { GlobalResearchIcon, DiscoverIcon, VoteYeaIcon, SettingsIcon, FolderPlusCircleIcon } from "@/components/SidebarIcons";
 
 interface SidebarProps {
   searches: SearchResult[];
@@ -21,22 +22,22 @@ const NAV_ITEMS = [
   {
     label: "Discover",
     href: "/discover",
-    icon: <MdSearch size={16} />,
+    icon: <GlobalResearchIcon />,
   },
   {
     label: "Validate",
     href: "/validate",
-    icon: <MdLightbulb size={16} />,
+    icon: <VoteYeaIcon />,
   },
   {
     label: "Reports",
     href: "/reports",
-    icon: <MdAssessment size={16} />,
+    icon: <DiscoverIcon />,
   },
   {
     label: "Settings",
     href: "/settings",
-    icon: <MdSettings size={16} />,
+    icon: <SettingsIcon />,
   },
 ];
 
@@ -85,7 +86,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             title="Expand sidebar"
             aria-label="Expand sidebar"
           >
-            <MdMenu size={16} />
+            <MdMenu size={20} />
           </button>
           </div>
           <div className="mx-2 border-b border-gray-200/60 dark:border-white/10" />
@@ -158,7 +159,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             title="Collapse sidebar"
             aria-label="Collapse sidebar"
           >
-            <MdChevronLeft size={16} />
+            <MdChevronLeft size={20} />
           </button>
         </div>
         <div className="mx-3 border-b border-gray-200/60 dark:border-white/10" />
@@ -200,10 +201,10 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100/80 dark:bg-black rounded-lg hover:bg-gray-200/80 dark:hover:bg-[#262626] transition-colors border border-transparent"
           >
             <span className="flex items-center gap-2 truncate">
-              <MdFolder size={16} className="text-gray-500 shrink-0" />
+              <FolderPlusCircleIcon size={20} className="text-gray-500 shrink-0" />
               <span className="truncate">{displayName}</span>
             </span>
-            <MdExpandMore size={16} className={`shrink-0 transition-transform ${workspaceMenuOpen ? "rotate-180" : ""}`} />
+            <MdExpandMore size={20} className={`shrink-0 transition-transform ${workspaceMenuOpen ? "rotate-180" : ""}`} />
           </button>
           {workspaceMenuOpen && (
             <div className="absolute top-full left-0 right-0 mt-1 py-1 bg-white dark:bg-black rounded-lg shadow-lg border border-gray-200 dark:border-white/10 z-20 max-h-56 overflow-y-auto">
@@ -214,7 +215,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                 }}
                 className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-[#262626] ${!activeWorkspaceId ? "bg-gray-100 dark:bg-[#262626] font-medium" : ""}`}
               >
-                <MdFolder size={14} className="text-gray-400" />
+                <FolderPlusCircleIcon size={14} className="text-gray-400" />
                 All workspaces
               </button>
               {workspaces.map((w) =>
@@ -253,7 +254,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                       }}
                       className="flex-1 flex items-center gap-2 truncate text-left"
                     >
-                      <MdFolder size={14} className="text-gray-400 shrink-0" />
+                      <FolderPlusCircleIcon size={14} className="text-gray-400 shrink-0" />
                       <span className="truncate">{w.name}</span>
                     </button>
                     <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -327,7 +328,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                   onClick={() => setCreateMode(true)}
                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 dark:hover:bg-[#262626] border-t border-gray-100 dark:border-white/10"
                 >
-                  <MdAdd size={16} />
+                  <MdAdd size={20} />
                   New workspace
                 </button>
               )}

@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { MdLightMode, MdDarkMode, MdPerson, MdAdd } from "react-icons/md";
+import { MdLightMode, MdDarkMode, MdAdd } from "react-icons/md";
+import { CircleUserIcon } from "@/components/SidebarIcons";
 import { Sidebar } from "@/components/Sidebar";
 import { useTheme } from "@/components/ThemeProvider";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
@@ -173,7 +174,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 title="Settings"
                 aria-label="Open settings"
               >
-                <MdPerson size={16} className="text-gray-500 dark:text-gray-400" />
+                <CircleUserIcon size={16} className="text-gray-500 dark:text-gray-400" />
               </button>
             </div>
           </div>

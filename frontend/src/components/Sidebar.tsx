@@ -136,9 +136,20 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
         <div className="flex items-center gap-2 px-3 py-4">
           <div className="flex items-center gap-2 opacity-85">
             <Logo size={22} color={theme === "dark" ? "#ffffff" : "#4d7c7a"} className="logo-app shrink-0" />
-            <span className="text-lg font-semibold tracking-tight truncate">
-              <span style={{ color: theme === "dark" ? "#ffffff" : "#4d7c7a" }}>Gap</span>
-              <span style={{ color: theme === "dark" ? "#ffffff" : "#d97706" }}>Lens</span>
+            <span
+              className="text-lg font-semibold tracking-tight truncate"
+              style={
+                theme === "dark"
+                  ? { color: "#ffffff" }
+                  : {
+                      background: "linear-gradient(to right, #4d7c7a, #a16207)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }
+              }
+            >
+              GapLens
             </span>
           </div>
           <button

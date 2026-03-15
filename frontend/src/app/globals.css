@@ -26,27 +26,37 @@
   }
 }
 
-/* Scrollbar for discover panels — matches main area (dark in dark mode) */
+/* Scrollbar for discover panels — hidden until hovered */
 .scrollbar-dark::-webkit-scrollbar {
-  width: 10px;
+  width: 6px;
 }
 .scrollbar-dark::-webkit-scrollbar-track {
-  background: #f5f5f5;
+  background: transparent;
 }
 .scrollbar-dark::-webkit-scrollbar-thumb {
-  background: #d4d4d4;
+  background: transparent;
   border-radius: 5px;
+  transition: background 0.2s ease;
 }
 .scrollbar-dark::-webkit-scrollbar-thumb:hover {
+  background: transparent;
+}
+.scrollbar-dark:hover::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+.scrollbar-dark:hover::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+}
+.scrollbar-dark:hover::-webkit-scrollbar-thumb:hover {
   background: #a3a3a3;
 }
-.dark .scrollbar-dark::-webkit-scrollbar-track {
-  background: #0a0a0a;
+.dark .scrollbar-dark:hover::-webkit-scrollbar-track {
+  background: #171717;
 }
-.dark .scrollbar-dark::-webkit-scrollbar-thumb {
+.dark .scrollbar-dark:hover::-webkit-scrollbar-thumb {
   background: #404040;
 }
-.dark .scrollbar-dark::-webkit-scrollbar-thumb:hover {
+.dark .scrollbar-dark:hover::-webkit-scrollbar-thumb:hover {
   background: #525252;
 }
 

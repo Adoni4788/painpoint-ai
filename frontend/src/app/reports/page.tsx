@@ -237,7 +237,7 @@ export default function ReportsPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Toolbar */}
         <div className="py-4 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-black shrink-0">
-          <div className="max-w-6xl mx-auto px-6">
+          <div className="px-6">
           <div className="flex items-center justify-between mb-3">
             <div>
               {filtered.length === 0 ? (
@@ -245,7 +245,7 @@ export default function ReportsPage() {
                   No reports match your filters.{" "}
                   <button
                     onClick={resetFilters}
-                    className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                    className="text-[#4d7c7a] dark:text-[#6aa8a6] hover:underline font-medium"
                   >
                     Reset filters
                   </button>
@@ -363,7 +363,7 @@ export default function ReportsPage() {
               <p>No opportunities match your filters</p>
               <button
                 onClick={resetFilters}
-                className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                className="text-[#4d7c7a] dark:text-[#6aa8a6] hover:underline font-medium"
               >
                 Reset filters
               </button>
@@ -531,7 +531,7 @@ function ComparisonPanel({
   const [a, b] = clusters;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white dark:bg-[#171717] rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col mx-4">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-white/10">

@@ -25,7 +25,7 @@ export function SearchBar({ onSearch, loading }: SearchBarProps) {
         className={`flex items-center gap-2 px-3 py-2.5 rounded-full border transition-colors ${
           focused
             ? "border-gray-400 shadow-[0_0_0_1px_rgba(0,0,0,0.1)] bg-white dark:bg-[#262626]"
-            : "border-gray-300 dark:border-white/10 hover:border-gray-400 dark:hover:border-white/20 bg-white dark:bg-[#262626]"
+            : "border-gray-200 dark:border-white/10 hover:border-gray-400 dark:hover:border-white/20 bg-white dark:bg-[#262626]"
         }`}
       >
         <svg className="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

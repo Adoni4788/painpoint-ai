@@ -230,7 +230,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                         }
                         if (e.key === "Escape") setEditingId(null);
                       }}
-                      className="flex-1 px-2 py-1 text-sm border border-gray-200 dark:border-white/10 rounded bg-white dark:bg-[#262626] focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-white/20"
+                      className="flex-1 px-2 py-1 text-sm border border-gray-200 dark:border-white/10 rounded bg-white dark:bg-[#262626] focus:outline-none focus:ring-1 focus:ring-[#4d7c7a]/50"
                       autoFocus
                     />
                     <button
@@ -303,7 +303,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                       }
                     }}
                     placeholder="Workspace name"
-                    className="flex-1 px-2 py-1 text-sm border border-gray-200 dark:border-white/10 rounded bg-white dark:bg-[#262626] focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-white/20"
+                    className="flex-1 px-2 py-1 text-sm border border-gray-200 dark:border-white/10 rounded bg-white dark:bg-[#262626] focus:outline-none focus:ring-1 focus:ring-[#4d7c7a]/50"
                     autoFocus
                   />
                   <button
@@ -353,7 +353,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
               <li key={s.id}>
                 <button
                   onClick={() => onSelectSearch(s)}
-                  className={`w-full text-left pl-5 pr-4 py-2.5 text-sm transition-colors border-0 ring-0 -ml-4 rounded-r-full rounded-tl-xl rounded-bl-xl relative z-10 ${
+                  className={`w-full text-left pl-5 pr-4 py-2.5 text-sm transition-colors border-0 ring-0 -ml-4 rounded-r-xl relative z-10 ${
                     s.id === activeSearchId
                       ? "bg-white text-gray-900 dark:bg-black dark:text-gray-100"
                       : "text-gray-700 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:bg-[#262626]"

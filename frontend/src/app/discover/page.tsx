@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { SourceFilters } from "@/components/SearchBar";
 import { MdExpandMore, MdExpandLess } from "react-icons/md";
@@ -24,6 +24,14 @@ import { useRefreshSearches } from "@/contexts/RefreshSearchesContext";
 import { captureEvent } from "@/lib/analytics";
 
 export default function DiscoverPage() {
+  return (
+    <Suspense fallback={null}>
+      <DiscoverPageContent />
+    </Suspense>
+  );
+}
+
+function DiscoverPageContent() {
   const searchParams = useSearchParams();
   const [activeSearch, setActiveSearch] = useState<SearchResult | null>(null);
   const [clusters, setClusters] = useState<Cluster[]>([]);

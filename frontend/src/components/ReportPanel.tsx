@@ -41,7 +41,7 @@ export function ReportPanel({ report, onClose, onReportUpdate, analyticsSource }
       <div className="bg-white dark:bg-black min-w-0">
         <div className="flex items-center justify-between gap-3 px-4 sm:px-6 pt-4 pb-2 text-left">
           <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{cluster.label}</h3>
+            <h3 className="font-heading font-semibold text-gray-900 dark:text-gray-100 truncate">{cluster.label}</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Opportunity Report</p>
           </div>
           <button
@@ -259,7 +259,7 @@ function PRDContent({ prd }: { prd: NonNullable<OpportunityReport["prd"]> }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100">PRD Draft</h3>
+        <h3 className="font-heading font-semibold text-gray-900 dark:text-gray-100">PRD Draft</h3>
         <button
           onClick={handleCopy}
           className="px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-[#333333] transition-colors shrink-0"

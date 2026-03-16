@@ -222,7 +222,7 @@ export default function ReportsPage() {
             <div className="w-16 h-16 bg-gray-100 dark:bg-[#262626] rounded-2xl flex items-center justify-center mx-auto mb-4">
               <MdAssessment size={32} className="text-gray-500 dark:text-gray-400" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">No Reports Yet</h2>
+            <h2 className="font-heading text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">No Reports Yet</h2>
             <p className="text-gray-500 dark:text-gray-400">
               Complete a search on the Discover page to see your opportunity reports here.
             </p>
@@ -537,7 +537,7 @@ function ComparisonPanel({
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-white/10">
           <div className="flex items-center gap-2">
             <MdCompareArrows size={20} className="text-gray-500" />
-            <h2 className="font-semibold text-gray-900 dark:text-gray-100">Side-by-Side Comparison</h2>
+            <h2 className="font-heading font-semibold text-gray-900 dark:text-gray-100">Side-by-Side Comparison</h2>
           </div>
           <button onClick={onClose} title="Close comparison" className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded">
             <MdClose size={20} />
@@ -577,7 +577,7 @@ function CompareColumn({ cluster }: { cluster: ClusterWithQuery }) {
     <div>
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="min-w-0">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{cluster.label}</h3>
+          <h3 className="font-heading font-semibold text-gray-900 dark:text-gray-100 text-sm">{cluster.label}</h3>
           <span className="text-xs text-gray-500 dark:text-gray-400">{cluster.search_query}</span>
         </div>
         <div className={`text-center px-2.5 py-1.5 rounded-lg border shrink-0 ${scoreColor}`}>

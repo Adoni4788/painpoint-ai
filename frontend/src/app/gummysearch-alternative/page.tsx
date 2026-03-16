@@ -150,7 +150,7 @@ export default function GummySearchAlternativePage() {
 
       {/* Comparison table */}
       <section className="max-w-4xl mx-auto px-6 pb-20">
-        <h2 className="text-2xl font-bold text-center mb-10">GummySearch vs GapLens</h2>
+        <h2 className="font-heading text-2xl font-bold text-center mb-10">GummySearch vs GapLens</h2>
         <div className="overflow-x-auto rounded-2xl border border-white/10">
           <table className="w-full text-sm">
             <thead>
@@ -190,7 +190,7 @@ export default function GummySearchAlternativePage() {
 
       {/* Features */}
       <section className="max-w-5xl mx-auto px-6 pb-20">
-        <h2 className="text-2xl font-bold text-center mb-12">
+        <h2 className="font-heading text-2xl font-bold text-center mb-12">
           Everything GummySearch had — and more
         </h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -199,7 +199,7 @@ export default function GummySearchAlternativePage() {
               key={f.heading}
               className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 hover:border-white/20 transition-colors"
             >
-              <h3 className="font-semibold text-white mb-2">{f.heading}</h3>
+              <h3 className="font-heading font-semibold text-white mb-2">{f.heading}</h3>
               <p className="text-sm text-gray-400 leading-relaxed">{f.body}</p>
             </div>
           ))}
@@ -218,7 +218,7 @@ export default function GummySearchAlternativePage() {
 
       {/* FAQ */}
       <section className="max-w-3xl mx-auto px-6 pb-20">
-        <h2 className="text-2xl font-bold text-center mb-10">
+        <h2 className="font-heading text-2xl font-bold text-center mb-10">
           Frequently asked questions
         </h2>
         <div className="space-y-4">
@@ -227,7 +227,7 @@ export default function GummySearchAlternativePage() {
               key={faq.q}
               className="rounded-xl border border-white/10 bg-white/[0.02] p-6"
             >
-              <h3 className="font-semibold text-white mb-2">{faq.q}</h3>
+              <h3 className="font-heading font-semibold text-white mb-2">{faq.q}</h3>
               <p className="text-sm text-gray-400 leading-relaxed">{faq.a}</p>
             </div>
           ))}
@@ -236,7 +236,7 @@ export default function GummySearchAlternativePage() {
 
       {/* CTA */}
       <section className="max-w-3xl mx-auto px-6 pb-24 text-center">
-        <h2 className="text-3xl font-bold mb-4">
+        <h2 className="font-heading text-3xl font-bold mb-4">
           Start finding pain points today
         </h2>
         <p className="text-gray-400 mb-8">

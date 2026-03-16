@@ -115,7 +115,7 @@ export default function ValidatePage() {
       {/* Page header with bottom border */}
       <div className="shrink-0 bg-white dark:bg-black">
         <div className="px-6 pt-4 pb-2">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100">Validate your idea</h3>
+          <h3 className="font-heading font-semibold text-gray-900 dark:text-gray-100">Validate your idea</h3>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Check if there&apos;s real demand before you build</p>
         </div>
         <div className="border-b border-gray-200 dark:border-white/10" />

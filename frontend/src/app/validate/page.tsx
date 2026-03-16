@@ -3,9 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { MdCasino } from "react-icons/md";
+import { HiOutlineArrowUpRight } from "react-icons/hi2";
 import { AppShell } from "@/components/AppShell";
 import { FocusTrap } from "@/components/FocusTrap";
 import { RotatingTips } from "@/components/RotatingTips";
+import { SOURCES } from "@/lib/sources";
 import { validateMinimal } from "@/lib/api";
 import { captureEvent } from "@/lib/analytics";
 
@@ -68,14 +70,14 @@ export default function ValidatePage() {
   const handleFeedbackResponse = useCallback(
     (response: "yes" | "no" | "maybe" | "skipped") => {
       const searchId = pendingSearch?.id;
-    if (pendingSearch) {
-      captureEvent("pricing_feedback", {
-        response,
-        search_id: pendingSearch.id,
-        idea_length: idea.trim().length,
-        price_question: "15_month_or_99_year",
-      });
-    }
+      if (pendingSearch) {
+        captureEvent("pricing_feedback", {
+          response,
+          search_id: pendingSearch.id,
+          idea_length: idea.trim().length,
+          price_question: "15_month_or_99_year",
+        });
+      }
       setShowFeedbackModal(false);
       setPendingSearch(null);
       if (searchId) {
@@ -109,63 +111,104 @@ export default function ValidatePage() {
   };
 
   return (
-    <AppShell
-      headerCenter={<ValidateHeaderContent />}
-    >
-      {/* Page header with bottom border */}
-      <div className="shrink-0 bg-white dark:bg-black">
-        <div className="px-6 pt-4 pb-2">
-          <h3 className="font-heading font-semibold text-gray-900 dark:text-gray-100">Validate your idea</h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Check if there&apos;s real demand before you build</p>
-        </div>
-        <div className="border-b border-gray-200 dark:border-white/10" />
-      </div>
+    <AppShell headerCenter={<ValidateHeaderContent />}>
 
-      <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center min-h-0">
-        <div className="max-w-xl w-full mx-auto">
-          <p className="text-gray-500 dark:text-gray-400 mb-6">
-            Describe your product idea in a sentence. GapLens will search for real pain points to validate demand.
+      {/* Immersive validate — mirrors Discover's "Find the Gap" layout */}
+      <div className="noise-overlay flex-1 overflow-y-auto flex flex-col items-center justify-center min-h-0 px-6 py-12 relative">
+        <div className="relative z-10 max-w-2xl w-full mx-auto text-center">
+
+          {/* Heading */}
+          <h2 className="font-heading text-3xl md:text-4xl font-bold text-ink dark:text-paper mb-2">
+            Validate Your Idea
+          </h2>
+          <p className="font-mono text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-8">
+            Idea Validator · Market Signal
           </p>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <label htmlFor="validate-idea-input" className="sr-only">
-              Describe your product idea
-            </label>
-            <div className="relative rounded-xl bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 focus-within:ring-2 focus-within:ring-[#4d7c7a]/50 focus-within:border-[#4d7c7a]/60">
+
+          {/* Description */}
+          <p className="text-gray-600 dark:text-gray-400 mb-10 leading-relaxed max-w-lg mx-auto">
+            Describe your product idea in a sentence. GapLens mines six platforms for real frustrations—with authenticity scoring—to validate real demand.
+          </p>
+
+          {/* Idea input card */}
+          <form onSubmit={handleSubmit}>
+            <div className="relative bg-white dark:bg-[#121214] border border-black/10 dark:border-white/10 rounded-3xl shadow-2xl focus-within:border-indigo-500/40 transition-all duration-500">
+              <label htmlFor="validate-idea-input" className="sr-only">
+                Describe your product idea
+              </label>
               <textarea
                 id="validate-idea-input"
                 value={idea}
                 onChange={(e) => setIdea(e.target.value)}
                 placeholder="e.g. A tool that helps email marketers improve deliverability and avoid spam folders"
-                className="w-full h-32 px-4 pt-3 pb-10 rounded-xl bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none resize-none"
+                className="w-full h-36 px-6 pt-5 pb-4 rounded-3xl bg-transparent text-lg text-ink dark:text-paper placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:outline-none resize-none"
                 disabled={loading}
                 maxLength={500}
-                aria-label="Describe your product idea in a sentence"
+                aria-label="Describe your product idea"
               />
-              <button
-                type="button"
-                onClick={handleRandomIdea}
-                className="absolute bottom-2 left-2 p-1.5 rounded-lg text-amber-500 dark:text-amber-400 hover:bg-amber-500/10 dark:hover:bg-amber-500/10 transition-colors"
-                title="Random idea"
-                aria-label="Get a random idea"
-              >
-                <MdCasino size={20} />
-              </button>
+
+              {/* Bottom toolbar — mirrors Discover's inner submit row */}
+              <div className="flex items-center justify-between px-3 pb-3 gap-3">
+                <button
+                  type="button"
+                  onClick={handleRandomIdea}
+                  className="flex items-center gap-1.5 p-2 pr-3 rounded-xl text-amber-500 dark:text-amber-400 hover:bg-amber-500/10 dark:hover:bg-amber-500/10 transition-colors text-xs font-medium"
+                  title="Random idea"
+                  aria-label="Get a random idea"
+                >
+                  <MdCasino size={18} />
+                  Random
+                </button>
+
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-xs text-gray-400 dark:text-gray-600">
+                    {idea.length}/500
+                  </span>
+                  <button
+                    type="submit"
+                    disabled={loading || !idea.trim()}
+                    className={`${
+                      submitted
+                        ? "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20"
+                        : "gradient-primary hover:opacity-90 shadow-indigo-500/20"
+                    } text-white px-7 py-3 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {submitted ? (
+                      "✓ Validating…"
+                    ) : loading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Searching…
+                      </>
+                    ) : (
+                      <>
+                        Validate
+                        <HiOutlineArrowUpRight size={16} />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
+
             {error && (
-              <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
+              <p className="mt-3 text-sm text-red-500 dark:text-red-400">{error}</p>
             )}
-            <button
-              type="submit"
-              disabled={loading || !idea.trim()}
-              className={`w-full py-3 rounded-xl font-semibold transition-all ${
-                submitted
-                  ? "bg-green-600 dark:bg-green-500 text-white"
-                  : "bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              }`}
-            >
-              {submitted ? "✓ Validating…" : loading ? "Searching for pain points…" : "Validate idea"}
-            </button>
           </form>
+
+          {/* Source badges — mirrors Discover's platform list */}
+          <div className="flex items-center justify-center gap-6 flex-wrap mt-8">
+            {SOURCES.map((src) => (
+              <span
+                key={src.id}
+                className="flex items-center gap-1.5 font-mono text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest"
+              >
+                <src.Icon size={12} className={src.iconColor} />
+                {src.label}
+              </span>
+            ))}
+          </div>
+
         </div>
       </div>
 

@@ -332,7 +332,7 @@ function DiscoverSearchForm({
         <button
           type="submit"
           disabled={loading || !query.trim()}
-          className="gradient-primary hover:opacity-90 text-white px-10 py-5 rounded-[24px] font-bold transition-all flex items-center gap-3 shadow-xl shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          className="gradient-brand hover:opacity-90 text-white px-10 py-5 rounded-[24px] font-bold transition-all flex items-center gap-3 shadow-xl shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
         >
           {loading ? (
             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

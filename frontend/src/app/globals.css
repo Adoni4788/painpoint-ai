@@ -13,6 +13,16 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+  /* Brand gradient: teal → orange (logo, wordmark, action buttons) */
+  .gradient-brand {
+    background: linear-gradient(135deg, #4d7c7a 0%, #f97316 100%);
+  }
+  .gradient-brand-text {
+    background: linear-gradient(135deg, #4d7c7a 0%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
   /* Subtle noise overlay for premium tactile feel */
   .noise-overlay {
     position: relative;

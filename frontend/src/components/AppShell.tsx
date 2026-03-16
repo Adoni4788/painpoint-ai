@@ -24,6 +24,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
   const [searches, setSearches] = useState<SearchResult[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [backendUnavailable, setBackendUnavailable] = useState(false);
+  const [rateLimited, setRateLimited] = useState(false);
   const { theme, toggle: toggleTheme } = useTheme();
   const { activeWorkspaceId } = useWorkspace();
   const router = useRouter();
@@ -41,6 +42,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
   const loadSearches = useCallback(async () => {
     try {
       setBackendUnavailable(false);
+      setRateLimited(false);
       const data = await listSearches(activeWorkspaceId ?? undefined);
       setSearches(data);
     } catch (e) {
@@ -48,6 +50,8 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
       const msg = e instanceof Error ? e.message : String(e);
       if (msg.includes("502") || msg.includes("503")) {
         setBackendUnavailable(true);
+      } else if (msg.includes("rate limit") || msg.includes("429")) {
+        setRateLimited(true);
       }
     }
   }, [activeWorkspaceId]);
@@ -87,6 +91,22 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
           </div>
         </div>
       )}
+      {rateLimited && (
+        <div className="shrink-0 px-4 py-2.5 bg-orange-500/15 dark:bg-orange-500/10 border-b border-orange-500/30 dark:border-orange-500/20 flex items-center justify-between gap-4">
+          <p className="text-sm text-orange-800 dark:text-orange-200">
+            You&apos;ve hit the rate limit. Please wait a moment before trying again.
+          </p>
+          <button
+            onClick={() => setRateLimited(false)}
+            className="shrink-0 p-1.5 text-orange-700 dark:text-orange-300 hover:bg-orange-500/20 dark:hover:bg-orange-500/20 rounded transition-colors"
+            aria-label="Dismiss"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
       {/* Body: sidebar + main content */}
       <div className="flex flex-1 overflow-hidden bg-paper dark:bg-ink">
         <Sidebar
@@ -97,96 +117,64 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
           onSelectSearch={handleSelectSearch}
         />
 
-        {/* bg matches canvas so rounded-tr-2xl corner on content div shows the correct color */}
-        <main id="main-content" className="flex-1 flex flex-col overflow-hidden min-w-0 bg-paper dark:bg-ink rounded-2xl rounded-t-none rounded-bl-xl border-t border-t-paper dark:border-t-ink mr-2 mb-2">
-          {/* Tab bar — no full-height border; Discover tab's border extends down to meet content area */}
-          <div className="shrink-0 flex items-end gap-1 pl-0 pr-4 pt-2.5 pb-0 bg-paper dark:bg-ink">
-            {/* Tab + plus button — vertically aligned */}
-            <div className="flex items-center gap-1 -mb-px">
-              <div className="pl-6 pr-8 py-2.5 rounded-t-xl bg-white dark:bg-black border-x border-t border-gray-200/60 dark:border-white/10 relative z-10">
-                <p className="text-base font-medium text-gray-800 dark:text-gray-200 text-left">
-                  {currentPageLabel}
-                </p>
-                {/* Curved element at bottom-left: canvas color slopes up into tab */}
-                <svg
-                  className="absolute bottom-0 -left-4 w-4 h-4 pointer-events-none"
-                  viewBox="0 0 24 24"
-                  aria-hidden
-                >
-                  <path
-                    d="M 24 24 L 0 24 L 0 0 A 24 24 0 0 0 24 24 Z"
-                    className="fill-paper dark:fill-ink"
-                  />
-                </svg>
-                {/* Curved element at bottom-right (inside): blends tab into content area below */}
-                <svg
-                  className="absolute bottom-0 right-0 w-6 h-6 pointer-events-none"
-                  viewBox="0 0 24 24"
-                  aria-hidden
-                >
-                  <path
-                    d="M 0 24 L 24 24 L 24 0 A 24 24 0 0 1 0 24 Z"
-                    className="fill-white dark:fill-black"
-                  />
-                </svg>
-                {/* Curved element at bottom-right (outside): white slopes up into tab */}
-                <svg
-                  className="absolute bottom-0 -right-4 w-4 h-4 pointer-events-none"
-                  viewBox="0 0 24 24"
-                  aria-hidden
-                >
-                  <path
-                    d="M 24 24 L 0 24 L 0 0 A 24 24 0 0 0 24 24 Z"
-                    className="fill-white dark:fill-black"
-                  />
-                </svg>
-              </div>
+        {/* Main panel — white/black card, no gray strip */}
+        <main id="main-content" className="flex-1 flex flex-col overflow-hidden min-w-0 mt-2 mr-2 mb-2 rounded-xl bg-white dark:bg-black border border-gray-200/60 dark:border-white/10">
+
+          {/* Full-width header — spans the entire panel, no tab shape */}
+          <div className="shrink-0 flex items-center gap-3 pl-6 pr-3 h-12 border-b border-gray-200/60 dark:border-white/10">
+            {/* Page label */}
+            <div className="flex items-center gap-2 shrink-0">
+              <p className="text-base font-medium text-gray-800 dark:text-gray-200">
+                {currentPageLabel}
+              </p>
               {pathname === "/discover" && onNewSearch && (
                 <button
                   onClick={onNewSearch}
-                  className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-200/60 dark:border-white/10 text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-[#262626] transition-colors shrink-0"
+                  className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-[#262626] transition-colors"
                   title="New search"
                   aria-label="New search"
                 >
-                  <MdAdd size={18} />
+                  <MdAdd size={17} />
                 </button>
               )}
             </div>
-            <div className="flex-1 flex items-center justify-center min-w-0 pb-1.5">
+
+            {/* Center slot (tips, search bar, etc.) */}
+            <div className="flex-1 flex items-center justify-center min-w-0">
               {headerCenter}
             </div>
-            <div className="shrink-0 flex items-center gap-2 pb-1.5">
+
+            {/* Right controls */}
+            <div className="shrink-0 flex items-center gap-1">
               {headerRight}
               <button
                 onClick={toggleTheme}
                 className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
                 title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               >
-                {theme === "dark" ? (
-                  <LightModeIcon size={20} />
-                ) : (
-                  <DarkModeIcon size={20} />
-                )}
+                {theme === "dark" ? <LightModeIcon size={18} /> : <DarkModeIcon size={18} />}
               </button>
               <button
                 className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
                 title="Notifications"
                 aria-label="Notifications"
               >
-                <BellNotificationIcon size={20} />
+                <BellNotificationIcon size={18} />
               </button>
-              <div className="h-6 w-px bg-gray-200/60 dark:bg-white/10 self-center shrink-0" aria-hidden />
+              <div className="h-5 w-px bg-gray-200/60 dark:bg-white/10 self-center mx-1 shrink-0" aria-hidden />
               <button
                 onClick={() => router.push("/settings")}
                 className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
                 title="Settings"
                 aria-label="Open settings"
               >
-                <CircleUserIcon size={20} />
+                <CircleUserIcon size={18} />
               </button>
             </div>
           </div>
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-black border-t border-r border-b border-l border-gray-200/60 dark:border-white/10 rounded-tr-xl rounded-br-2xl">
+
+          {/* Page content */}
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             <RefreshSearchesProvider refresh={loadSearches}>
               {children}
             </RefreshSearchesProvider>

@@ -89,6 +89,7 @@ function toUserFriendlyMessage(err: unknown): string {
       if (match) {
         const [, status, body] = match;
         const statusNum = parseInt(status, 10);
+        if (statusNum === 429) return "You've hit the rate limit. Please wait a moment before trying again.";
         if (statusNum === 500) return "Something went wrong on our end. Please try again.";
         if (statusNum === 502 || statusNum === 503) return "The service is starting up or temporarily unavailable. Please try again in a minute.";
         if (statusNum >= 400 && statusNum < 500) {
@@ -137,7 +138,10 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
 
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(`API error ${res.status}: ${text}`);
+        const err = new Error(`API error ${res.status}: ${text}`);
+        // For 429 throw friendly message immediately — retrying would make it worse
+        if (res.status === 429) throw new Error(toUserFriendlyMessage(err));
+        throw err;
       }
       return res.json();
     } catch (err) {

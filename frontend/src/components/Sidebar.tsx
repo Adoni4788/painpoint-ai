@@ -77,7 +77,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
       <aside className="w-14 bg-paper dark:bg-ink flex flex-col shrink-0">
         <div className="shrink-0 flex flex-col">
           <div className="flex flex-col items-center gap-2 px-2 pt-4 pb-3">
-          <Logo size={24} gradient className="logo-app shrink-0" />
+          <Logo size={24} color="#4d7c7a" className="logo-app shrink-0" />
           <button
             onClick={onToggle}
             className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-200/60 dark:hover:bg-[#262626] transition-colors"
@@ -137,8 +137,11 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
       <div className="shrink-0 flex flex-col min-w-[240px]">
         <div className="flex items-center gap-2 px-3 py-4">
           <div className="flex items-center gap-2 shrink-0">
-            <Logo size={22} gradient className="logo-app shrink-0" />
-            <span className="gradient-primary-text text-lg font-heading font-semibold tracking-tight truncate overflow-hidden opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300">
+            {/* Fixed-width centering shell: w-10 (40px) + px-3 (12px) = 32px center = exact middle of w-16 rail */}
+            <div className="w-10 flex items-center justify-center shrink-0">
+              <Logo size={22} color="#4d7c7a" className="logo-app" />
+            </div>
+            <span className="gradient-brand-text text-lg font-heading font-semibold tracking-tight truncate overflow-hidden opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300">
               GapLens
             </span>
           </div>
@@ -151,7 +154,8 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             {isOpen ? <MdChevronLeft size={20} /> : <MdMenu size={20} />}
           </button>
         </div>
-        <div className="mx-3 border-b border-gray-200 dark:border-white/20" />
+        {/* Separator — hidden when rail is collapsed, fades in when expanded/hovered */}
+        <div className="mx-3 border-b border-gray-200 dark:border-white/20 opacity-0 group-hover:opacity-100 group-data-[expanded=true]:opacity-100 transition-opacity duration-200" />
       </div>
       {/* Navigation Links */}
       <div className="flex flex-col gap-0.5 px-2 pt-3 pb-2">
@@ -170,9 +174,9 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                   : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#262626] dark:hover:text-gray-200"
               }`}
             >
-<span className={isActive ? "text-gray-700 dark:text-gray-300" : "text-gray-400 dark:text-gray-500"}>
-                  {item.icon}
-                </span>
+              <span className={isActive ? "text-gray-700 dark:text-gray-300" : "text-gray-400 dark:text-gray-500"}>
+                {item.icon}
+              </span>
               <span className="opacity-0 w-0 overflow-hidden group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300 whitespace-nowrap">
                 {item.label}
               </span>
@@ -339,12 +343,12 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
         {searches.length === 0 ? (
           <p className="px-5 py-3 text-sm text-gray-400 dark:text-gray-500">No searches yet</p>
         ) : (
-          <ul className="space-y-0 px-2">
+          <ul className="space-y-0 pl-4">
             {searches.map((s) => (
               <li key={s.id}>
                 <button
                   onClick={() => onSelectSearch(s)}
-                  className={`w-full text-left px-3 py-2.5 text-sm transition-colors rounded-xl ${
+                  className={`w-full text-left pl-5 pr-4 py-2.5 text-sm transition-colors border-0 ring-0 -ml-4 rounded-r-xl relative z-10 ${
                     s.id === activeSearchId
                       ? "bg-white text-gray-900 dark:bg-black dark:text-gray-100"
                       : "text-gray-700 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:bg-[#262626]"

@@ -170,7 +170,7 @@ export default function ValidatePage() {
                     className={`${
                       submitted
                         ? "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20"
-                        : "gradient-primary hover:opacity-90 shadow-indigo-500/20"
+                        : "gradient-brand hover:opacity-90 shadow-orange-500/20"
                     } text-white px-7 py-3 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {submitted ? (

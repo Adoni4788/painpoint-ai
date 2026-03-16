@@ -126,7 +126,7 @@ export default function ValidatePage() {
           </p>
 
           {/* Description */}
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 leading-relaxed max-w-lg mx-auto">
+          <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed max-w-lg mx-auto">
             Describe your product idea in a sentence. GapLens mines six platforms for real frustrations to validate demand.
           </p>
 

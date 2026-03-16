@@ -55,9 +55,9 @@ class RedditCollector(BaseCollector):
                         await self._fetch_comments(client, post_data.get("permalink", ""), posts, limit - len(posts))
 
             except httpx.HTTPStatusError as e:
-                logger.warning(f"Reddit API HTTP error: {e.response.status_code}")
+                logger.warning("Reddit API HTTP error: %s", e.response.status_code)
             except Exception as e:
-                logger.error(f"Reddit collection error: {e}")
+                logger.error("Reddit collection error: %s", e)
 
         return posts[:limit]
 
@@ -93,4 +93,4 @@ class RedditCollector(BaseCollector):
                 if len(posts) >= remaining:
                     break
         except Exception as e:
-            logger.debug(f"Failed to fetch Reddit comments: {e}")
+            logger.debug("Failed to fetch Reddit comments: %s", e)

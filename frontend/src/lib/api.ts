@@ -1,5 +1,8 @@
 const API_BASE = "/api";
 
+// Injected via NEXT_PUBLIC_API_KEY env var; empty string means no auth (dev mode).
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY ?? "";
+
 export interface Workspace {
   id: string;
   name: string;
@@ -115,8 +118,11 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
     const timer = setTimeout(() => controller.abort(), timeout);
 
     try {
+      const authHeaders: Record<string, string> = API_KEY
+        ? { "X-Api-Key": API_KEY }
+        : {};
       const res = await fetch(`${API_BASE}${url}`, {
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders },
         ...options,
         signal: controller.signal,
       });

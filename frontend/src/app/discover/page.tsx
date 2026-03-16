@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { SourceFilters } from "@/components/SearchBar";
-import { MdExpandMore, MdExpandLess, MdTrendingUp, MdArrowForward } from "react-icons/md";
+import { MdExpandMore, MdExpandLess } from "react-icons/md";
+import { HiOutlineArrowUpRight } from "react-icons/hi2";
 import { SOURCES } from "@/lib/sources";
 import { AppShell } from "@/components/AppShell";
 import { ClusterList } from "@/components/ClusterList";
@@ -184,35 +185,35 @@ export default function DiscoverPage() {
       pageLabel={activeSearch ? "Recent Search" : undefined}
     >
       {!activeSearch ? (
-        /* Empty state: source bar + hero + search */
+        /* Immersive search: full-screen, glass-morphism */
         <>
           <div className="shrink-0 flex items-center justify-start gap-4 px-6 pt-4 pb-3 border-b border-gray-200/60 dark:border-white/5">
             <SourceFilters sources={sources} onToggle={toggleSource} />
           </div>
-          <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center min-h-0 px-6 py-12">
-            <div className="max-w-xl w-full mx-auto text-center">
+          <div className="noise-overlay flex-1 overflow-y-auto flex flex-col items-center justify-center min-h-0 px-6 py-12 relative">
+            <div className="relative z-10 max-w-2xl w-full mx-auto text-center">
 
-              {/* Icon */}
-              <div className="w-20 h-20 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center mx-auto mb-7">
-                <MdTrendingUp size={36} className="text-indigo-500 dark:text-indigo-400" />
-              </div>
-
-              {/* Heading */}
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Discover Pain Points</h2>
-
-              {/* Subtitle */}
-              <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
-                Enter a keyword, niche, competitor, or product category to find real frustrations people are sharing online.
+              {/* Deep Search heading */}
+              <h2 className="font-heading text-3xl md:text-4xl font-bold text-ink dark:text-paper mb-2">
+                Find the Gap
+              </h2>
+              <p className="font-mono text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-8">
+                Deep Search · Opportunity Discovery
               </p>
 
-              {/* Search form */}
+              {/* Subtitle */}
+              <p className="text-gray-600 dark:text-gray-400 mb-10 leading-relaxed max-w-lg mx-auto">
+                Enter a keyword, niche, or product category. GapLens mines six platforms for real frustrations—with authenticity scoring.
+              </p>
+
+              {/* Million-Dollar search bar — pill shape, shadow, focus-within accent */}
               <DiscoverSearchForm onSearch={handleSearch} loading={loading} />
 
               {/* Source badges */}
-              <div className="flex items-center justify-center gap-5 flex-wrap mt-6">
-                {SOURCES.filter(s => ["reddit","hackernews","amazon","youtube"].includes(s.id)).map((src) => (
-                  <span key={src.id} className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                    <src.Icon size={13} className={src.iconColor} />
+              <div className="flex items-center justify-center gap-6 flex-wrap mt-8">
+                {SOURCES.map((src) => (
+                  <span key={src.id} className="flex items-center gap-1.5 font-mono text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                    <src.Icon size={12} className={src.iconColor} />
                     {src.label}
                   </span>
                 ))}
@@ -255,6 +256,7 @@ export default function DiscoverPage() {
                   clusters={clusters}
                   selectedClusterId={selectedReport?.cluster.id ?? null}
                   onSelectCluster={handleSelectCluster}
+                  totalDataPoints={activeSearch?.total_relevant_complaints ?? activeSearch?.total_complaints_found ?? 0}
                 />
               ) : activeSearch?.status === "completed" && clusters.length === 0 ? (
                 <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
@@ -299,25 +301,39 @@ function DiscoverSearchForm({
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="flex items-center gap-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-full px-5 py-2.5 shadow-sm focus-within:border-indigo-300 dark:focus-within:border-indigo-500/40 transition-colors">
-        <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
+    <form onSubmit={handleSubmit} className="w-full max-w-3xl relative mx-auto">
+      <div className="relative flex items-center p-2 bg-white dark:bg-[#121214] border border-black/10 dark:border-white/10 rounded-[32px] shadow-2xl focus-within:border-accent/50 transition-all duration-500">
+        {/* Search/Command icon */}
+        <div className="pl-6 pr-4 text-slate-400 dark:text-slate-500 shrink-0">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+
+        {/* Input field */}
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search a niche, keyword, or competitor..."
-          className="flex-1 bg-transparent text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 outline-none min-w-0"
+          placeholder="Search a niche, competitor, or pain point..."
+          className="flex-1 bg-transparent border-none focus:ring-0 text-xl py-6 placeholder:text-slate-300 dark:placeholder:text-slate-500 text-ink dark:text-paper outline-none min-w-0"
           disabled={loading}
         />
+
+        {/* Analyze button */}
         <button
           type="submit"
           disabled={loading || !query.trim()}
-          className="shrink-0 flex items-center gap-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-full transition-colors"
+          className="gradient-primary hover:opacity-90 text-white px-10 py-5 rounded-[24px] font-bold transition-all flex items-center gap-3 shadow-xl shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
         >
-          {loading ? "Searching…" : <><span>Discover</span><MdArrowForward size={16} /></>}
+          {loading ? (
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            <>
+              Analyze
+              <HiOutlineArrowUpRight size={20} />
+            </>
+          )}
         </button>
       </div>
     </form>

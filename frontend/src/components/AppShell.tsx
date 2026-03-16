@@ -88,7 +88,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
         </div>
       )}
       {/* Body: sidebar + main content */}
-      <div className="flex flex-1 overflow-hidden bg-[#e9edf5] dark:bg-[#171717]">
+      <div className="flex flex-1 overflow-hidden bg-paper dark:bg-ink">
         <Sidebar
           searches={searches}
           activeSearchId={activeSearchId ?? null}
@@ -98,12 +98,12 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
         />
 
         {/* bg matches canvas so rounded-tr-2xl corner on content div shows the correct color */}
-        <main id="main-content" className="flex-1 flex flex-col overflow-hidden min-w-0 bg-[#e9edf5] dark:bg-[#171717] rounded-2xl rounded-t-none rounded-bl-xl border-t border-l border-t-[#e9edf5] dark:border-t-[#171717] border-l-[#e9edf5] dark:border-l-[#171717] mr-2 mb-2">
-          {/* Tab bar */}
-          <div className="shrink-0 flex items-end gap-1 pl-0 pr-4 pt-2.5 pb-0 bg-[#e9edf5] dark:bg-[#171717]">
+        <main id="main-content" className="flex-1 flex flex-col overflow-hidden min-w-0 bg-paper dark:bg-ink rounded-2xl rounded-t-none rounded-bl-xl border-t border-t-paper dark:border-t-ink mr-2 mb-2">
+          {/* Tab bar — no full-height border; Discover tab's border extends down to meet content area */}
+          <div className="shrink-0 flex items-end gap-1 pl-0 pr-4 pt-2.5 pb-0 bg-paper dark:bg-ink">
             {/* Tab + plus button — vertically aligned */}
             <div className="flex items-center gap-1 -mb-px">
-              <div className="-ml-px pl-6 pr-8 py-2.5 rounded-t-xl bg-white dark:bg-black border-x border-t border-gray-200 dark:border-white/10 relative z-10">
+              <div className="pl-6 pr-8 py-2.5 rounded-t-xl bg-white dark:bg-black border-x border-t border-gray-200/60 dark:border-white/10 relative z-10">
                 <p className="text-base font-medium text-gray-800 dark:text-gray-200 text-left">
                   {currentPageLabel}
                 </p>
@@ -115,7 +115,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 >
                   <path
                     d="M 24 24 L 0 24 L 0 0 A 24 24 0 0 0 24 24 Z"
-                    className="fill-[#e9edf5] dark:fill-[#171717]"
+                    className="fill-paper dark:fill-ink"
                   />
                 </svg>
                 {/* Curved element at bottom-right (inside): blends tab into content area below */}
@@ -144,7 +144,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
               {pathname === "/discover" && onNewSearch && (
                 <button
                   onClick={onNewSearch}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-[#262626] transition-colors shrink-0"
+                  className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-200/60 dark:border-white/10 text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-[#262626] transition-colors shrink-0"
                   title="New search"
                   aria-label="New search"
                 >
@@ -175,6 +175,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
               >
                 <BellNotificationIcon size={20} />
               </button>
+              <div className="h-6 w-px bg-gray-200/60 dark:bg-white/10 self-center shrink-0" aria-hidden />
               <button
                 onClick={() => router.push("/settings")}
                 className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
@@ -185,7 +186,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
               </button>
             </div>
           </div>
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-black border-t border-r border-gray-200 dark:border-white/10 rounded-tr-xl rounded-br-2xl">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-black border-t border-r border-b border-l border-gray-200/60 dark:border-white/10 rounded-tr-xl rounded-br-2xl">
             <RefreshSearchesProvider refresh={loadSearches}>
               {children}
             </RefreshSearchesProvider>

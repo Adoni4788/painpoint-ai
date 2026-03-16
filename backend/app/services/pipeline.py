@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from ..models.search import Search, RawPost, PainCluster, PRDDraft
-from .collectors import RedditCollector, HackerNewsCollector, AmazonCollector, G2Collector, YouTubeCollector
+from .collectors import RedditCollector, HackerNewsCollector, AmazonCollector, G2Collector, YouTubeCollector, FacebookCollector
 from .collectors.base import CollectedPost
 from . import ai_service
 
@@ -23,6 +23,7 @@ COLLECTOR_MAP = {
     "amazon": AmazonCollector,
     "g2": G2Collector,
     "youtube": YouTubeCollector,
+    "facebook": FacebookCollector,
 }
 
 # Rule-based authenticity caps by content type.

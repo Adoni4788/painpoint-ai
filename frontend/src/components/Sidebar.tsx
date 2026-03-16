@@ -74,9 +74,9 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   const activeWorkspace = workspaces.find((w) => w.id === activeWorkspaceId);
   const displayName = activeWorkspace?.name ?? "All workspaces";
 
-  if (!isOpen) {
+  if (false) {
     return (
-      <aside className="w-14 bg-[#e9edf5] dark:bg-[#171717] flex flex-col shrink-0">
+      <aside className="w-14 bg-paper dark:bg-ink flex flex-col shrink-0">
         <div className="shrink-0 flex flex-col">
           <div className="flex flex-col items-center gap-2 px-2 pt-4 pb-3">
           <Logo size={24} color={theme === "dark" ? "#ffffff" : "#4d7c7a"} className="logo-app shrink-0" />
@@ -131,35 +131,26 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   }
 
   return (
-    <aside className="sidebar-aside w-60 bg-[#e9edf5] dark:bg-[#171717] flex flex-col shrink-0">
+    <aside
+      data-expanded={isOpen}
+      className={`sidebar-aside group bg-paper dark:bg-ink flex flex-col shrink-0 transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-60" : "w-16 hover:w-60"}`}
+    >
       {/* Sidebar header: logo, name, collapse */}
-      <div className="shrink-0 flex flex-col">
+      <div className="shrink-0 flex flex-col min-w-[240px]">
         <div className="flex items-center gap-2 px-3 py-4">
-          <div className="flex items-center gap-2 opacity-85">
-            <Logo size={22} color={theme === "dark" ? "#ffffff" : "#4d7c7a"} className="logo-app shrink-0" />
-            <span
-              className="text-lg font-semibold tracking-tight truncate"
-              style={
-                theme === "dark"
-                  ? { color: "#ffffff" }
-                  : {
-                      background: "linear-gradient(to right, #4d7c7a, #a16207)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      backgroundClip: "text",
-                    }
-              }
-            >
+          <div className="flex items-center gap-2 shrink-0">
+            <Logo size={22} color={theme === "dark" ? "#ffffff" : "#6366f1"} className="logo-app shrink-0" />
+            <span className="gradient-primary-text text-lg font-heading font-semibold tracking-tight truncate overflow-hidden opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300">
               GapLens
             </span>
           </div>
           <button
             onClick={onToggle}
-            className="ml-auto p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-200/60 dark:hover:bg-[#262626] transition-colors"
-            title="Collapse sidebar"
-            aria-label="Collapse sidebar"
+            className={`ml-auto p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-200/60 dark:hover:bg-[#262626] transition-colors shrink-0 ${!isOpen ? "opacity-0 group-hover:opacity-100" : ""}`}
+            title={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+            aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
           >
-            <MdChevronLeft size={20} />
+            {isOpen ? <MdChevronLeft size={20} /> : <MdMenu size={20} />}
           </button>
         </div>
         <div className="mx-3 border-b border-gray-200 dark:border-white/20" />
@@ -181,17 +172,19 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                   : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#262626] dark:hover:text-gray-200"
               }`}
             >
-              <span className={isActive ? "text-gray-700 dark:text-gray-300" : "text-gray-400 dark:text-gray-500"}>
-                {item.icon}
+<span className={isActive ? "text-gray-700 dark:text-gray-300" : "text-gray-400 dark:text-gray-500"}>
+                  {item.icon}
+                </span>
+              <span className="opacity-0 w-0 overflow-hidden group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300 whitespace-nowrap">
+                {item.label}
               </span>
-              {item.label}
             </Link>
           );
         })}
       </div>
 
-      {/* Workspace Selector */}
-      <div className="px-3 py-2" ref={menuRef}>
+      {/* Workspace Selector — hidden when rail collapsed */}
+      <div className="hidden group-hover:block group-data-[expanded=true]:block px-3 py-2 transition-opacity" ref={menuRef}>
         <div className="px-2 mb-1.5">
           <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Workspace</p>
         </div>
@@ -338,10 +331,10 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
       </div>
 
       {/* Divider */}
-      <div className="mx-4 border-t border-gray-100 dark:border-white/10" />
+      <div className="hidden group-hover:block group-data-[expanded=true]:block mx-4 border-t border-gray-100 dark:border-white/10" />
 
       {/* Recent Searches */}
-      <nav className="flex-1 overflow-y-auto py-3 scrollbar-sidebar">
+      <nav className="hidden group-hover:flex group-data-[expanded=true]:flex flex-1 flex-col overflow-y-auto py-3 scrollbar-sidebar min-h-0">
         <div className="px-3 mb-2">
           <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-2">Recent Searches</p>
         </div>
@@ -376,8 +369,8 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
         )}
       </nav>
 
-      <div className="p-3">
-        <p className="text-[10px] text-gray-400 dark:text-gray-600 text-center">GapLens v0.1</p>
+      <div className="hidden group-hover:block group-data-[expanded=true]:block p-3">
+        <p className="font-mono text-[10px] text-gray-400 dark:text-gray-500 text-center">GapLens v0.1</p>
       </div>
     </aside>
   );

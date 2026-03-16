@@ -3,7 +3,7 @@
  */
 
 import { SiReddit, SiYcombinator, SiG2, SiYoutube } from "react-icons/si";
-import { FaAmazon } from "react-icons/fa";
+import { FaAmazon, FaFacebook } from "react-icons/fa";
 
 export interface SourceConfig {
   id: string;
@@ -23,6 +23,7 @@ export const SOURCES: SourceConfig[] = [
   { id: "amazon", label: "Amazon Reviews", icon: "A", color: "bg-yellow-600", landingColor: "bg-amber-600/25 text-white border-amber-600/50", iconColor: "text-amber-400", Icon: FaAmazon },
   { id: "g2", label: "G2", icon: "G", color: "bg-green-600", landingColor: "bg-emerald-500/25 text-white border-emerald-500/50", iconColor: "text-emerald-400", Icon: SiG2 },
   { id: "youtube", label: "YouTube", icon: "▶", color: "bg-red-600", landingColor: "bg-red-500/25 text-white border-red-500/50", iconColor: "text-red-400", Icon: SiYoutube },
+  { id: "facebook", label: "Facebook", icon: "f", color: "bg-blue-600", landingColor: "bg-blue-500/25 text-white border-blue-500/50", iconColor: "text-blue-400", Icon: FaFacebook },
 ];
 
 /** For SearchBar/SourceFilters – same structure, backward compatible */

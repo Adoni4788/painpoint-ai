@@ -9,7 +9,15 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        heading: ["var(--font-space-grotesk)", "system-ui", "sans-serif"],
+        mono: ["var(--font-jetbrains-mono)", "monospace"],
+      },
       colors: {
+        ink: "#0A0A0B",
+        paper: "#F9F9FB",
+        accent: "#6366f1", // Indigo from gradient-primary for focus states
         brand: {
           50: "#eff6ff",
           100: "#dbeafe",

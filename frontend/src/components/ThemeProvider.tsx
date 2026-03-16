@@ -41,8 +41,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const toggle = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
 
-  if (!mounted) return null;
-
+  // Always render children — never return null, which would cause a React 19
+  // hydration mismatch (server renders empty, client renders full tree → 500).
+  // Theme class is applied via the second useEffect after mount.
   return (
     <ThemeContext.Provider value={{ theme, toggle }}>
       {children}

@@ -115,22 +115,6 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
 
-      {/* ── Background video ─────────────────────────── */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <video autoPlay loop muted playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-50"
-          style={{ objectPosition: "center center" }}>
-          <source src="/video/Futuristic_Data_Device_Looping_Video.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-[#0a0a0a]/60" />
-      </div>
-
-      {/* ── Ambient glow ─────────────────────────────── */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[radial-gradient(ellipse_at_50%_0%,rgba(77,124,122,0.07),transparent_70%)]" />
-        <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-[radial-gradient(ellipse_at_100%_50%,rgba(34,197,94,0.04),transparent_70%)]" />
-      </div>
-
       {/* ════════════════════════════════════════════════
           HEADER
       ════════════════════════════════════════════════ */}
@@ -184,9 +168,25 @@ export default function LandingPage() {
       </header>
 
       {/* ════════════════════════════════════════════════
-          HERO
+          HERO — video confined here only
       ════════════════════════════════════════════════ */}
-      <section className="relative z-[10] px-6 pt-36 pb-20 max-w-3xl mx-auto text-center">
+      <section className="relative overflow-hidden">
+        {/* Video — scoped to hero only */}
+        <div className="absolute inset-0 pointer-events-none">
+          <video autoPlay loop muted playsInline
+            className="absolute inset-0 w-full h-full object-cover opacity-50"
+            style={{ objectPosition: "center center" }}>
+            <source src="/video/Futuristic_Data_Device_Looping_Video.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-[#0a0a0a]/60" />
+          {/* Ambient glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[radial-gradient(ellipse_at_50%_0%,rgba(77,124,122,0.08),transparent_70%)]" />
+          {/* Fade to solid background at the bottom */}
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
+        </div>
+
+        {/* Hero content */}
+        <div className="relative z-10 px-6 pt-36 pb-24 max-w-3xl mx-auto text-center">
 
         {/* Status pill */}
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-xs text-gray-500 mb-8 tracking-wide">
@@ -226,7 +226,8 @@ export default function LandingPage() {
         </div>
 
         <p className="text-xs text-gray-700 tracking-wide">Free to try · No credit card required</p>
-      </section>
+        </div>{/* end hero content */}
+      </section>{/* end hero — video ends here */}
 
       {/* ════════════════════════════════════════════════
           STATS BAR

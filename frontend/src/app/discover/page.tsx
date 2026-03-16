@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { SearchBar, SourceFilters } from "@/components/SearchBar";
-import { MdExpandMore, MdExpandLess } from "react-icons/md";
+import { SourceFilters } from "@/components/SearchBar";
+import { MdExpandMore, MdExpandLess, MdTrendingUp, MdArrowForward } from "react-icons/md";
+import { SOURCES } from "@/lib/sources";
 import { AppShell } from "@/components/AppShell";
 import { ClusterList } from "@/components/ClusterList";
 import { ReportPanel } from "@/components/ReportPanel";
@@ -183,18 +184,40 @@ export default function DiscoverPage() {
       pageLabel={activeSearch ? "Recent Search" : undefined}
     >
       {!activeSearch ? (
-        /* Empty state: source bar + hero + search bar */
+        /* Empty state: source bar + hero + search */
         <>
           <div className="shrink-0 flex items-center justify-start gap-4 px-6 pt-4 pb-3 border-b border-gray-200/60 dark:border-white/5">
             <SourceFilters sources={sources} onToggle={toggleSource} />
           </div>
-          <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center min-h-0">
-            <div className="max-w-xl w-full mx-auto">
+          <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center min-h-0 px-6 py-12">
+            <div className="max-w-xl w-full mx-auto text-center">
+
+              {/* Icon */}
+              <div className="w-20 h-20 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center mx-auto mb-7">
+                <MdTrendingUp size={36} className="text-indigo-500 dark:text-indigo-400" />
+              </div>
+
+              {/* Heading */}
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Discover Pain Points</h2>
-              <p className="text-gray-500 dark:text-gray-400 mb-6">
+
+              {/* Subtitle */}
+              <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
                 Enter a keyword, niche, competitor, or product category to find real frustrations people are sharing online.
               </p>
-              <SearchBar onSearch={handleSearch} loading={loading} />
+
+              {/* Search form */}
+              <DiscoverSearchForm onSearch={handleSearch} loading={loading} />
+
+              {/* Source badges */}
+              <div className="flex items-center justify-center gap-5 flex-wrap mt-6">
+                {SOURCES.filter(s => ["reddit","hackernews","amazon","youtube"].includes(s.id)).map((src) => (
+                  <span key={src.id} className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                    <src.Icon size={13} className={src.iconColor} />
+                    {src.label}
+                  </span>
+                ))}
+              </div>
+
             </div>
           </div>
         </>
@@ -261,11 +284,52 @@ export default function DiscoverPage() {
   );
 }
 
+function DiscoverSearchForm({
+  onSearch,
+  loading,
+}: {
+  onSearch: (q: string) => void;
+  loading: boolean;
+}) {
+  const [query, setQuery] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (query.trim() && !loading) onSearch(query.trim());
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div className="flex items-center gap-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-full px-5 py-2.5 shadow-sm focus-within:border-indigo-300 dark:focus-within:border-indigo-500/40 transition-colors">
+        <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search a niche, keyword, or competitor..."
+          className="flex-1 bg-transparent text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 outline-none min-w-0"
+          disabled={loading}
+        />
+        <button
+          type="submit"
+          disabled={loading || !query.trim()}
+          className="shrink-0 flex items-center gap-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-full transition-colors"
+        >
+          {loading ? "Searching…" : <><span>Discover</span><MdArrowForward size={16} /></>}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 function KeyInsightsSummary({ summary }: { summary: string }) {
   const [expanded, setExpanded] = useState(true);
   return (
     <div className="mb-6 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-[#171717]/50 overflow-hidden">
       <button
+        type="button"
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-100/50 dark:hover:bg-white/5 transition-colors"
       >

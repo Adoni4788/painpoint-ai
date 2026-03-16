@@ -12,6 +12,7 @@ const inter = Inter({
   display: "swap",
 });
 
+
 export const metadata: Metadata = {
   title: "GapLens — Opportunity Discovery Engine",
   description: "Turn public complaints into product opportunities",

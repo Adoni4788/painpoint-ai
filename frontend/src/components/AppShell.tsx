@@ -104,7 +104,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
             {/* Tab + plus button — vertically aligned */}
             <div className="flex items-center gap-1 -mb-px">
               <div className="-ml-px pl-6 pr-8 py-2.5 rounded-t-xl bg-white dark:bg-black border-x border-t border-gray-200 dark:border-white/10 relative z-10">
-                <p className="text-sm font-medium text-gray-800 dark:text-gray-200 text-left">
+                <p className="text-base font-medium text-gray-800 dark:text-gray-200 text-left">
                   {currentPageLabel}
                 </p>
                 {/* Curved element at bottom-left: canvas color slopes up into tab */}
@@ -163,9 +163,9 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               >
                 {theme === "dark" ? (
-                  <LightModeIcon size={16} />
+                  <LightModeIcon size={20} />
                 ) : (
-                  <DarkModeIcon size={16} />
+                  <DarkModeIcon size={20} />
                 )}
               </button>
               <button
@@ -173,15 +173,15 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 title="Notifications"
                 aria-label="Notifications"
               >
-                <BellNotificationIcon size={18} />
+                <BellNotificationIcon size={20} />
               </button>
               <button
                 onClick={() => router.push("/settings")}
-                className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#262626] flex items-center justify-center ring-1 ring-gray-300/50 dark:ring-white/10 hover:ring-amber-500/60 dark:hover:ring-amber-500/60 transition-all"
+                className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
                 title="Settings"
                 aria-label="Open settings"
               >
-                <CircleUserIcon size={28} className="text-gray-500 dark:text-gray-400" />
+                <CircleUserIcon size={20} />
               </button>
             </div>
           </div>

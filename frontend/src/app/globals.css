@@ -4,6 +4,12 @@
 
 
 @layer utilities {
+  .gradient-text-opportunity {
+    background: linear-gradient(to right, #06b6d4, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
   .score-bar {
     @apply h-2 rounded-full;
     transition: width 0.6s ease;

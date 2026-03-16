@@ -19,7 +19,7 @@ export default function SettingsPage() {
         <div className="max-w-2xl text-left">
 
           {/* Appearance */}
-          <section className="rounded-xl bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-xl border border-gray-200/60 dark:border-white/10 shadow-xl shadow-black/10 dark:shadow-black/10 p-5 mb-6">
+          <section className="rounded-xl bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 p-5 mb-6">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Appearance</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Choose light or dark mode.</p>
             <fieldset className="flex gap-2 border-0 p-0 m-0">
@@ -64,7 +64,7 @@ export default function SettingsPage() {
           </section>
 
           {/* Default workspace */}
-          <section className="rounded-xl bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-xl border border-gray-200/60 dark:border-white/10 shadow-xl shadow-black/10 dark:shadow-black/10 p-5">
+          <section className="rounded-xl bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 p-5">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Default workspace</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
               Which workspace to show when you open GapLens. You can also change this from the sidebar.

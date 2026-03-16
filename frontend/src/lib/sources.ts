@@ -20,10 +20,10 @@ export interface SourceConfig {
 export const SOURCES: SourceConfig[] = [
   { id: "reddit", label: "Reddit", icon: "R", color: "bg-orange-500", landingColor: "bg-orange-500/25 text-white border-orange-500/50", iconColor: "text-orange-400", Icon: SiReddit },
   { id: "hackernews", label: "Hacker News", icon: "Y", color: "bg-amber-500", landingColor: "bg-amber-500/25 text-white border-amber-500/50", iconColor: "text-amber-400", Icon: SiYcombinator },
-  { id: "amazon", label: "Amazon Reviews", icon: "A", color: "bg-yellow-600", landingColor: "bg-amber-600/25 text-white border-amber-600/50", iconColor: "text-amber-400", Icon: FaAmazon },
+  { id: "amazon", label: "Amazon Discussions", icon: "A", color: "bg-yellow-600", landingColor: "bg-amber-600/25 text-white border-amber-600/50", iconColor: "text-amber-400", Icon: FaAmazon },
   { id: "g2", label: "G2", icon: "G", color: "bg-green-600", landingColor: "bg-emerald-500/25 text-white border-emerald-500/50", iconColor: "text-emerald-400", Icon: SiG2 },
   { id: "youtube", label: "YouTube", icon: "▶", color: "bg-red-600", landingColor: "bg-red-500/25 text-white border-red-500/50", iconColor: "text-red-400", Icon: SiYoutube },
-  { id: "facebook", label: "Facebook", icon: "f", color: "bg-blue-600", landingColor: "bg-blue-500/25 text-white border-blue-500/50", iconColor: "text-blue-400", Icon: FaFacebook },
+  { id: "facebook", label: "Facebook Discussions", icon: "f", color: "bg-blue-600", landingColor: "bg-blue-500/25 text-white border-blue-500/50", iconColor: "text-blue-400", Icon: FaFacebook },
 ];
 
 /** For SearchBar/SourceFilters – same structure, backward compatible */

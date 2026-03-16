@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { MdAdd, MdExpandMore, MdEdit, MdDelete, MdChevronLeft, MdMenu } from "react-icons/md";
 import { SearchResult } from "@/lib/api";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
-import { useTheme } from "@/components/ThemeProvider";
 import { Logo } from "@/components/Logo";
 import { GlobalResearchIcon, DiscoverIcon, VoteYeaIcon, SettingsIcon, FolderPlusCircleIcon } from "@/components/SidebarIcons";
 
@@ -43,7 +42,6 @@ const NAV_ITEMS = [
 
 export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSearch }: SidebarProps) {
   const pathname = usePathname();
-  const { theme } = useTheme();
   const {
     workspaces,
     activeWorkspaceId,
@@ -79,7 +77,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
       <aside className="w-14 bg-paper dark:bg-ink flex flex-col shrink-0">
         <div className="shrink-0 flex flex-col">
           <div className="flex flex-col items-center gap-2 px-2 pt-4 pb-3">
-          <Logo size={24} color={theme === "dark" ? "#ffffff" : "#4d7c7a"} className="logo-app shrink-0" />
+          <Logo size={24} gradient className="logo-app shrink-0" />
           <button
             onClick={onToggle}
             className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-200/60 dark:hover:bg-[#262626] transition-colors"
@@ -139,7 +137,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
       <div className="shrink-0 flex flex-col min-w-[240px]">
         <div className="flex items-center gap-2 px-3 py-4">
           <div className="flex items-center gap-2 shrink-0">
-            <Logo size={22} color={theme === "dark" ? "#ffffff" : "#6366f1"} className="logo-app shrink-0" />
+            <Logo size={22} gradient className="logo-app shrink-0" />
             <span className="gradient-primary-text text-lg font-heading font-semibold tracking-tight truncate overflow-hidden opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300">
               GapLens
             </span>
@@ -156,7 +154,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
         <div className="mx-3 border-b border-gray-200 dark:border-white/20" />
       </div>
       {/* Navigation Links */}
-      <div className="flex flex-col gap-0.5 px-3 pt-3 pb-2">
+      <div className="flex flex-col gap-0.5 px-2 pt-3 pb-2">
         {NAV_ITEMS.map((item) => {
           const isActive =
             item.href === "/discover"
@@ -166,7 +164,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-2 pl-5 pr-4 py-2.5 text-[13px] font-medium transition-colors w-full border-0 ring-0 -ml-3 rounded-r-xl ${
+              className={`flex items-center gap-2 px-3 py-2.5 text-[13px] font-medium transition-colors w-full rounded-xl ${
                 isActive
                   ? "bg-white text-gray-900 dark:bg-black dark:text-gray-100"
                   : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#262626] dark:hover:text-gray-200"
@@ -341,12 +339,12 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
         {searches.length === 0 ? (
           <p className="px-5 py-3 text-sm text-gray-400 dark:text-gray-500">No searches yet</p>
         ) : (
-          <ul className="space-y-0 pl-4">
+          <ul className="space-y-0 px-2">
             {searches.map((s) => (
               <li key={s.id}>
                 <button
                   onClick={() => onSelectSearch(s)}
-                  className={`w-full text-left pl-5 pr-4 py-2.5 text-sm transition-colors border-0 ring-0 -ml-4 rounded-r-xl relative z-10 ${
+                  className={`w-full text-left px-3 py-2.5 text-sm transition-colors rounded-xl ${
                     s.id === activeSearchId
                       ? "bg-white text-gray-900 dark:bg-black dark:text-gray-100"
                       : "text-gray-700 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:bg-[#262626]"

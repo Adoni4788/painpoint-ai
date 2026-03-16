@@ -2,9 +2,12 @@ interface LogoProps {
   className?: string;
   size?: number;
   color?: string;
+  /** When true, fills the mark with the indigo→violet→purple brand gradient */
+  gradient?: boolean;
 }
 
-export function Logo({ className = "", size = 28, color }: LogoProps) {
+export function Logo({ className = "", size = 28, color, gradient = false }: LogoProps) {
+  const gradId = "logo-grad-mark";
   return (
     <span
       className={`inline-block shrink-0 ${className}`}
@@ -19,12 +22,21 @@ export function Logo({ className = "", size = 28, color }: LogoProps) {
         shapeRendering="geometricPrecision"
         aria-hidden
       >
+        {gradient && (
+          <defs>
+            <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stopColor="#6366f1" />
+              <stop offset="50%"  stopColor="#8b5cf6" />
+              <stop offset="100%" stopColor="#a855f7" />
+            </linearGradient>
+          </defs>
+        )}
         <path
-          fill="currentColor"
+          fill={gradient ? `url(#${gradId})` : "currentColor"}
           d="M11.36,147.19.4,136.24l15.34-15.33A75,75,0,1,1,146.23,51.5H129.5A59.35,59.35,0,1,0,26.9,109.74l9.92-9.92A45.54,45.54,0,1,1,114,51.5H93.48a29.9,29.9,0,1,0,10.41,31.24H75V67.26l44.88-.05a45.54,45.54,0,0,1-69.27,46.25c-1.11-.72-2.2-1.47-3.25-2.27Z"
         />
         <path
-          fill="currentColor"
+          fill={gradient ? `url(#${gradId})` : "currentColor"}
           d="M150,75A75,75,0,0,1,32.31,136.62a.33.33,0,0,1-.1-.06l11.27-11.28.1.06A59.33,59.33,0,0,0,134.36,75a60.67,60.67,0,0,0-.51-7.79H149.6A77.09,77.09,0,0,1,150,75Z"
         />
       </svg>

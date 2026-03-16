@@ -1,11 +1,19 @@
-from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import DeclarativeBase
 from .config import get_settings
 
 settings = get_settings()
 
-engine = create_async_engine(settings.database_url, echo=False, pool_size=10, max_overflow=20, pool_timeout=60)
+# pool_size / max_overflow sized for Render free-tier PostgreSQL (M1).
+# pool_recycle avoids stale connections after long idle periods.
+engine = create_async_engine(
+    settings.database_url,
+    echo=False,
+    pool_size=5,
+    max_overflow=10,
+    pool_timeout=30,
+    pool_recycle=1800,
+)
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
@@ -26,11 +34,14 @@ async def get_db() -> AsyncSession:
 
 
 async def init_db():
+    """
+    Create all tables on a fresh database.
+
+    For schema migrations on an existing database, use Alembic:
+        cd backend && alembic upgrade head
+
+    The inline ALTER TABLE calls that previously lived here have been moved
+    into the Alembic initial migration (alembic/versions/001_initial_schema.py).
+    """
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        # Migration: add summary column to searches if missing
-        await conn.execute(text("ALTER TABLE searches ADD COLUMN IF NOT EXISTS summary TEXT"))
-        # Migration: add workspace_id to searches if missing (run after workspaces table exists)
-        await conn.execute(text(
-            "ALTER TABLE searches ADD COLUMN IF NOT EXISTS workspace_id UUID REFERENCES workspaces(id)"
-        ))

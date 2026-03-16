@@ -1,21 +1,25 @@
 """
-Main analysis pipeline that orchestrates query expansion, data collection,
-complaint detection, relevance filtering, clustering, scoring, and report generation.
+Main analysis pipeline: query expansion → data collection → complaint detection
+→ relevance filtering → clustering → scoring → summary.
 """
 import asyncio
 import json
 import logging
+import re
 import uuid
-from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
+from ..core.config import get_settings
+from ..core.utils import utcnow
 from ..models.search import Search, RawPost, PainCluster, PRDDraft
 from .collectors import RedditCollector, HackerNewsCollector, AmazonCollector, G2Collector, YouTubeCollector, FacebookCollector
 from .collectors.base import CollectedPost
 from . import ai_service
 
 logger = logging.getLogger(__name__)
+
+settings = get_settings()
 
 COLLECTOR_MAP = {
     "reddit": RedditCollector,
@@ -34,14 +38,19 @@ AUTHENTICITY_CAPS = {
     "comparison_post": 0.45,
 }
 
+# Statuses that indicate a pipeline is still running — used by delete_search guard.
+IN_PROGRESS_STATUSES = frozenset(
+    {"pending", "expanding", "collecting", "analyzing", "detecting", "clustering", "scoring"}
+)
+
 
 def _apply_authenticity_cap(content_type: str, authenticity_score: float) -> float:
     """Cap authenticity score based on content_type classification."""
     cap = AUTHENTICITY_CAPS.get(content_type)
     if cap is not None and authenticity_score > cap:
         logger.debug(
-            f"Authenticity capped: {content_type} scored {authenticity_score:.2f}, "
-            f"capped to {cap:.2f}"
+            "Authenticity capped: %s scored %.2f, capped to %.2f",
+            content_type, authenticity_score, cap,
         )
         return cap
     return authenticity_score
@@ -58,10 +67,9 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
     6. Score each cluster
     7. Save results
     """
-
     search = await db.get(Search, search_id)
     if not search:
-        logger.error(f"Search {search_id} not found")
+        logger.error("Search %s not found", search_id)
         return
 
     try:
@@ -74,21 +82,30 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
         niche_keywords = expansion.get("keywords", [])
         niche_description = expansion.get("niche_description")
 
-        logger.info(f"Expanded '{query}' into {len(subtopics)} subtopics: {subtopics}")
+        logger.info("Expanded '%s' into %d subtopics", query, len(subtopics))
 
-        # --- COLLECT (using expanded subtopic queries) ---
+        # --- COLLECT ---
         search.status = "collecting"
         await db.commit()
 
         all_posts = await _collect_from_sources_expanded(query, subtopics, sources)
         all_posts = _deduplicate_posts(all_posts)
-        logger.info(f"Collected {len(all_posts)} unique posts for query '{query}'")
+        logger.info("Collected %d unique posts for query '%s'", len(all_posts), query)
 
         if not all_posts:
             search.status = "completed"
-            search.completed_at = datetime.utcnow()
+            search.completed_at = utcnow()
             await db.commit()
             return
+
+        # Cost guard: cap the number of posts fed to the LLM (M3)
+        max_posts = settings.max_posts_per_pipeline
+        if len(all_posts) > max_posts:
+            logger.info(
+                "Capping posts from %d to %d (max_posts_per_pipeline)",
+                len(all_posts), max_posts,
+            )
+            all_posts = all_posts[:max_posts]
 
         # --- SAVE RAW POSTS ---
         search.status = "analyzing"
@@ -135,9 +152,9 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
             complaint_score = float(result.get("complaint_score", 0.0))
             relevance = result.get("relevance", "unrelated")
             relevance_score = float(result.get("relevance_score", 0.0))
-
             content_type = result.get("content_type", "unknown")
             authenticity_score = float(result.get("authenticity_score", 0.5))
+
             # YouTube comments tend to be noisier; apply multiplicative downweight
             if raw_post_records[idx].source == "youtube":
                 authenticity_score *= 0.85
@@ -165,8 +182,7 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
 
         search.total_complaints_found = len(all_complaint_posts)
 
-        # --- RELEVANCE FILTER (authenticity-aware) ---
-        # Block promotional/guide content regardless of complaint score
+        # --- RELEVANCE FILTER ---
         relevant_complaints = []
         for c in all_complaint_posts:
             if c["relevance"] != "directly_relevant" or c["relevance_score"] < 0.6:
@@ -175,16 +191,17 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
                 continue
             relevant_complaints.append(c)
 
+        # Fall back to somewhat_relevant if we don't have enough directly_relevant
         if len(relevant_complaints) < 5:
             somewhat = [
                 c for c in all_complaint_posts
-                if c["relevance"] == "somewhat_relevant" and c["relevance_score"] >= 0.4
+                if c["relevance"] == "somewhat_relevant"
+                and c["relevance_score"] >= 0.4
                 and c["authenticity_score"] >= 0.4
             ]
             relevant_complaints.extend(somewhat)
 
-        # Sort so firsthand complaints and high-authenticity posts come first
-        # This ensures clustering sees the best evidence first
+        # Sort so firsthand/high-authenticity posts come first (best evidence to clustering)
         relevant_complaints.sort(key=lambda c: c["authenticity_score"], reverse=True)
 
         search.total_relevant_complaints = len(relevant_complaints)
@@ -192,22 +209,22 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
 
         blocked_by_auth = sum(
             1 for c in all_complaint_posts
-            if c["relevance"] == "directly_relevant" and c["relevance_score"] >= 0.6
+            if c["relevance"] == "directly_relevant"
+            and c["relevance_score"] >= 0.6
             and c["authenticity_score"] < 0.4
         )
         logger.info(
-            f"Relevance filter: {len(all_complaint_posts)} complaints -> "
-            f"{len(relevant_complaints)} relevant for '{query}' "
-            f"({blocked_by_auth} blocked by authenticity)"
+            "Relevance filter: %d complaints -> %d relevant for '%s' (%d blocked by authenticity)",
+            len(all_complaint_posts), len(relevant_complaints), query, blocked_by_auth,
         )
 
         if not relevant_complaints:
             search.status = "completed"
-            search.completed_at = datetime.utcnow()
+            search.completed_at = utcnow()
             await db.commit()
             return
 
-        # --- CLUSTER (niche-aware) ---
+        # --- CLUSTER ---
         search.status = "clustering"
         await db.commit()
 
@@ -226,20 +243,19 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
                 if i < len(relevant_complaints)
             ]
 
-            source_counts = {}
+            source_counts: dict[str, int] = {}
             for i in member_indices:
                 if i < len(relevant_complaints):
                     src = relevant_complaints[i]["source"]
                     source_counts[src] = source_counts.get(src, 0) + 1
 
-            # Compute average authenticity for this cluster
-            cluster_authenticity_scores = [
+            cluster_auth_scores = [
                 relevant_complaints[i]["authenticity_score"] for i in member_indices
                 if i < len(relevant_complaints)
             ]
             avg_auth = (
-                sum(cluster_authenticity_scores) / len(cluster_authenticity_scores)
-                if cluster_authenticity_scores else 0.5
+                sum(cluster_auth_scores) / len(cluster_auth_scores)
+                if cluster_auth_scores else 0.5
             )
 
             scores = await ai_service.score_cluster(
@@ -284,17 +300,25 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
         search.summary = await ai_service.generate_search_summary(query, cluster_summaries)
 
         search.status = "completed"
-        search.completed_at = datetime.utcnow()
+        search.completed_at = utcnow()
         await db.commit()
 
         logger.info(
-            f"Pipeline completed for '{query}': {len(cluster_data)} clusters "
-            f"from {len(relevant_complaints)} relevant complaints"
+            "Pipeline completed for '%s': %d clusters from %d relevant complaints",
+            query, len(cluster_data), len(relevant_complaints),
         )
 
     except Exception as e:
-        logger.error(f"Pipeline error for search {search_id}: {e}")
+        logger.error("Pipeline error for search %s: %s", search_id, e)
         await db.rollback()
+
+        # Clean up any partially committed posts and clusters for this search (H7)
+        try:
+            await db.execute(delete(RawPost).where(RawPost.search_id == search_id))
+            await db.execute(delete(PainCluster).where(PainCluster.search_id == search_id))
+        except Exception as cleanup_err:
+            logger.warning("Partial state cleanup failed for search %s: %s", search_id, cleanup_err)
+
         search = await db.get(Search, search_id)
         if search:
             search.status = "failed"
@@ -358,12 +382,11 @@ async def _collect_from_sources_expanded(
 ) -> list[CollectedPost]:
     """
     Collect from sources using expanded subtopic queries with controlled concurrency.
-    Runs at most 4 collection tasks in parallel to avoid overwhelming APIs and the server.
+    Runs at most 4 collection tasks in parallel.
     """
     all_queries = [original_query] + [s for s in subtopics if s != original_query]
     per_query_limit = max(8, 40 // len(all_queries))
 
-    # Build list of (query, source) pairs
     task_specs: list[tuple[str, str]] = []
     for search_query in all_queries:
         for source in sources:
@@ -373,7 +396,6 @@ async def _collect_from_sources_expanded(
     if not task_specs:
         return []
 
-    all_posts: list[CollectedPost] = []
     semaphore = asyncio.Semaphore(4)
 
     async def _run_one(q: str, src: str) -> list[CollectedPost]:
@@ -382,10 +404,11 @@ async def _collect_from_sources_expanded(
                 collector = COLLECTOR_MAP[src]()
                 return await collector.collect(q, limit=per_query_limit)
             except Exception as e:
-                logger.warning(f"Collection failed ({src}, {q[:40]}): {e}")
+                logger.warning("Collection failed (%s, %.40s): %s", src, q, e)
                 return []
 
     results = await asyncio.gather(*[_run_one(q, s) for q, s in task_specs])
+    all_posts: list[CollectedPost] = []
     for batch in results:
         all_posts.extend(batch)
 
@@ -393,15 +416,28 @@ async def _collect_from_sources_expanded(
 
 
 def _deduplicate_posts(posts: list[CollectedPost]) -> list[CollectedPost]:
-    """Remove duplicate posts based on text similarity (exact prefix match)."""
-    seen_texts: set[str] = set()
+    """
+    Remove duplicate posts using two complementary strategies (M5):
+    1. Exact URL match — same post fetched by multiple subtopic queries.
+    2. Normalized text fingerprint — same content with slight formatting differences.
+    """
+    seen_urls: set[str] = set()
+    seen_text_keys: set[str] = set()
     unique: list[CollectedPost] = []
 
     for post in posts:
-        # Use first 200 chars as dedup key
-        key = post.text[:200].strip().lower()
-        if key not in seen_texts:
-            seen_texts.add(key)
-            unique.append(post)
+        # Primary: deduplicate by canonical URL
+        if post.url:
+            if post.url in seen_urls:
+                continue
+            seen_urls.add(post.url)
+
+        # Secondary: deduplicate by normalized text fingerprint
+        normalized = re.sub(r"\W+", "", post.text.lower())[:400]
+        if normalized in seen_text_keys:
+            continue
+        seen_text_keys.add(normalized)
+
+        unique.append(post)
 
     return unique

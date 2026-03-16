@@ -1,17 +1,48 @@
 import json
 import logging
+import re
 from openai import AsyncOpenAI
 from ..core.config import get_settings
 
 logger = logging.getLogger(__name__)
 
 settings = get_settings()
-client = AsyncOpenAI(api_key=settings.openai_api_key)
+
+# ---------------------------------------------------------------------------
+# OpenAI client — max_retries enables built-in exponential backoff on 429/5xx;
+# timeout covers the full request lifecycle. (H4, H6)
+# ---------------------------------------------------------------------------
+client = AsyncOpenAI(
+    api_key=settings.openai_api_key,
+    max_retries=3,
+    timeout=60.0,
+)
 MODEL = settings.openai_model
 
 
+# ---------------------------------------------------------------------------
+# Input sanitization — prevents prompt injection (C2)
+# ---------------------------------------------------------------------------
+def sanitize_user_input(text: str, max_length: int = 500) -> str:
+    """
+    Sanitize user-supplied text before embedding it in an LLM prompt.
+
+    Strips characters that could escape the prompt context (quotes, backticks)
+    and removes control characters / newlines that could inject new instructions.
+    """
+    if not text:
+        return ""
+    text = text.replace('"', "'").replace("`", "'")
+    text = re.sub(r"[\r\n\t]+", " ", text)
+    text = re.sub(r"[^\x20-\x7E\u00A0-\uFFFF]", "", text)
+    return text.strip()[:max_length]
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 def _log_openai_usage(endpoint: str, resp) -> None:
-    """Log OpenAI token usage for Experiment 1 (cost per search)."""
+    """Log OpenAI token usage for cost tracking."""
     if resp.usage:
         inp = getattr(resp.usage, "input_tokens", None) or getattr(resp.usage, "prompt_tokens", 0)
         out = getattr(resp.usage, "output_tokens", None) or getattr(resp.usage, "completion_tokens", 0)
@@ -21,22 +52,36 @@ def _log_openai_usage(endpoint: str, resp) -> None:
         )
 
 
+def _strip_json_fences(content: str) -> str:
+    content = content.strip()
+    if content.startswith("```"):
+        content = content.split("\n", 1)[1] if "\n" in content else content[3:]
+        if content.endswith("```"):
+            content = content[:-3]
+    return content.strip()
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
 async def extract_keywords_from_idea(idea: str) -> list[str]:
     """
     Extract exactly 3 search keywords from a product idea.
-    Used for Experiment 2 (minimal Validate flow).
-    Returns keywords suitable for OR-query search.
+    Used for the minimal Validate flow.
     """
-    prompt = f"""A user has this product idea: "{idea}"
+    safe_idea = sanitize_user_input(idea, max_length=500)
 
-Extract exactly 3 keywords or short phrases that would best surface real complaints,
-frustrations, and pain points when searching Reddit, Hacker News, Amazon, G2, or YouTube.
-
-Rules:
-- Each keyword should be 1-4 words
-- Choose terms people actually use when complaining (e.g. "email deliverability", "spam folder", "open rate")
-- Avoid generic terms; be specific to the idea
-- Return ONLY a JSON array of exactly 3 strings. No markdown, no explanation."""
+    prompt = (
+        f"A user has this product idea: '{safe_idea}'\n\n"
+        "Extract exactly 3 keywords or short phrases that would best surface real complaints,\n"
+        "frustrations, and pain points when searching Reddit, Hacker News, Amazon, G2, or YouTube.\n\n"
+        "Rules:\n"
+        "- Each keyword should be 1-4 words\n"
+        "- Choose terms people actually use when complaining\n"
+        "- Avoid generic terms; be specific to the idea\n"
+        "- Return ONLY a JSON array of exactly 3 strings. No markdown, no explanation."
+    )
 
     try:
         resp = await client.chat.completions.create(
@@ -57,57 +102,39 @@ Rules:
             return keywords[:3]
         return [idea] * 3
     except Exception as e:
-        logger.error(f"Keyword extraction error: {e}")
+        logger.error("Keyword extraction error: %s", e)
         words = idea.split()[:3]
         return words if len(words) >= 3 else [idea] * 3
 
 
-def _strip_json_fences(content: str) -> str:
-    content = content.strip()
-    if content.startswith("```"):
-        content = content.split("\n", 1)[1] if "\n" in content else content[3:]
-        if content.endswith("```"):
-            content = content[:-3]
-    return content.strip()
-
-
 async def expand_query(query: str) -> dict:
     """
-    Expand a user's niche query into subtopic search queries and a list of
-    related keywords. This ensures data collection covers the full breadth
-    of the niche rather than just the literal search string.
-
-    Returns: {
-        "subtopics": ["email deliverability problems", "email automation workflow issues", ...],
-        "keywords": ["deliverability", "open rate", "spam", "segmentation", ...],
-        "niche_description": "one-line description of the niche"
-    }
+    Expand a user's niche query into subtopic search queries and related keywords.
     """
-    prompt = f"""A user wants to discover pain points in the niche: "{query}"
+    safe_query = sanitize_user_input(query, max_length=300)
 
-Generate search queries and keywords to comprehensively cover this niche.
-
-Return a JSON object with:
-- "subtopics": array of 6-10 specific search queries that would surface complaints
-  and frustrations in different areas of the "{query}" niche. Each should target a
-  distinct problem area. Include the niche context in each query so they work as
-  standalone search strings.
-  Example for "email marketing software":
-  [
-    "email marketing deliverability problems spam",
-    "email automation workflow frustrations",
-    "email marketing segmentation limitations",
-    "email campaign analytics reporting issues",
-    "email template builder complaints",
-    "email marketing pricing too expensive",
-    "email marketing integration problems CRM",
-    "email list management complaints"
-  ]
-- "keywords": array of 10-15 single terms or short phrases central to the niche,
-  used later for relevance scoring
-- "niche_description": one sentence describing what "{query}" refers to
-
-Return ONLY valid JSON. No markdown, no explanation."""
+    prompt = (
+        f"A user wants to discover pain points in the niche: '{safe_query}'\n\n"
+        "Generate search queries and keywords to comprehensively cover this niche.\n\n"
+        "Return a JSON object with:\n"
+        "- \"subtopics\": array of 6-10 specific search queries that would surface complaints\n"
+        f"  and frustrations in different areas of the '{safe_query}' niche. Each should target a\n"
+        "  distinct problem area. Include the niche context in each query.\n"
+        "  Example for 'email marketing software':\n"
+        "  [\n"
+        "    \"email marketing deliverability problems spam\",\n"
+        "    \"email automation workflow frustrations\",\n"
+        "    \"email marketing segmentation limitations\",\n"
+        "    \"email campaign analytics reporting issues\",\n"
+        "    \"email template builder complaints\",\n"
+        "    \"email marketing pricing too expensive\",\n"
+        "    \"email marketing integration problems CRM\",\n"
+        "    \"email list management complaints\"\n"
+        "  ]\n"
+        "- \"keywords\": array of 10-15 single terms or short phrases central to the niche\n"
+        f"- \"niche_description\": one sentence describing what '{safe_query}' refers to\n\n"
+        "Return ONLY valid JSON. No markdown, no explanation."
+    )
 
     try:
         resp = await client.chat.completions.create(
@@ -126,7 +153,7 @@ Return ONLY valid JSON. No markdown, no explanation."""
             data["niche_description"] = query
         return data
     except Exception as e:
-        logger.error(f"Query expansion error: {e}")
+        logger.error("Query expansion error: %s", e)
         return {
             "subtopics": [query],
             "keywords": query.split(),
@@ -141,23 +168,22 @@ async def detect_complaints_and_relevance(
     niche_description: str | None = None,
 ) -> list[dict]:
     """
-    Combined pass: for each text, determine if it's a complaint AND whether
-    it's relevant to the search query. Uses expanded niche keywords and
-    niche_description for more accurate relevance classification.
-
-    Returns list of dicts with: index, is_complaint, complaint_score,
-    relevance (directly_relevant | somewhat_relevant | unrelated), relevance_score
+    Combined pass: for each text, determine if it is a complaint AND whether
+    it is relevant to the search query.
     """
     if not texts:
         return []
 
+    safe_query = sanitize_user_input(query, max_length=300)
+
     keyword_context = ""
     if niche_keywords:
-        keyword_context = f"\nKey terms in this niche: {', '.join(niche_keywords[:15])}"
+        safe_keywords = [sanitize_user_input(k, max_length=50) for k in niche_keywords[:15]]
+        keyword_context = f"\nKey terms in this niche: {', '.join(safe_keywords)}"
 
     niche_context = ""
     if niche_description:
-        niche_context = f"\nNiche context: {niche_description}"
+        niche_context = f"\nNiche context: {sanitize_user_input(niche_description, max_length=200)}"
 
     results = []
     batch_size = 15
@@ -168,79 +194,51 @@ async def detect_complaints_and_relevance(
             f"[{j}] {item['text'][:600]}" for j, item in enumerate(batch)
         )
 
-        prompt = f"""You are analyzing public posts for a user researching the niche: "{query}"{keyword_context}{niche_context}
-
-For EACH numbered text below, determine:
-1. Is it a complaint, frustration, pain point, or unmet need?
-2. Is it RELEVANT to the niche "{query}"?
-3. What TYPE of content is this?
-4. How AUTHENTIC is the pain expressed?
-
-A post is "directly_relevant" ONLY if it discusses a problem, frustration, or unmet need
-that is specifically about {query} or closely related products/services/workflows in that space.
-The complaint must be about something a {query} user would recognize as part of their domain.
-
-A post is "somewhat_relevant" if it touches on the niche tangentially but the core
-complaint is about something adjacent (e.g., a general marketing complaint when the niche
-is specifically about email marketing software).
-
-A post is "unrelated" if the complaint has nothing to do with {query} — even if it is
-a genuine complaint about something else entirely. Be STRICT here.
-
-CRITICAL — Mark as "unrelated" if the post is about a DIFFERENT product category, even when
-it uses similar words (e.g., "search", "discovery"). Examples:
-- For niche "product discovery tool": A complaint about Gemini's web search is UNRELATED
-  (AI assistant, not product discovery software for PMs). A complaint about Titanium
-  mobile framework is UNRELATED (different product category entirely).
-- For niche "email marketing software": A complaint about Gmail search is UNRELATED
-  (email client, not marketing tool).
-- The post must be about the SAME category of product/service as "{query}". If it's
-  about AI assistants, mobile frameworks, unrelated SaaS, etc., mark it unrelated.
-
-Content types — classify each post as ONE of:
-- "firsthand_complaint": the author personally experienced the problem and is expressing frustration
-- "help_seeking": the author is asking for help solving a specific problem they face
-- "workaround_discussion": the author shares workarounds or solutions they found for a real problem
-- "comparison_post": the author is comparing tools/products, may mention pain points secondhand
-- "promotional_content": affiliate links, product promotion, SEO content, or marketing disguised as advice
-- "guide_article": educational/how-to content, tips articles, or polished blog-style posts
-
-Authenticity scoring (0.0-1.0) — BE STRICT, err on the side of scoring LOW:
-- 0.8-1.0 = raw firsthand pain, clearly personal experience, specific details about THEIR situation
-  Example: "I spent 3 hours trying to get my emails out of spam, Mailchimp support was useless"
-- 0.6-0.8 = genuine help-seeking or workaround sharing with personal context
-  Example: "Has anyone found a way to improve open rates? Mine dropped to 8% after the last update"
-- 0.3-0.5 = secondhand pain mentions, comparison posts discussing real trade-offs
-  Example: "I switched from X to Y because X had poor automation, but Y's pricing is steep"
-- 0.1-0.2 = polished guide content, promotional posts, SEO articles, affiliate content, "best tools" lists
-  Example: "Ultimate Guide to Email Deliverability: 10 Tips to Boost Your Open Rate"
-- 0.0 = pure marketing/spam with no real user pain
-
-CRITICAL — these patterns MUST receive authenticity 0.2 or below:
-- Posts with affiliate links or referral codes
-- "Ultimate guide", "complete guide", "definitive guide" style titles
-- "Best [tools/software/platforms] in [year]" or "Top 10" listicle format
-- Polished, well-structured marketing content with CTAs ("Sign up", "Try free", "Use code")
-- Content that reads like a blog post rather than a forum/social media post
-- SEO-optimized content with keyword stuffing or unnatural keyword placement
-
-COMMON MISTAKE: Do NOT give a post authenticity 0.5+ just because it mentions a real problem.
-A promotional post about email deliverability tips still gets 0.1-0.2 even if deliverability IS
-a real problem — what matters is whether THIS SPECIFIC AUTHOR is expressing genuine personal pain.
-
-For each text return a JSON object:
-- "index": the bracket number
-- "is_complaint": true/false
-- "complaint_score": 0.0-1.0 (how strongly this is a complaint)
-- "relevance": "directly_relevant" | "somewhat_relevant" | "unrelated"
-- "relevance_score": 0.0-1.0 (how related this is to "{query}")
-- "content_type": one of the six types above
-- "authenticity_score": 0.0-1.0 (how genuine the pain expression is)
-
-Texts:
-{numbered}
-
-Return ONLY a valid JSON array. No markdown, no explanation."""
+        prompt = (
+            f"You are analyzing public posts for a user researching the niche: '{safe_query}'"
+            f"{keyword_context}{niche_context}\n\n"
+            "For EACH numbered text below, determine:\n"
+            "1. Is it a complaint, frustration, pain point, or unmet need?\n"
+            "2. Is it RELEVANT to the niche?\n"
+            "3. What TYPE of content is this?\n"
+            "4. How AUTHENTIC is the pain expressed?\n\n"
+            f"A post is 'directly_relevant' ONLY if it discusses a problem specifically about\n"
+            f"'{safe_query}' or closely related products/services/workflows in that space.\n\n"
+            "A post is 'somewhat_relevant' if it touches on the niche tangentially.\n\n"
+            f"A post is 'unrelated' if it has nothing to do with '{safe_query}'. Be STRICT.\n\n"
+            "CRITICAL: Mark as 'unrelated' if the post is about a DIFFERENT product category,\n"
+            "even when it uses similar words.\n\n"
+            "Content types — classify each post as ONE of:\n"
+            "- \"firsthand_complaint\": author personally experienced the problem\n"
+            "- \"help_seeking\": author is asking for help with a specific problem they face\n"
+            "- \"workaround_discussion\": author shares workarounds for a real problem\n"
+            "- \"comparison_post\": comparing tools/products, may mention pain points secondhand\n"
+            "- \"promotional_content\": affiliate links, product promotion, marketing disguised as advice\n"
+            "- \"guide_article\": educational/how-to content, tips articles, polished blog-style posts\n\n"
+            "Authenticity scoring (0.0-1.0) — BE STRICT, err on the side of scoring LOW:\n"
+            "- 0.8-1.0 = raw firsthand pain, clearly personal experience, specific details\n"
+            "- 0.6-0.8 = genuine help-seeking or workaround sharing with personal context\n"
+            "- 0.3-0.5 = secondhand pain mentions, comparison posts discussing real trade-offs\n"
+            "- 0.1-0.2 = polished guide content, promotional posts, SEO articles\n"
+            "- 0.0 = pure marketing/spam with no real user pain\n\n"
+            "CRITICAL — these patterns MUST receive authenticity 0.2 or below:\n"
+            "- Posts with affiliate links or referral codes\n"
+            "- 'Ultimate guide', 'complete guide', 'definitive guide' style titles\n"
+            "- 'Best [tools] in [year]' or 'Top 10' listicle format\n"
+            "- Polished marketing content with CTAs\n"
+            "- Content that reads like a blog post rather than a forum post\n"
+            "- SEO-optimized content\n\n"
+            "For each text return a JSON object:\n"
+            "- \"index\": the bracket number\n"
+            "- \"is_complaint\": true/false\n"
+            "- \"complaint_score\": 0.0-1.0\n"
+            "- \"relevance\": \"directly_relevant\" | \"somewhat_relevant\" | \"unrelated\"\n"
+            "- \"relevance_score\": 0.0-1.0\n"
+            "- \"content_type\": one of the six types above\n"
+            "- \"authenticity_score\": 0.0-1.0\n\n"
+            f"Texts:\n{numbered}\n\n"
+            "Return ONLY a valid JSON array. No markdown, no explanation."
+        )
 
         try:
             resp = await client.chat.completions.create(
@@ -255,7 +253,7 @@ Return ONLY a valid JSON array. No markdown, no explanation."""
                 item["index"] = item["index"] + i
             results.extend(batch_results)
         except Exception as e:
-            logger.error(f"Detection+relevance error: {e}")
+            logger.error("Detection+relevance error: %s", e)
             for j in range(len(batch)):
                 results.append({
                     "index": i + j,
@@ -263,30 +261,32 @@ Return ONLY a valid JSON array. No markdown, no explanation."""
                     "complaint_score": 0.0,
                     "relevance": "unrelated",
                     "relevance_score": 0.0,
+                    "content_type": "unknown",
+                    "authenticity_score": 0.0,
                 })
 
     return results
 
 
 async def generate_search_summary(query: str, cluster_labels_and_summaries: list[dict]) -> str:
-    """
-    Generate a 2-3 sentence executive summary of the key insights from a search.
-    """
+    """Generate a 2-3 sentence executive summary of key insights from a search."""
     if not cluster_labels_and_summaries:
         return ""
 
+    safe_query = sanitize_user_input(query, max_length=300)
     items = "\n".join(
         f"- {c.get('label', 'Unknown')}: {c.get('summary', '')[:150]}"
         for c in cluster_labels_and_summaries[:8]
     )
 
-    prompt = f"""A user researched the niche "{query}" and found these pain point clusters:
-
-{items}
-
-Write a 2-3 sentence executive summary that captures the key insights. Focus on the most
-actionable opportunities and recurring themes. Be concise and specific to the niche.
-Do NOT use bullet points or headers. Return ONLY the summary text."""
+    prompt = (
+        f"A user researched the niche '{safe_query}' and found these pain point clusters:\n\n"
+        f"{items}\n\n"
+        "Write a 2-3 sentence executive summary that captures the key insights. "
+        "Focus on the most actionable opportunities and recurring themes. "
+        "Be concise and specific to the niche.\n"
+        "Do NOT use bullet points or headers. Return ONLY the summary text."
+    )
 
     try:
         resp = await client.chat.completions.create(
@@ -298,50 +298,42 @@ Do NOT use bullet points or headers. Return ONLY the summary text."""
         _log_openai_usage("generate_search_summary", resp)
         return resp.choices[0].message.content.strip()
     except Exception as e:
-        logger.error(f"Search summary error: {e}")
+        logger.error("Search summary error: %s", e)
         return ""
 
 
 async def cluster_complaints(query: str, complaints: list[dict]) -> list[dict]:
-    """
-    Group complaints into niche-specific thematic clusters.
-    The query is injected so the LLM produces cluster labels that
-    are meaningful within the searched niche, not generic categories.
-    """
+    """Group complaints into niche-specific thematic clusters."""
     if not complaints:
         return []
 
+    safe_query = sanitize_user_input(query, max_length=300)
     complaint_texts = "\n".join(
         f"[{i}] {c['text'][:400]}" for i, c in enumerate(complaints[:80])
     )
 
-    prompt = f"""You are a product opportunity analyst specializing in the niche: "{query}"
-
-Below are complaints and frustrations from real users, all related to "{query}".
-Group them into 3-8 SPECIFIC pain point clusters.
-
-CRITICAL RULES:
-- Cluster labels MUST be specific to the "{query}" niche
-- Do NOT use generic labels like "Software Issues", "Poor Customer Support", "Pricing Problems"
-- DO use labels that someone in the {query} space would immediately recognize
-- Example: for "email marketing software", good labels would be:
-  "Email Deliverability Failures", "Poor Automation Workflow Design",
-  "Weak Segmentation Capabilities", "Template Editor Limitations"
-- Each cluster should represent a concrete, buildable product opportunity
-
-Complaints:
-{complaint_texts}
-
-For each cluster provide:
-- "label": niche-specific name (max 10 words, specific to {query})
-- "summary": 2-3 sentences describing the specific problem within {query}
-- "member_indices": array of complaint numbers belonging to this cluster
-- "who_has_problem": who in the {query} space faces this (be specific)
-- "why_it_matters": business impact specific to {query} users
-- "suggested_solution": a concrete product/feature idea for this niche
-- "product_angle": how a startup could build a business around this in the {query} space
-
-Return ONLY a valid JSON array. No markdown, no explanation."""
+    prompt = (
+        f"You are a product opportunity analyst specializing in the niche: '{safe_query}'\n\n"
+        "Below are complaints and frustrations from real users. "
+        "Group them into 3-8 SPECIFIC pain point clusters.\n\n"
+        "CRITICAL RULES:\n"
+        f"- Cluster labels MUST be specific to the '{safe_query}' niche\n"
+        "- Do NOT use generic labels like 'Software Issues', 'Poor Customer Support', 'Pricing Problems'\n"
+        f"- DO use labels that someone in the {safe_query} space would immediately recognize\n"
+        "- Example for 'email marketing software': 'Email Deliverability Failures',\n"
+        "  'Poor Automation Workflow Design', 'Weak Segmentation Capabilities'\n"
+        "- Each cluster should represent a concrete, buildable product opportunity\n\n"
+        f"Complaints:\n{complaint_texts}\n\n"
+        "For each cluster provide:\n"
+        f"- \"label\": niche-specific name (max 10 words, specific to {safe_query})\n"
+        f"- \"summary\": 2-3 sentences describing the specific problem within {safe_query}\n"
+        "- \"member_indices\": array of complaint numbers belonging to this cluster\n"
+        f"- \"who_has_problem\": who in the {safe_query} space faces this (be specific)\n"
+        f"- \"why_it_matters\": business impact specific to {safe_query} users\n"
+        "- \"suggested_solution\": a concrete product/feature idea for this niche\n"
+        f"- \"product_angle\": how a startup could build a business around this in the {safe_query} space\n\n"
+        "Return ONLY a valid JSON array. No markdown, no explanation."
+    )
 
     try:
         resp = await client.chat.completions.create(
@@ -353,7 +345,7 @@ Return ONLY a valid JSON array. No markdown, no explanation."""
         _log_openai_usage("cluster_complaints", resp)
         return json.loads(_strip_json_fences(resp.choices[0].message.content))
     except Exception as e:
-        logger.error(f"Clustering error: {e}")
+        logger.error("Clustering error: %s", e)
         return [{
             "label": f"General {query} complaints",
             "summary": f"Various complaints about {query}",
@@ -361,42 +353,37 @@ Return ONLY a valid JSON array. No markdown, no explanation."""
         }]
 
 
-async def score_cluster(query: str, cluster_label: str, complaints_text: list[str], avg_authenticity: float = 0.5) -> dict:
+async def score_cluster(
+    query: str,
+    cluster_label: str,
+    complaints_text: list[str],
+    avg_authenticity: float = 0.5,
+) -> dict:
     """
     Score a cluster on frequency, emotion, urgency, niche relevance,
     and overall opportunity — all contextualized to the search query.
-    Authenticity context is provided so the LLM can factor in evidence quality.
     """
+    safe_query = sanitize_user_input(query, max_length=300)
+    safe_label = sanitize_user_input(cluster_label, max_length=200)
     joined = "\n".join(f"- {t[:250]}" for t in complaints_text[:20])
-
     auth_label = "high" if avg_authenticity >= 0.7 else "moderate" if avg_authenticity >= 0.4 else "low"
 
-    prompt = f"""Score this pain point cluster as a product opportunity in the "{query}" niche.
-
-Cluster: {cluster_label}
-Niche: {query}
-Evidence authenticity: {auth_label} ({avg_authenticity:.2f}/1.0) — this reflects whether the complaints
-come from firsthand user experiences vs promotional/guide content. Low authenticity means the
-evidence is weaker and the scores should be more conservative.
-
-Sample complaints:
-{joined}
-
-Score each dimension from 1.0 to 10.0:
-- "frequency_score": how commonly this problem occurs among {query} users
-- "emotion_score": how frustrated or angry users are about this specific issue
-- "urgency_score": how urgently {query} users need this solved
-- "relevance_score": how specifically this cluster relates to {query} (10 = core niche issue, 1 = barely related)
-- "opportunity_score": overall product opportunity considering all factors above
-
-The opportunity_score should heavily weight relevance_score — a highly relevant
-moderate-severity problem is better than a barely-relevant severe problem.
-
-Additionally, clusters backed by high-authenticity evidence (firsthand complaints, help-seeking
-posts) should score higher than clusters backed mainly by promotional or guide content.
-If authenticity is low, reduce the opportunity_score by 1-2 points as the evidence is less trustworthy.
-
-Return ONLY a JSON object with these five numeric fields. No markdown, no explanation."""
+    prompt = (
+        f"Score this pain point cluster as a product opportunity in the '{safe_query}' niche.\n\n"
+        f"Cluster: {safe_label}\n"
+        f"Niche: {safe_query}\n"
+        f"Evidence authenticity: {auth_label} ({avg_authenticity:.2f}/1.0)\n\n"
+        f"Sample complaints:\n{joined}\n\n"
+        "Score each dimension from 1.0 to 10.0:\n"
+        f"- \"frequency_score\": how commonly this problem occurs among {safe_query} users\n"
+        "- \"emotion_score\": how frustrated or angry users are about this specific issue\n"
+        f"- \"urgency_score\": how urgently {safe_query} users need this solved\n"
+        f"- \"relevance_score\": how specifically this cluster relates to {safe_query} (10 = core niche issue)\n"
+        "- \"opportunity_score\": overall product opportunity considering all factors above\n\n"
+        "The opportunity_score should heavily weight relevance_score.\n"
+        "If authenticity is low, reduce opportunity_score by 1-2 points.\n\n"
+        "Return ONLY a JSON object with these five numeric fields. No markdown, no explanation."
+    )
 
     try:
         resp = await client.chat.completions.create(
@@ -410,53 +397,54 @@ Return ONLY a JSON object with these five numeric fields. No markdown, no explan
             scores[key] = max(1.0, min(10.0, float(scores.get(key, 5.0))))
         return scores
     except Exception as e:
-        logger.error(f"Scoring error: {e}")
+        logger.error("Scoring error: %s", e)
         return {
             "frequency_score": 5.0, "emotion_score": 5.0, "urgency_score": 5.0,
             "relevance_score": 5.0, "opportunity_score": 5.0,
         }
 
 
-async def generate_prd(query: str, cluster_label: str, summary: str, complaints: list[str], who: str, solution: str) -> dict:
+async def generate_prd(
+    query: str,
+    cluster_label: str,
+    summary: str,
+    complaints: list[str],
+    who: str,
+    solution: str,
+) -> dict:
     """Generate a niche-specific PRD from a pain point cluster."""
-
+    safe_query = sanitize_user_input(query, max_length=300)
+    safe_label = sanitize_user_input(cluster_label, max_length=200)
+    safe_summary = sanitize_user_input(summary, max_length=500)
+    safe_who = sanitize_user_input(who, max_length=300)
+    safe_solution = sanitize_user_input(solution, max_length=400)
     complaints_text = "\n".join(f"- {c[:250]}" for c in complaints[:15])
 
-    prompt = f"""Generate a focused PRD (Product Requirements Document) for a product
-that solves a specific pain point in the "{query}" niche.
-
-IMPORTANT: The PRD must be tightly scoped to the "{query}" space.
-Do NOT propose a generic platform. Propose a specific product that a {query} user
-would immediately understand and want.
-
-Pain Point: {cluster_label}
-Niche: {query}
-Summary: {summary}
-Who has this problem: {who}
-Suggested solution direction: {solution}
-
-Real complaints from {query} users:
-{complaints_text}
-
-Generate a PRD with these sections:
-1. Product Concept - a specific product for the {query} space (2-3 sentences)
-2. Target User - specific persona within {query} (2-3 sentences)
-3. Problem Statement - the concrete problem in {query} (2-3 sentences)
-4. Core Features - 4-6 features specific to solving this {query} problem (array of strings)
-5. MVP Suggestion - the MINIMUM first version that delivers value. This must be:
-   - Buildable by a small team in 4-6 weeks
-   - Focused on ONE core workflow, not a full platform
-   - 2-3 specific capabilities only (not a feature list)
-   - Something a user could test in under 5 minutes
-   - Example: for email deliverability, an MVP is "paste your email, get a spam-risk
-     score and 3 actionable fixes" — NOT "comprehensive analytics dashboard with
-     A/B testing and integrations"
-
-Return as JSON with keys: product_concept, target_user, problem_statement,
-core_features (array), mvp_suggestion.
-Also include a "full_text" key with the complete PRD as formatted markdown text.
-
-Return ONLY valid JSON. No markdown code fences, no explanation outside the JSON."""
+    prompt = (
+        f"Generate a focused PRD (Product Requirements Document) for a product\n"
+        f"that solves a specific pain point in the '{safe_query}' niche.\n\n"
+        f"IMPORTANT: Tightly scope the PRD to the '{safe_query}' space.\n"
+        f"Propose a specific product that a {safe_query} user would immediately understand.\n\n"
+        f"Pain Point: {safe_label}\n"
+        f"Niche: {safe_query}\n"
+        f"Summary: {safe_summary}\n"
+        f"Who has this problem: {safe_who}\n"
+        f"Suggested solution direction: {safe_solution}\n\n"
+        f"Real complaints from {safe_query} users:\n{complaints_text}\n\n"
+        "Generate a PRD with these sections:\n"
+        f"1. Product Concept - a specific product for the {safe_query} space (2-3 sentences)\n"
+        f"2. Target User - specific persona within {safe_query} (2-3 sentences)\n"
+        f"3. Problem Statement - the concrete problem in {safe_query} (2-3 sentences)\n"
+        "4. Core Features - 4-6 features specific to solving this problem (array of strings)\n"
+        "5. MVP Suggestion - the MINIMUM first version that delivers value:\n"
+        "   - Buildable by a small team in 4-6 weeks\n"
+        "   - Focused on ONE core workflow\n"
+        "   - 2-3 specific capabilities only\n\n"
+        "Return as JSON with keys: product_concept, target_user, problem_statement,\n"
+        "core_features (array), mvp_suggestion.\n"
+        "Also include a \"full_text\" key with the complete PRD as formatted markdown.\n\n"
+        "Return ONLY valid JSON. No markdown code fences, no explanation outside the JSON."
+    )
 
     try:
         resp = await client.chat.completions.create(
@@ -468,12 +456,17 @@ Return ONLY valid JSON. No markdown code fences, no explanation outside the JSON
         _log_openai_usage("generate_prd", resp)
         return json.loads(_strip_json_fences(resp.choices[0].message.content))
     except Exception as e:
-        logger.error(f"PRD generation error: {e}")
+        logger.error("PRD generation error: %s", e)
         return {
             "product_concept": f"A product solving {cluster_label} in the {query} space",
             "target_user": who or f"Professionals using {query}",
             "problem_statement": summary,
             "core_features": [f"Core feature addressing {cluster_label}"],
             "mvp_suggestion": f"Build a minimal {query} tool addressing {cluster_label}.",
-            "full_text": f"# PRD Draft: {cluster_label}\n\n## Niche\n{query}\n\n## Problem\n{summary}\n\n## Solution\n{solution}",
+            "full_text": (
+                f"# PRD Draft: {cluster_label}\n\n"
+                f"## Niche\n{query}\n\n"
+                f"## Problem\n{summary}\n\n"
+                f"## Solution\n{solution}"
+            ),
         }

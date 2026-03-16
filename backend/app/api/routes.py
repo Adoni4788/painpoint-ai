@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -16,18 +16,20 @@ from ..schemas.search import (
     ClusterWithSearchResponse,
     PRDResponse, OpportunityReport, RawPostResponse,
 )
-from ..services.pipeline import run_search_pipeline, generate_prd_for_cluster
+from ..services.pipeline import run_search_pipeline, generate_prd_for_cluster, IN_PROGRESS_STATUSES
 from ..services import ai_service
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+settings = get_settings()
 
 
-# --- Workspaces ---
+# ---------------------------------------------------------------------------
+# Workspaces
+# ---------------------------------------------------------------------------
 
 @router.post("/workspaces", response_model=WorkspaceResponse)
 async def create_workspace(payload: WorkspaceCreate, db: AsyncSession = Depends(get_db)):
-    """Create a new workspace."""
     workspace = Workspace(name=payload.name)
     db.add(workspace)
     await db.commit()
@@ -37,14 +39,12 @@ async def create_workspace(payload: WorkspaceCreate, db: AsyncSession = Depends(
 
 @router.get("/workspaces", response_model=list[WorkspaceResponse])
 async def list_workspaces(db: AsyncSession = Depends(get_db)):
-    """List all workspaces."""
     result = await db.execute(select(Workspace).order_by(Workspace.created_at.desc()))
     return result.scalars().all()
 
 
 @router.get("/workspaces/{workspace_id}", response_model=WorkspaceResponse)
 async def get_workspace(workspace_id: UUID, db: AsyncSession = Depends(get_db)):
-    """Get a workspace by ID."""
     workspace = await db.get(Workspace, workspace_id)
     if not workspace:
         raise HTTPException(status_code=404, detail="Workspace not found")
@@ -52,8 +52,9 @@ async def get_workspace(workspace_id: UUID, db: AsyncSession = Depends(get_db)):
 
 
 @router.patch("/workspaces/{workspace_id}", response_model=WorkspaceResponse)
-async def update_workspace(workspace_id: UUID, payload: WorkspaceUpdate, db: AsyncSession = Depends(get_db)):
-    """Update a workspace name."""
+async def update_workspace(
+    workspace_id: UUID, payload: WorkspaceUpdate, db: AsyncSession = Depends(get_db)
+):
     workspace = await db.get(Workspace, workspace_id)
     if not workspace:
         raise HTTPException(status_code=404, detail="Workspace not found")
@@ -65,34 +66,40 @@ async def update_workspace(workspace_id: UUID, payload: WorkspaceUpdate, db: Asy
 
 @router.delete("/workspaces/{workspace_id}")
 async def delete_workspace(workspace_id: UUID, db: AsyncSession = Depends(get_db)):
-    """Delete a workspace and unlink its searches."""
-    workspace = await db.get(Workspace, workspace_id)
+    """Delete a workspace and unlink its searches (searches themselves are kept)."""
+    # Eagerly load searches to avoid async lazy-load error (M6)
+    result = await db.execute(
+        select(Workspace)
+        .where(Workspace.id == workspace_id)
+        .options(selectinload(Workspace.searches))
+    )
+    workspace = result.scalar_one_or_none()
     if not workspace:
         raise HTTPException(status_code=404, detail="Workspace not found")
-    # Unlink searches instead of cascading delete
+
     for search in workspace.searches:
         search.workspace_id = None
+
     await db.delete(workspace)
     await db.commit()
     return {"status": "deleted"}
 
 
-# --- Validate (Experiment 2) ---
+# ---------------------------------------------------------------------------
+# Validate (Experiment 2)
+# ---------------------------------------------------------------------------
 
 @router.post("/validate-minimal", response_model=SearchResponse)
-@limiter.limit(get_settings().rate_limit)
+@limiter.limit(settings.rate_limit)
 async def validate_minimal(
     request: Request,
     payload: ValidateMinimalRequest,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Minimal Validate flow: idea -> 3 keywords -> OR query -> existing pipeline.
-    Returns SearchResponse; frontend redirects to /discover?search_id=<id>.
-    """
+    """Minimal Validate flow: idea → 3 keywords → OR query → existing pipeline."""
     keywords = await ai_service.extract_keywords_from_idea(payload.idea)
-    query = " OR ".join(kw[:50] for kw in keywords)  # cap length per keyword
+    query = " OR ".join(kw[:50] for kw in keywords)
     sources = ["reddit", "hackernews", "amazon"]
 
     search = Search(query=query, sources=sources, workspace_id=None)
@@ -104,10 +111,12 @@ async def validate_minimal(
     return search
 
 
-# --- Searches ---
+# ---------------------------------------------------------------------------
+# Searches
+# ---------------------------------------------------------------------------
 
 @router.post("/searches", response_model=SearchResponse)
-@limiter.limit(get_settings().rate_limit)
+@limiter.limit(settings.rate_limit)
 async def create_search(
     request: Request,
     payload: SearchCreate,
@@ -116,35 +125,31 @@ async def create_search(
 ):
     """Start a new pain point search."""
     valid_sources = {"reddit", "hackernews", "amazon", "g2", "youtube", "facebook"}
-    sources = [s for s in payload.sources if s in valid_sources]
-    if not sources:
-        sources = ["reddit", "hackernews", "amazon"]
+    sources = [s for s in payload.sources if s in valid_sources] or ["reddit", "hackernews", "amazon"]
 
     search = Search(query=payload.query, sources=sources, workspace_id=payload.workspace_id)
     db.add(search)
     await db.commit()
     await db.refresh(search)
 
-    # Run pipeline in background
     background_tasks.add_task(_run_pipeline_with_session, search.id, payload.query, sources)
-
     return search
 
 
-PIPELINE_TIMEOUT_SECONDS = 600  # 10 minutes max per search
-
-
 async def _run_pipeline_with_session(search_id: UUID, query: str, sources: list[str]):
-    """Run the pipeline with a fresh DB session (for background tasks)."""
+    """Run the pipeline with a fresh DB session (required for background tasks)."""
     from ..core.database import async_session
     async with async_session() as db:
         try:
             await asyncio.wait_for(
                 run_search_pipeline(search_id, query, sources, db),
-                timeout=PIPELINE_TIMEOUT_SECONDS,
+                timeout=settings.pipeline_timeout_seconds,  # L2: from config, not hardcoded
             )
         except asyncio.TimeoutError:
-            logger.error("Pipeline timed out for search %s after %ds", search_id, PIPELINE_TIMEOUT_SECONDS)
+            logger.error(
+                "Pipeline timed out for search %s after %ds",
+                search_id, settings.pipeline_timeout_seconds,
+            )
             search = await db.get(Search, search_id)
             if search:
                 search.status = "failed"
@@ -158,8 +163,11 @@ async def _run_pipeline_with_session(search_id: UUID, query: str, sources: list[
 
 
 @router.get("/searches", response_model=list[SearchResponse])
-async def list_searches(workspace_id: UUID | None = None, db: AsyncSession = Depends(get_db)):
-    """List all searches, newest first. Optionally filter by workspace_id."""
+async def list_searches(
+    workspace_id: UUID | None = None,
+    db: AsyncSession = Depends(get_db),
+):
+    """List searches, newest first (max 50). Optionally filter by workspace_id."""
     q = select(Search).order_by(Search.created_at.desc()).limit(50)
     if workspace_id is not None:
         q = q.where(Search.workspace_id == workspace_id)
@@ -169,7 +177,6 @@ async def list_searches(workspace_id: UUID | None = None, db: AsyncSession = Dep
 
 @router.get("/searches/{search_id}", response_model=SearchResponse)
 async def get_search(search_id: UUID, db: AsyncSession = Depends(get_db)):
-    """Get search status and details."""
     search = await db.get(Search, search_id)
     if not search:
         raise HTTPException(status_code=404, detail="Search not found")
@@ -187,24 +194,62 @@ async def get_clusters(search_id: UUID, db: AsyncSession = Depends(get_db)):
     return result.scalars().all()
 
 
+@router.delete("/searches/{search_id}")
+async def delete_search(search_id: UUID, db: AsyncSession = Depends(get_db)):
+    """Delete a search and all associated data."""
+    search = await db.get(Search, search_id)
+    if not search:
+        raise HTTPException(status_code=404, detail="Search not found")
+
+    # Refuse deletion while pipeline is actively running to prevent orphaned state (L3)
+    if search.status in IN_PROGRESS_STATUSES:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"Cannot delete a search while it is in progress (status: {search.status}). "
+                "Wait for it to complete or fail, then try again."
+            ),
+        )
+
+    await db.delete(search)
+    await db.commit()
+    return {"status": "deleted"}
+
+
+# ---------------------------------------------------------------------------
+# Clusters
+# ---------------------------------------------------------------------------
+
 @router.get("/clusters", response_model=list[ClusterWithSearchResponse])
-async def list_all_clusters(workspace_id: UUID | None = None, db: AsyncSession = Depends(get_db)):
-    """Get all clusters across all completed searches, ranked by opportunity score. Optionally filter by workspace."""
+async def list_all_clusters(
+    workspace_id: UUID | None = None,
+    limit: int = Query(default=100, ge=1, le=500),
+    offset: int = Query(default=0, ge=0),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Get clusters across all completed searches, ranked by opportunity score.
+    Paginated via limit/offset query params (default 100, max 500). (H1)
+    """
     q = (
         select(PainCluster)
         .join(Search, PainCluster.search_id == Search.id)
         .where(Search.status == "completed")
         .order_by(PainCluster.opportunity_score.desc())
         .options(selectinload(PainCluster.search))
+        .limit(limit)
+        .offset(offset)
     )
     if workspace_id is not None:
         q = q.where(Search.workspace_id == workspace_id)
+
     result = await db.execute(q)
     clusters = result.scalars().all()
+
     return [
         ClusterWithSearchResponse(
             **ClusterResponse.model_validate(c).model_dump(),
-            search_query=c.search.query,
+            search_query=c.search.query if c.search else "",
         )
         for c in clusters
     ]
@@ -212,7 +257,6 @@ async def list_all_clusters(workspace_id: UUID | None = None, db: AsyncSession =
 
 @router.get("/clusters/{cluster_id}", response_model=ClusterResponse)
 async def get_cluster(cluster_id: UUID, db: AsyncSession = Depends(get_db)):
-    """Get a single cluster by ID."""
     cluster = await db.get(PainCluster, cluster_id)
     if not cluster:
         raise HTTPException(status_code=404, detail="Cluster not found")
@@ -226,13 +270,11 @@ async def get_opportunity_report(cluster_id: UUID, db: AsyncSession = Depends(ge
     if not cluster:
         raise HTTPException(status_code=404, detail="Cluster not found")
 
-    # Get associated posts
-    result = await db.execute(
+    posts_result = await db.execute(
         select(RawPost).where(RawPost.cluster_id == cluster_id).limit(20)
     )
-    posts = result.scalars().all()
+    posts = posts_result.scalars().all()
 
-    # Get PRD if exists
     prd_result = await db.execute(
         select(PRDDraft).where(PRDDraft.cluster_id == cluster_id)
     )
@@ -246,7 +288,7 @@ async def get_opportunity_report(cluster_id: UUID, db: AsyncSession = Depends(ge
 
 
 @router.post("/clusters/{cluster_id}/prd", response_model=PRDResponse)
-@limiter.limit(get_settings().rate_limit)
+@limiter.limit(settings.rate_limit)
 async def create_prd(
     request: Request,
     cluster_id: UUID,
@@ -258,14 +300,3 @@ async def create_prd(
         return prd
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
-
-
-@router.delete("/searches/{search_id}")
-async def delete_search(search_id: UUID, db: AsyncSession = Depends(get_db)):
-    """Delete a search and all associated data."""
-    search = await db.get(Search, search_id)
-    if not search:
-        raise HTTPException(status_code=404, detail="Search not found")
-    await db.delete(search)
-    await db.commit()
-    return {"status": "deleted"}

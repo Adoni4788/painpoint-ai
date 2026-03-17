@@ -18,9 +18,13 @@ class Settings(BaseSettings):
     rate_limit: str = "10/minute"
     debug: bool = False  # When True, 500 responses include the actual error
 
-    # Auth: set API_KEY_SECRET to require X-Api-Key header on all /api/* routes.
-    # Leave empty to disable auth (local development only — always set in production).
+    # Legacy API key auth (deprecated — kept for rollback safety).
     api_key_secret: str = ""
+
+    # Clerk JWT authentication — set to your Clerk Frontend API URL, e.g.:
+    #   https://your-app-id.clerk.accounts.dev
+    # Leave empty to disable auth (local dev only — always set in production).
+    clerk_issuer_url: str = ""
 
     # Pipeline controls
     pipeline_timeout_seconds: int = 600          # 10 minutes max per search

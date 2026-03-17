@@ -3,7 +3,8 @@
 import { useState, ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { MdAdd } from "react-icons/md";
-import { BellNotificationIcon, CircleUserIcon, DarkModeIcon, LightModeIcon } from "@/components/SidebarIcons";
+import { UserButton } from "@clerk/nextjs";
+import { BellNotificationIcon, DarkModeIcon, LightModeIcon } from "@/components/SidebarIcons";
 import { Sidebar } from "@/components/Sidebar";
 import { useTheme } from "@/components/ThemeProvider";
 import { RefreshSearchesProvider } from "@/contexts/RefreshSearchesContext";
@@ -147,14 +148,8 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 <BellNotificationIcon size={18} />
               </button>
               <div className="h-5 w-px bg-gray-200/60 dark:bg-white/10 self-center mx-1 shrink-0" aria-hidden />
-              <button
-                onClick={() => router.push("/settings")}
-                className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
-                title="Settings"
-                aria-label="Open settings"
-              >
-                <CircleUserIcon size={18} />
-              </button>
+              {/* Clerk user button — shows avatar, sign out, profile */}
+              <UserButton afterSignOutUrl="/" />
             </div>
           </div>
 

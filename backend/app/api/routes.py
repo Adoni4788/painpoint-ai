@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,7 +10,8 @@ from sqlalchemy.orm import selectinload
 from ..core.database import get_db
 from ..core.config import get_settings
 from ..core.limiter import limiter
-from ..models.search import Workspace, Search, RawPost, PainCluster, PRDDraft
+from ..core.auth import get_current_user
+from ..models.search import Workspace, Search, RawPost, PainCluster, PRDDraft, User
 from ..schemas.search import (
     WorkspaceCreate, WorkspaceUpdate, WorkspaceResponse,
     ValidateMinimalRequest, SearchCreate, SearchResponse, ClusterResponse,
@@ -29,8 +31,15 @@ settings = get_settings()
 # ---------------------------------------------------------------------------
 
 @router.post("/workspaces", response_model=WorkspaceResponse)
-async def create_workspace(payload: WorkspaceCreate, db: AsyncSession = Depends(get_db)):
-    workspace = Workspace(name=payload.name)
+async def create_workspace(
+    payload: WorkspaceCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
+):
+    workspace = Workspace(
+        name=payload.name,
+        user_id=current_user.id if current_user else None,
+    )
     db.add(workspace)
     await db.commit()
     await db.refresh(workspace)
@@ -38,26 +47,43 @@ async def create_workspace(payload: WorkspaceCreate, db: AsyncSession = Depends(
 
 
 @router.get("/workspaces", response_model=list[WorkspaceResponse])
-async def list_workspaces(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Workspace).order_by(Workspace.created_at.desc()))
+async def list_workspaces(
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
+):
+    q = select(Workspace).order_by(Workspace.created_at.desc())
+    if current_user is not None:
+        q = q.where(Workspace.user_id == current_user.id)
+    result = await db.execute(q)
     return result.scalars().all()
 
 
 @router.get("/workspaces/{workspace_id}", response_model=WorkspaceResponse)
-async def get_workspace(workspace_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_workspace(
+    workspace_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
+):
     workspace = await db.get(Workspace, workspace_id)
     if not workspace:
         raise HTTPException(status_code=404, detail="Workspace not found")
+    if current_user is not None and workspace.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
     return workspace
 
 
 @router.patch("/workspaces/{workspace_id}", response_model=WorkspaceResponse)
 async def update_workspace(
-    workspace_id: UUID, payload: WorkspaceUpdate, db: AsyncSession = Depends(get_db)
+    workspace_id: UUID,
+    payload: WorkspaceUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
 ):
     workspace = await db.get(Workspace, workspace_id)
     if not workspace:
         raise HTTPException(status_code=404, detail="Workspace not found")
+    if current_user is not None and workspace.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
     workspace.name = payload.name
     await db.commit()
     await db.refresh(workspace)
@@ -65,7 +91,11 @@ async def update_workspace(
 
 
 @router.delete("/workspaces/{workspace_id}")
-async def delete_workspace(workspace_id: UUID, db: AsyncSession = Depends(get_db)):
+async def delete_workspace(
+    workspace_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
+):
     """Delete a workspace and unlink its searches (searches themselves are kept)."""
     # Eagerly load searches to avoid async lazy-load error (M6)
     result = await db.execute(
@@ -76,6 +106,8 @@ async def delete_workspace(workspace_id: UUID, db: AsyncSession = Depends(get_db
     workspace = result.scalar_one_or_none()
     if not workspace:
         raise HTTPException(status_code=404, detail="Workspace not found")
+    if current_user is not None and workspace.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
 
     for search in workspace.searches:
         search.workspace_id = None
@@ -96,13 +128,19 @@ async def validate_minimal(
     payload: ValidateMinimalRequest,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
 ):
     """Minimal Validate flow: idea → 3 keywords → OR query → existing pipeline."""
     keywords = await ai_service.extract_keywords_from_idea(payload.idea)
     query = " OR ".join(kw[:50] for kw in keywords)
     sources = ["reddit", "hackernews", "amazon"]
 
-    search = Search(query=query, sources=sources, workspace_id=None)
+    search = Search(
+        query=query,
+        sources=sources,
+        workspace_id=None,
+        user_id=current_user.id if current_user else None,
+    )
     db.add(search)
     await db.commit()
     await db.refresh(search)
@@ -122,12 +160,18 @@ async def create_search(
     payload: SearchCreate,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
 ):
     """Start a new pain point search."""
     valid_sources = {"reddit", "hackernews", "amazon", "g2", "youtube", "facebook"}
     sources = [s for s in payload.sources if s in valid_sources] or ["reddit", "hackernews", "amazon"]
 
-    search = Search(query=payload.query, sources=sources, workspace_id=payload.workspace_id)
+    search = Search(
+        query=payload.query,
+        sources=sources,
+        workspace_id=payload.workspace_id,
+        user_id=current_user.id if current_user else None,
+    )
     db.add(search)
     await db.commit()
     await db.refresh(search)
@@ -166,26 +210,46 @@ async def _run_pipeline_with_session(search_id: UUID, query: str, sources: list[
 async def list_searches(
     workspace_id: UUID | None = None,
     db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
 ):
     """List searches, newest first (max 50). Optionally filter by workspace_id."""
     q = select(Search).order_by(Search.created_at.desc()).limit(50)
     if workspace_id is not None:
         q = q.where(Search.workspace_id == workspace_id)
+    if current_user is not None:
+        q = q.where(Search.user_id == current_user.id)
     result = await db.execute(q)
     return result.scalars().all()
 
 
 @router.get("/searches/{search_id}", response_model=SearchResponse)
-async def get_search(search_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_search(
+    search_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
+):
     search = await db.get(Search, search_id)
     if not search:
         raise HTTPException(status_code=404, detail="Search not found")
+    if current_user is not None and search.user_id is not None and search.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
     return search
 
 
 @router.get("/searches/{search_id}/clusters", response_model=list[ClusterResponse])
-async def get_clusters(search_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_clusters(
+    search_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
+):
     """Get all pain point clusters for a search, ranked by opportunity score."""
+    # Verify search ownership before returning clusters
+    search = await db.get(Search, search_id)
+    if not search:
+        raise HTTPException(status_code=404, detail="Search not found")
+    if current_user is not None and search.user_id is not None and search.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
     result = await db.execute(
         select(PainCluster)
         .where(PainCluster.search_id == search_id)
@@ -195,11 +259,17 @@ async def get_clusters(search_id: UUID, db: AsyncSession = Depends(get_db)):
 
 
 @router.delete("/searches/{search_id}")
-async def delete_search(search_id: UUID, db: AsyncSession = Depends(get_db)):
+async def delete_search(
+    search_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
+):
     """Delete a search and all associated data."""
     search = await db.get(Search, search_id)
     if not search:
         raise HTTPException(status_code=404, detail="Search not found")
+    if current_user is not None and search.user_id is not None and search.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
 
     # Refuse deletion while pipeline is actively running to prevent orphaned state (L3)
     if search.status in IN_PROGRESS_STATUSES:
@@ -226,6 +296,7 @@ async def list_all_clusters(
     limit: int = Query(default=100, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
     db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
 ):
     """
     Get clusters across all completed searches, ranked by opportunity score.
@@ -242,6 +313,8 @@ async def list_all_clusters(
     )
     if workspace_id is not None:
         q = q.where(Search.workspace_id == workspace_id)
+    if current_user is not None:
+        q = q.where(Search.user_id == current_user.id)
 
     result = await db.execute(q)
     clusters = result.scalars().all()

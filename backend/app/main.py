@@ -63,10 +63,10 @@ async def lifespan(app: FastAPI):
         raise RuntimeError(
             "OPENAI_API_KEY is not set. Set it in .env or environment variables before starting."
         )
-    if not settings.api_key_secret:
+    if not settings.clerk_issuer_url:
         logger.warning(
-            "API_KEY_SECRET is not set — all /api/* routes are unauthenticated. "
-            "Set API_KEY_SECRET in production."
+            "CLERK_ISSUER_URL is not set — all /api/* routes are unauthenticated. "
+            "Set CLERK_ISSUER_URL in production."
         )
     await init_db()
     logger.info("Database initialized")
@@ -96,31 +96,16 @@ app.add_middleware(
     allow_origins=[o.strip() for o in settings.cors_origins.split(",")],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "X-Api-Key"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 app.include_router(router, prefix="/api")
 
 
 # ---------------------------------------------------------------------------
-# API key authentication middleware (C1)
-# Requires X-Api-Key header on all /api/* routes when API_KEY_SECRET is set.
-# Leave API_KEY_SECRET empty only for local development.
+# Auth is now handled per-route via Clerk JWT (see core/auth.py).
+# The old X-Api-Key middleware has been removed — no middleware needed here.
 # ---------------------------------------------------------------------------
-@app.middleware("http")
-async def api_key_middleware(request: Request, call_next):
-    path = request.url.path
-
-    # Only protect API routes; health check and frontend paths are open
-    if path.startswith("/api/") and settings.api_key_secret:
-        provided = request.headers.get("X-Api-Key", "")
-        if provided != settings.api_key_secret:
-            return JSONResponse(
-                status_code=401,
-                content={"detail": "Invalid or missing API key."},
-            )
-
-    return await call_next(request)
 
 
 # ---------------------------------------------------------------------------
@@ -156,5 +141,5 @@ async def health():
         "status": "ok" if db_status == "ok" else "degraded",
         "service": "PainPoint AI",
         "db": db_status,
-        "auth_enabled": bool(settings.api_key_secret),
+        "auth_enabled": bool(settings.clerk_issuer_url),
     }

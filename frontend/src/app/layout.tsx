@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
 import { SearchesProvider } from "@/contexts/SearchesContext";
+import { ClerkTokenSyncer } from "@/components/ClerkTokenSyncer";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import "./globals.css";
 
@@ -68,16 +70,19 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        <ThemeProvider>
-          <WorkspaceProvider>
-            <SearchesProvider>
-              <Suspense fallback={null}>
-                <PostHogPageView />
-              </Suspense>
-              {children}
-            </SearchesProvider>
-          </WorkspaceProvider>
-        </ThemeProvider>
+        <ClerkProvider>
+          <ClerkTokenSyncer />
+          <ThemeProvider>
+            <WorkspaceProvider>
+              <SearchesProvider>
+                <Suspense fallback={null}>
+                  <PostHogPageView />
+                </Suspense>
+                {children}
+              </SearchesProvider>
+            </WorkspaceProvider>
+          </ThemeProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

@@ -1,7 +1,15 @@
 const API_BASE = "/api";
 
-// Injected via NEXT_PUBLIC_API_KEY env var; empty string means no auth (dev mode).
-const API_KEY = process.env.NEXT_PUBLIC_API_KEY ?? "";
+// ---------------------------------------------------------------------------
+// Clerk JWT integration
+// ClerkTokenSyncer (rendered inside layout.tsx) calls setAuthTokenGetter once
+// on mount so every fetch automatically carries the signed-in user's JWT.
+// ---------------------------------------------------------------------------
+let _getToken: (() => Promise<string | null>) | null = null;
+
+export function setAuthTokenGetter(fn: () => Promise<string | null>) {
+  _getToken = fn;
+}
 
 export interface Workspace {
   id: string;
@@ -119,8 +127,10 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
     const timer = setTimeout(() => controller.abort(), timeout);
 
     try {
-      const authHeaders: Record<string, string> = API_KEY
-        ? { "X-Api-Key": API_KEY }
+      // Attach Clerk JWT if available (set by ClerkTokenSyncer on mount)
+      const token = _getToken ? await _getToken() : null;
+      const authHeaders: Record<string, string> = token
+        ? { "Authorization": `Bearer ${token}` }
         : {};
       const res = await fetch(`${API_BASE}${url}`, {
         headers: { "Content-Type": "application/json", ...authHeaders },

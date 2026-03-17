@@ -6,12 +6,34 @@ from ..core.database import Base
 from ..core.utils import utcnow
 
 
+class User(Base):
+    """One row per signed-in Clerk user. Created automatically on first login."""
+    __tablename__ = "users"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    clerk_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+    email: Mapped[str] = mapped_column(String(255), nullable=False, default="")
+    created_at: Mapped[str] = mapped_column(DateTime, default=utcnow)
+
+    workspaces: Mapped[list["Workspace"]] = relationship(back_populates="user")
+    searches: Mapped[list["Search"]] = relationship(back_populates="user")
+
+    def __repr__(self) -> str:
+        return f"<User id={self.id} clerk_id={self.clerk_id!r}>"
+
+
 class Workspace(Base):
     __tablename__ = "workspaces"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     created_at: Mapped[str] = mapped_column(DateTime, default=utcnow)
+
+    # Owner — nullable so pre-auth workspaces (demo data) are preserved but hidden
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+    user: Mapped["User | None"] = relationship(back_populates="workspaces")
 
     # cascade="save-update" (not "all, delete-orphan") is intentional:
     # deleting a workspace unlinks its searches rather than cascading the delete.
@@ -30,6 +52,10 @@ class Search(Base):
     workspace_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("workspaces.id"), nullable=True, index=True
     )
+    # Owner — nullable so pre-auth searches (demo data) are preserved but hidden
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True
+    )
     query: Mapped[str] = mapped_column(String(500), nullable=False, index=True)
     status: Mapped[str] = mapped_column(String(50), default="pending")
     # sources is a JSON list of strings (e.g. ["reddit", "hackernews"]) — Mapped[list] (M8)
@@ -42,6 +68,7 @@ class Search(Base):
     completed_at: Mapped[str] = mapped_column(DateTime, nullable=True)
 
     workspace: Mapped["Workspace | None"] = relationship(back_populates="searches")
+    user: Mapped["User | None"] = relationship(back_populates="searches")
     raw_posts: Mapped[list["RawPost"]] = relationship(
         back_populates="search", cascade="all, delete-orphan"
     )

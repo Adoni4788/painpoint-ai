@@ -26,6 +26,12 @@ class Settings(BaseSettings):
     # Leave empty to disable auth (local dev only — always set in production).
     clerk_issuer_url: str = ""
 
+    # Clerk secret key (sk_live_...) — used to update user metadata via Clerk API.
+    clerk_secret_key: str = ""
+
+    # Lemon Squeezy webhook signing secret — from LS dashboard → Webhooks → signing secret.
+    lemon_squeezy_webhook_secret: str = ""
+
     # Pipeline controls
     pipeline_timeout_seconds: int = 600          # 10 minutes max per search
     max_posts_per_pipeline: int = 300             # cap posts sent to LLM to control cost

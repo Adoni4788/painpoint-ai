@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { Logo } from "@/components/Logo";
 import { useTheme } from "@/components/ThemeProvider";
 import {
@@ -51,6 +52,9 @@ const SAMPLE_PAIN_POINTS = [
   },
 ];
 
+const LS_CHECKOUT_BASE =
+  "https://gaplens.lemonsqueezy.com/checkout/buy/aa085b19-4069-424a-8ad3-4f615bc5fb75";
+
 const PRICING_PLANS = [
   {
     name: "Free",
@@ -82,7 +86,7 @@ const PRICING_PLANS = [
       "All 6 platforms",
     ],
     cta: "Start 7-day free trial",
-    href: "https://gaplens.lemonsqueezy.com/checkout/buy/aa085b19-4069-424a-8ad3-4f615bc5fb75",
+    href: LS_CHECKOUT_BASE,
     highlight: true,
     external: true,
   },
@@ -93,7 +97,13 @@ const PRICING_PLANS = [
 export default function LandingPage() {
   const router = useRouter();
   const { theme, toggle: toggleTheme } = useTheme();
+  const { user } = useUser();
   const [headerSolid, setHeaderSolid] = useState(false);
+
+  // Append Clerk user ID so the webhook can grant Pro after purchase.
+  const checkoutHref = user
+    ? `${LS_CHECKOUT_BASE}?checkout[custom][clerk_user_id]=${user.id}`
+    : LS_CHECKOUT_BASE;
   const [email, setEmail] = useState("");
   const [emailSubmitted, setEmailSubmitted] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
@@ -410,7 +420,7 @@ export default function LandingPage() {
                 ))}
               </ul>
 
-              <Link href={plan.href}
+              <Link href={plan.highlight ? checkoutHref : plan.href}
                 target={plan.external ? "_blank" : undefined}
                 rel={plan.external ? "noopener noreferrer" : undefined}
                 className={`block text-center py-3 rounded-xl text-sm font-semibold transition-all ${

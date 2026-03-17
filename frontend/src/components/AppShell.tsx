@@ -94,7 +94,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
         </div>
       )}
       {/* Body: sidebar + main content */}
-      <div className="flex flex-1 overflow-hidden bg-paper dark:bg-ink">
+      <div className="flex flex-1 overflow-hidden bg-[#F7F7F7] dark:bg-ink">
         <Sidebar
           searches={searches}
           activeSearchId={activeSearchId ?? null}

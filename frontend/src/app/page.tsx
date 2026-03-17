@@ -516,6 +516,8 @@ export default function LandingPage() {
             <Link href="/validate" className="hover:text-gray-400 transition-colors">Validate</Link>
             <Link href="/discover" className="hover:text-gray-400 transition-colors">Discover</Link>
             <Link href="/reports" className="hover:text-gray-400 transition-colors">Reports</Link>
+            <Link href="/terms" className="hover:text-gray-400 transition-colors">Terms</Link>
+            <Link href="/refund-policy" className="hover:text-gray-400 transition-colors">Refund Policy</Link>
           </div>
 
           <p className="text-xs text-gray-700">© {new Date().getFullYear()} GapLens</p>

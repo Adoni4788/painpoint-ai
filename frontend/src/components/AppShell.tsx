@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback, ReactNode } from "react";
+import { useState, ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { MdAdd } from "react-icons/md";
 import { BellNotificationIcon, CircleUserIcon, DarkModeIcon, LightModeIcon } from "@/components/SidebarIcons";
 import { Sidebar } from "@/components/Sidebar";
 import { useTheme } from "@/components/ThemeProvider";
-import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { RefreshSearchesProvider } from "@/contexts/RefreshSearchesContext";
-import { SearchResult, listSearches } from "@/lib/api";
+import { useSearches } from "@/contexts/SearchesContext";
+import { SearchResult } from "@/lib/api";
 
 interface AppShellProps {
   children: ReactNode;
@@ -21,14 +21,20 @@ interface AppShellProps {
 }
 
 export function AppShell({ children, headerCenter, headerRight, activeSearchId, onSelectSearch, onNewSearch, pageLabel }: AppShellProps) {
-  const [searches, setSearches] = useState<SearchResult[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [backendUnavailable, setBackendUnavailable] = useState(false);
-  const [rateLimited, setRateLimited] = useState(false);
   const { theme, toggle: toggleTheme } = useTheme();
-  const { activeWorkspaceId } = useWorkspace();
   const router = useRouter();
   const pathname = usePathname();
+
+  // Shared across all pages — no re-fetch on navigation
+  const {
+    searches,
+    backendUnavailable,
+    setBackendUnavailable,
+    rateLimited,
+    setRateLimited,
+    loadSearches,
+  } = useSearches();
 
   const PAGE_LABELS: Record<string, string> = {
     "/discover": "Discover",
@@ -38,27 +44,6 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
     "/test-sentry": "Test Sentry",
   };
   const currentPageLabel = pageLabel ?? PAGE_LABELS[pathname] ?? pathname?.replace(/^\//, "") ?? "GapLens";
-
-  const loadSearches = useCallback(async () => {
-    try {
-      setBackendUnavailable(false);
-      setRateLimited(false);
-      const data = await listSearches(activeWorkspaceId ?? undefined);
-      setSearches(data);
-    } catch (e) {
-      console.error("Failed to load searches:", e);
-      const msg = e instanceof Error ? e.message : String(e);
-      if (msg.includes("502") || msg.includes("503")) {
-        setBackendUnavailable(true);
-      } else if (msg.includes("rate limit") || msg.includes("429")) {
-        setRateLimited(true);
-      }
-    }
-  }, [activeWorkspaceId]);
-
-  useEffect(() => {
-    loadSearches();
-  }, [loadSearches]);
 
   const handleSelectSearch = async (search: SearchResult) => {
     onSelectSearch?.(search);

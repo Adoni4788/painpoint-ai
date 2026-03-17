@@ -66,6 +66,7 @@ const PRICING_PLANS = [
     cta: "Start free",
     href: "/validate",
     highlight: false,
+    external: false,
   },
   {
     name: "Pro",
@@ -81,8 +82,9 @@ const PRICING_PLANS = [
       "All 6 platforms",
     ],
     cta: "Start 7-day free trial",
-    href: "/validate",
+    href: "https://gaplens.lemonsqueezy.com/checkout/buy/aa085b19-4069-424a-8ad3-4f615bc5fb75",
     highlight: true,
+    external: true,
   },
 ];
 
@@ -409,6 +411,8 @@ export default function LandingPage() {
               </ul>
 
               <Link href={plan.href}
+                target={plan.external ? "_blank" : undefined}
+                rel={plan.external ? "noopener noreferrer" : undefined}
                 className={`block text-center py-3 rounded-xl text-sm font-semibold transition-all ${
                   plan.highlight
                     ? "bg-white text-black hover:bg-gray-100"

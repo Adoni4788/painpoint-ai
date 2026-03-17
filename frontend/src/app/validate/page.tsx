@@ -75,7 +75,7 @@ export default function ValidatePage() {
           response,
           search_id: pendingSearch.id,
           idea_length: idea.trim().length,
-          price_question: "15_month_or_99_year",
+          price_question: "29_month",
         });
       }
       setShowFeedbackModal(false);
@@ -226,7 +226,7 @@ export default function ValidatePage() {
               className="bg-white dark:bg-[#171717] rounded-2xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-white/10"
             >
               <p id="feedback-modal-title" className="text-base font-medium text-gray-900 dark:text-gray-100 mb-4">
-                Would you pay $15/month or $99/year for unlimited validations?
+                Would you pay $29/month for unlimited validations?
               </p>
               <div className="flex flex-col gap-2">
                 <button

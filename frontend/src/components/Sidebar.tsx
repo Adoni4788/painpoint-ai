@@ -106,7 +106,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                     : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#262626] dark:hover:text-gray-200"
                 }`}
               >
-                <span className={isActive ? "text-gray-700 dark:text-gray-300" : "text-gray-400 dark:text-gray-500"}>
+                <span className={isActive ? "text-[#434343] dark:text-gray-300" : "text-gray-400 dark:text-gray-500"}>
                   {item.icon}
                 </span>
               </Link>
@@ -174,7 +174,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                   : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#262626] dark:hover:text-gray-200"
               }`}
             >
-              <span className={isActive ? "text-gray-700 dark:text-gray-300" : "text-gray-400 dark:text-gray-500"}>
+              <span className={isActive ? "text-[#434343] dark:text-gray-300" : "text-gray-400 dark:text-gray-500"}>
                 {item.icon}
               </span>
               <span className="opacity-0 w-0 overflow-hidden group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300 whitespace-nowrap">

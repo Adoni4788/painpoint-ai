@@ -149,7 +149,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
               </button>
               <div className="h-5 w-px bg-gray-200/60 dark:bg-white/10 self-center mx-1 shrink-0" aria-hidden />
               {/* Clerk user button — shows avatar, sign out, profile */}
-              <UserButton afterSignOutUrl="/" />
+              <UserButton />
             </div>
           </div>
 

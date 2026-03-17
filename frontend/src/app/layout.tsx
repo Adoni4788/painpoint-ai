@@ -70,7 +70,7 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        <ClerkProvider>
+        <ClerkProvider afterSignOutUrl="/">
           <ClerkTokenSyncer />
           <ThemeProvider>
             <WorkspaceProvider>

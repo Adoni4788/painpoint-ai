@@ -16,7 +16,7 @@ services:
     branch: main
     rootDir: backend
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -27,7 +27,7 @@ services:
       - key: OPENAI_MODEL
         value: gpt-4o-mini
       - key: CORS_ORIGINS
-        value: https://painpoint-ai-frontend.onrender.com
+        value: https://gaplens.io,https://www.gaplens.io,https://painpoint-ai-frontend.onrender.com
       - key: DEBUG
         value: "false"
       - key: RATE_LIMIT

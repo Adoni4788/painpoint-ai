@@ -5,6 +5,10 @@ const isPublicRoute = createRouteMatcher([
   "/",           // landing page
   "/sign-in(.*)",
   "/sign-up(.*)",
+  "/api/(.*)",   // backend handles its own auth
+  "/terms",
+  "/refund-policy",
+  "/gummysearch-alternative",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

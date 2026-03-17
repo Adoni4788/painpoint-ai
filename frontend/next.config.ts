@@ -30,6 +30,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https:",
               "font-src 'self' data: https://fonts.gstatic.com https://*.clerk.com https://*.gaplens.io",
               "connect-src 'self' https://*.posthog.com https://*.sentry.io https://ingest.sentry.io wss://*.sentry.io https://*.clerk.com https://*.clerk.accounts.dev https://*.gaplens.io",
+              "worker-src blob: 'self'",
               "frame-src https://*.clerk.com https://*.clerk.accounts.dev https://*.gaplens.io https://challenges.cloudflare.com",
               "frame-ancestors 'none'",
             ].join("; "),

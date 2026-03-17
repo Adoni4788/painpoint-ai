@@ -34,6 +34,14 @@ services:
         value: "5/minute"
       - key: PYTHON_VERSION
         value: "3.11.0"
+      - key: ENVIRONMENT
+        value: production
+      - key: CLERK_ISSUER_URL
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: LEMON_SQUEEZY_WEBHOOK_SECRET
+        sync: false
     buildFilter:
       paths:
         - backend/**
@@ -53,6 +61,10 @@ services:
         value: https://painpoint-ai-backend.onrender.com
       - key: NODE_ENV
         value: production
+      - key: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
     buildFilter:
       paths:
         - frontend/**

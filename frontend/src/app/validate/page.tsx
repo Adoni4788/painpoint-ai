@@ -10,6 +10,7 @@ import { RotatingTips } from "@/components/RotatingTips";
 import { SOURCES } from "@/lib/sources";
 import { validateMinimal } from "@/lib/api";
 import { captureEvent } from "@/lib/analytics";
+import { UpgradeModal } from "@/components/UpgradeModal";
 
 const VALIDATE_TIPS = [
   "Be specific â€“ include who it's for and the problem it solves.",
@@ -56,6 +57,7 @@ export default function ValidatePage() {
   const [error, setError] = useState<string | null>(null);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [pendingSearch, setPendingSearch] = useState<{ id: string } | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -103,8 +105,13 @@ export default function ValidatePage() {
       setSubmitted(true);
       setPendingSearch(search);
       setShowFeedbackModal(true);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Validation failed");
+    } catch (e: any) {
+      // 402 = free tier limit reached — show upgrade modal
+      if (e?.message?.includes("402")) {
+        setShowUpgradeModal(true);
+      } else {
+        setError(e instanceof Error ? e.message : "Validation failed");
+      }
     } finally {
       setLoading(false);
     }
@@ -261,6 +268,9 @@ export default function ValidatePage() {
             </div>
           </FocusTrap>
         </div>
+      )}
+      {showUpgradeModal && (
+        <UpgradeModal onClose={() => setShowUpgradeModal(false)} />
       )}
     </AppShell>
   );

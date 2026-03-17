@@ -22,6 +22,7 @@ import {
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { useRefreshSearches } from "@/contexts/RefreshSearchesContext";
 import { captureEvent } from "@/lib/analytics";
+import { UpgradeModal } from "@/components/UpgradeModal";
 
 export default function DiscoverPage() {
   return (
@@ -37,6 +38,7 @@ function DiscoverPageContent() {
   const [clusters, setClusters] = useState<Cluster[]>([]);
   const [selectedReport, setSelectedReport] = useState<OpportunityReport | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [sources, setSources] = useState<string[]>(["reddit", "hackernews", "amazon"]);
   const router = useRouter();
   const { activeWorkspaceId } = useWorkspace();
@@ -136,8 +138,13 @@ function DiscoverPageContent() {
       const search = await createSearch(query, sources, activeWorkspaceId ?? undefined);
       setActiveSearch(search);
       refreshSearches();
-    } catch (e) {
-      console.error("Search failed:", e);
+    } catch (e: any) {
+      // 402 = free tier limit reached — show upgrade modal
+      if (e?.message?.includes("402")) {
+        setShowUpgradeModal(true);
+      } else {
+        console.error("Search failed:", e);
+      }
     } finally {
       setLoading(false);
     }
@@ -289,6 +296,9 @@ function DiscoverPageContent() {
             )}
           </div>
         </>
+      )}
+      {showUpgradeModal && (
+        <UpgradeModal onClose={() => setShowUpgradeModal(false)} />
       )}
     </AppShell>
   );

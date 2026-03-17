@@ -4,7 +4,8 @@ from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from datetime import datetime, timezone
+from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 
 from ..core.database import get_db
@@ -25,6 +26,49 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 settings = get_settings()
 
+
+
+# ---------------------------------------------------------------------------
+# Pro-gate: free users get 3 searches/month, Pro users are unlimited.
+# Pro status is stored in Clerk public_metadata.pro (set by LS webhook).
+# The backend checks the JWT claims for this — Clerk includes public_metadata
+# in the session token when configured, but we also accept header override.
+# For simplicity we count searches per calendar month in the DB.
+# ---------------------------------------------------------------------------
+FREE_MONTHLY_SEARCH_LIMIT = 3
+
+
+async def _check_search_limit(
+    db: AsyncSession,
+    current_user: "User | None",
+) -> None:
+    """Raise 402 if a free-tier user has hit their monthly search limit."""
+    if current_user is None:
+        return  # dev mode — no limits
+
+    # Pro status is attached to the user object by get_current_user()
+    # from the Clerk JWT public_metadata.pro claim.
+    if getattr(current_user, "_is_pro", False):
+        return
+
+    # Count searches this calendar month
+    now = datetime.now(timezone.utc)
+    first_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    result = await db.execute(
+        select(func.count(Search.id))
+        .where(Search.user_id == current_user.id)
+        .where(Search.created_at >= first_of_month)
+    )
+    count = result.scalar() or 0
+
+    if count >= FREE_MONTHLY_SEARCH_LIMIT:
+        raise HTTPException(
+            status_code=402,
+            detail=(
+                f"Free plan limit reached ({FREE_MONTHLY_SEARCH_LIMIT} searches/month). "
+                "Upgrade to Pro for unlimited searches."
+            ),
+        )
 
 # ---------------------------------------------------------------------------
 # Workspaces
@@ -131,6 +175,7 @@ async def validate_minimal(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Minimal Validate flow: idea â†’ 3 keywords â†’ OR query â†’ existing pipeline."""
+    await _check_search_limit(db, current_user)
     keywords = await ai_service.extract_keywords_from_idea(payload.idea)
     query = " OR ".join(kw[:50] for kw in keywords)
     sources = ["reddit", "hackernews", "amazon"]
@@ -163,6 +208,7 @@ async def create_search(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Start a new pain point search."""
+    await _check_search_limit(db, current_user)
     valid_sources = {"reddit", "hackernews", "amazon", "g2", "youtube", "facebook"}
     sources = [s for s in payload.sources if s in valid_sources] or ["reddit", "hackernews", "amazon"]
 

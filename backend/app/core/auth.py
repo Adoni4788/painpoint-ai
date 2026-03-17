@@ -34,6 +34,35 @@ _bearer = HTTPBearer(auto_error=False)
 # JWKS cached for 1 hour — avoids a round-trip to Clerk on every request
 _jwks_cache: TTLCache = TTLCache(maxsize=1, ttl=3600)
 
+# Pro status cached 5 minutes — avoids hitting Clerk API on every request
+_pro_cache: TTLCache = TTLCache(maxsize=256, ttl=300)
+
+
+async def _check_pro_via_api(clerk_id: str) -> bool:
+    """Check Clerk API for public_metadata.pro — cached 5 minutes."""
+    if not clerk_id or not settings.clerk_secret_key:
+        return False
+
+    cached = _pro_cache.get(clerk_id)
+    if cached is not None:
+        return cached
+
+    try:
+        url = f"https://api.clerk.com/v1/users/{clerk_id}"
+        headers = {"Authorization": f"Bearer {settings.clerk_secret_key}"}
+        async with httpx.AsyncClient(timeout=5) as client:
+            resp = await client.get(url, headers=headers)
+        if resp.status_code == 200:
+            data = resp.json()
+            is_pro = data.get("public_metadata", {}).get("pro", False) is True
+            _pro_cache[clerk_id] = is_pro
+            return is_pro
+    except Exception as exc:
+        logger.warning("Failed to check Pro status via Clerk API: %s", exc)
+
+    _pro_cache[clerk_id] = False
+    return False
+
 
 async def _get_jwks() -> dict:
     """Fetch Clerk JWKS from well-known endpoint (cached 1 hr)."""
@@ -123,5 +152,14 @@ async def get_current_user(
         await db.commit()
         await db.refresh(user)
         logger.info("Auto-created new user clerk_id=%s email=%s", clerk_id, email)
+
+    # Attach Pro status — check JWT claims first, fall back to Clerk API.
+    # Clerk includes public_metadata in session tokens only if you customise
+    # the session token template in Clerk Dashboard > Sessions > Edit.
+    metadata = claims.get("public_metadata") or claims.get("metadata") or {}
+    if metadata.get("pro") is True:
+        user._is_pro = True  # type: ignore[attr-defined]
+    else:
+        user._is_pro = await _check_pro_via_api(clerk_id)  # type: ignore[attr-defined]
 
     return user

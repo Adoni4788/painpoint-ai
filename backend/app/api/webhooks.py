@@ -47,7 +47,6 @@ async def lemonsqueezy_webhook(
         logger.warning("Lemon Squeezy webhook signature mismatch")
         raise HTTPException(status_code=400, detail="Invalid signature")
 
-    payload = request.app.state  # parse after signature check
     payload = await request.json()
 
     event = payload.get("meta", {}).get("event_name", "")

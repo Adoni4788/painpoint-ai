@@ -329,19 +329,37 @@ async def list_all_clusters(
 
 
 @router.get("/clusters/{cluster_id}", response_model=ClusterResponse)
-async def get_cluster(cluster_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_cluster(
+    cluster_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
+):
     cluster = await db.get(PainCluster, cluster_id)
     if not cluster:
         raise HTTPException(status_code=404, detail="Cluster not found")
+    # Verify ownership via the parent search
+    if current_user is not None:
+        search = await db.get(Search, cluster.search_id)
+        if search and search.user_id is not None and search.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized")
     return cluster
 
 
 @router.get("/clusters/{cluster_id}/report", response_model=OpportunityReport)
-async def get_opportunity_report(cluster_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_opportunity_report(
+    cluster_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
+):
     """Get full opportunity report for a cluster."""
     cluster = await db.get(PainCluster, cluster_id)
     if not cluster:
         raise HTTPException(status_code=404, detail="Cluster not found")
+    # Verify ownership via the parent search
+    if current_user is not None:
+        search = await db.get(Search, cluster.search_id)
+        if search and search.user_id is not None and search.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized")
 
     posts_result = await db.execute(
         select(RawPost).where(RawPost.cluster_id == cluster_id).limit(20)
@@ -366,8 +384,17 @@ async def create_prd(
     request: Request,
     cluster_id: UUID,
     db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
 ):
     """Generate a PRD draft for a pain point cluster."""
+    # Verify ownership via the parent search before incurring OpenAI cost
+    cluster = await db.get(PainCluster, cluster_id)
+    if not cluster:
+        raise HTTPException(status_code=404, detail="Cluster not found")
+    if current_user is not None:
+        search = await db.get(Search, cluster.search_id)
+        if search and search.user_id is not None and search.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized")
     try:
         prd = await generate_prd_for_cluster(cluster_id, db)
         return prd

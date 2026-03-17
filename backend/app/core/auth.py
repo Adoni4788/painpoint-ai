@@ -57,10 +57,12 @@ async def _verify_token(token: str) -> dict:
     """Decode and verify a Clerk JWT. Returns the claims dict."""
     jwks = await _get_jwks()
     try:
+        issuer = settings.clerk_issuer_url.rstrip("/")
         claims = jwt.decode(
             token,
             jwks,
             algorithms=["RS256"],
+            issuer=issuer,
             options={"verify_aud": False},  # Clerk JWTs have no `aud` by default
         )
         return claims
@@ -86,7 +88,13 @@ async def get_current_user(
     from ..models.search import User
 
     if not settings.clerk_issuer_url:
-        # Dev mode: auth disabled, no user filtering
+        # Dev mode: auth disabled, no user filtering.
+        # SAFETY: In production this env var must always be set.
+        if settings.environment.lower() in ("production", "prod"):
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Authentication is not configured. Contact support.",
+            )
         return None
 
     if not credentials:

@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     rate_limit: str = "10/minute"
     debug: bool = False  # When True, 500 responses include the actual error
 
+    # Deployment environment — set to "production" in prod to enable safety guards.
+    environment: str = "development"
+
     # Legacy API key auth (deprecated — kept for rollback safety).
     api_key_secret: str = ""
 

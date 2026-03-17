@@ -139,7 +139,7 @@ function DiscoverPageContent() {
       setActiveSearch(search);
       refreshSearches();
     } catch (e: any) {
-      // 402 = free tier limit reached — show upgrade modal
+      // 402 = free tier limit reached â€” show upgrade modal
       if (e?.message?.includes("402")) {
         setShowUpgradeModal(true);
       } else {

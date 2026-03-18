@@ -4,10 +4,15 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MdAdd, MdExpandMore, MdEdit, MdDelete, MdChevronLeft, MdMenu } from "react-icons/md";
+import { useUser } from "@clerk/nextjs";
 import { SearchResult } from "@/lib/api";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { Logo } from "@/components/Logo";
 import { GlobalResearchIcon, DiscoverIcon, VoteYeaIcon, SettingsIcon, FolderPlusCircleIcon } from "@/components/SidebarIcons";
+
+const FREE_LIMIT = 3;
+const LS_CHECKOUT_BASE =
+  "https://gaplens.lemonsqueezy.com/checkout/buy/aa085b19-4069-424a-8ad3-4f615bc5fb75";
 
 interface SidebarProps {
   searches: SearchResult[];
@@ -371,10 +376,71 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
         )}
       </nav>
 
-      <div className="hidden group-hover:block group-data-[expanded=true]:block p-3">
+      {/* Search usage indicator — free users only */}
+      <SearchUsage searches={searches} />
+
+      <div className="hidden group-hover:block group-data-[expanded=true]:block px-3 pb-3">
         <p className="font-mono text-[10px] text-gray-400 dark:text-gray-500 text-center">GapLens v0.1</p>
       </div>
     </aside>
+  );
+}
+
+function SearchUsage({ searches }: { searches: SearchResult[] }) {
+  const { user } = useUser();
+  const isPro = user?.publicMetadata?.pro === true;
+
+  // Count searches created this calendar month
+  const now = new Date();
+  const thisMonthCount = searches.filter((s) => {
+    const d = new Date(s.created_at);
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  }).length;
+
+  const checkoutHref = user
+    ? `${LS_CHECKOUT_BASE}?checkout[custom][clerk_user_id]=${user.id}`
+    : LS_CHECKOUT_BASE;
+
+  if (isPro) {
+    return (
+      <div className="hidden group-hover:flex group-data-[expanded=true]:flex items-center gap-2 px-4 py-2.5 mx-2 mb-2 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20">
+        <span className="text-amber-500 text-sm">⚡</span>
+        <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">Pro — Unlimited</span>
+      </div>
+    );
+  }
+
+  const used = Math.min(thisMonthCount, FREE_LIMIT);
+  const pct = (used / FREE_LIMIT) * 100;
+  const remaining = Math.max(FREE_LIMIT - used, 0);
+  const isAtLimit = remaining === 0;
+
+  return (
+    <div className="hidden group-hover:block group-data-[expanded=true]:block px-3 pb-2">
+      <div className={`p-3 rounded-xl border ${isAtLimit ? "bg-red-50 dark:bg-red-500/10 border-red-200/60 dark:border-red-500/20" : "bg-gray-100/80 dark:bg-white/5 border-gray-200/60 dark:border-white/10"}`}>
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[11px] font-semibold text-gray-600 dark:text-gray-400">
+            {isAtLimit ? "Limit reached" : `${remaining} search${remaining === 1 ? "" : "es"} left`}
+          </span>
+          <span className="text-[11px] text-gray-400 dark:text-gray-500">{used}/{FREE_LIMIT}</span>
+        </div>
+        {/* Progress bar */}
+        <div className="h-1.5 rounded-full bg-gray-200 dark:bg-white/10 overflow-hidden mb-2">
+          <div
+            className={`h-full rounded-full transition-all ${isAtLimit ? "bg-red-400" : pct >= 66 ? "bg-amber-400" : "bg-[#5d9d9b]"}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <a
+          href={checkoutHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full text-center text-[11px] font-semibold py-1.5 rounded-lg gradient-brand text-white hover:opacity-90 transition-opacity"
+        >
+          Upgrade to Pro ⚡
+        </a>
+      </div>
+    </div>
   );
 }
 

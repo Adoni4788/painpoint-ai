@@ -3,7 +3,7 @@
 import { useState, ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { MdAdd } from "react-icons/md";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { BellNotificationIcon, DarkModeIcon, LightModeIcon } from "@/components/SidebarIcons";
 import { Sidebar } from "@/components/Sidebar";
 import { useTheme } from "@/components/ThemeProvider";
@@ -24,6 +24,8 @@ interface AppShellProps {
 export function AppShell({ children, headerCenter, headerRight, activeSearchId, onSelectSearch, onNewSearch, pageLabel }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { theme, toggle: toggleTheme } = useTheme();
+  const { user } = useUser();
+  const isPro = user?.publicMetadata?.pro === true;
   const router = useRouter();
   const pathname = usePathname();
 
@@ -148,6 +150,12 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 <BellNotificationIcon size={18} />
               </button>
               <div className="h-5 w-px bg-gray-200/60 dark:bg-white/10 self-center mx-1 shrink-0" aria-hidden />
+              {/* Pro badge */}
+              {isPro && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-200/60 dark:border-amber-500/25 mr-1">
+                  ⚡ Pro
+                </span>
+              )}
               {/* Clerk user button — shows avatar, sign out, profile */}
               <UserButton />
             </div>

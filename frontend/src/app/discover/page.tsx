@@ -206,16 +206,16 @@ function DiscoverPageContent() {
             <div className="relative z-10 max-w-2xl w-full mx-auto text-center animate-in fade-in slide-in-from-bottom-6 duration-1000">
 
               {/* Deep Search heading */}
-              <h2 className="font-logo text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 tracking-tight mb-4">
-                What are users complaining about?
+              <h2 className="font-heading text-3xl md:text-4xl font-bold text-ink dark:text-paper mb-2">
+                Find the Gap
               </h2>
-              <p className="font-mono text-xs text-brand-600 dark:text-teal-400/80 uppercase tracking-[0.2em] font-medium mb-8">
-                Opportunity Discovery Engine
+              <p className="font-mono text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-8">
+                Deep Search · Opportunity Discovery
               </p>
 
               {/* Subtitle */}
-              <p className="text-gray-600 dark:text-gray-400 mb-10 leading-relaxed max-w-lg mx-auto text-sm md:text-base">
-                Enter a niche, competitor, or product category. GapLens mines millions of discussions for real frustrations, grouped and scored by AI.
+              <p className="text-gray-600 dark:text-gray-400 mb-10 leading-relaxed max-w-lg mx-auto">
+                Enter a keyword, niche, or product category. GapLens mines six platforms for real frustrations—with authenticity scoring.
               </p>
 
               {/* AI Prompt search bar */}

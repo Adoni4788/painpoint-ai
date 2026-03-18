@@ -170,13 +170,14 @@ export default function LandingPage() {
       >
         <div className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group z-50">
-            <Logo size={32} color="#4d7c7a" className="group-hover:opacity-80 transition-opacity" />
-            <span className="text-2xl font-bold font-logo tracking-tight" style={{
+          <Link href="/" className="flex items-center gap-2 group z-50 drop-shadow-none shadow-none text-shadow-none opacity-60 hover:opacity-100 transition-opacity">
+            <Logo size={32} color="#4d7c7a" className="drop-shadow-none" />
+            <span className="text-2xl font-bold font-logo tracking-tight drop-shadow-none" style={{
               backgroundImage: "linear-gradient(to right, #4d7c7a, #a16207)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
+              textShadow: "none",
             }}>GapLens.io</span>
           </Link>
 
@@ -295,7 +296,7 @@ export default function LandingPage() {
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-5">
           <Link href="/validate"
-            className="group inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold bg-white text-black rounded-xl hover:bg-gray-50 transition-all hover:scale-[1.015] active:scale-[0.985] shadow-[0_1px_0_rgba(255,255,255,0.15)_inset]">
+            className="group inline-flex items-center gap-2 px-7 py-3.5 text-sm font-bold gradient-brand text-white rounded-xl hover:opacity-90 transition-all hover:scale-[1.015] active:scale-[0.985] shadow-sm shadow-orange-500/5">
             Find my first pain point — free
             <MdArrowForward size={15} className="group-hover:translate-x-0.5 transition-transform" />
           </Link>

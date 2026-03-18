@@ -105,12 +105,10 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
           onSelectSearch={handleSelectSearch}
         />
 
-        {/* Right column: standalone header card + main content card */}
-        <div className="flex-1 flex flex-col min-w-0 mt-2 mr-2 mb-2 gap-2">
-
-          {/* Standalone header card — floats on its own */}
-          <div className="shrink-0 flex items-center gap-3 pl-6 pr-3 h-12 rounded-2xl bg-white dark:bg-black border border-gray-200/60 dark:border-white/10">
-            {/* Page label */}
+        {/* Right column: single full-height main panel with integrated header */}
+        <main id="main-content" className="main-panel flex-1 flex flex-col overflow-hidden min-w-0 rounded-l-2xl bg-white dark:bg-black border border-gray-200/60 dark:border-white/10 border-r-0">
+          {/* Integrated header — one row: page label | center slot | controls */}
+          <div className="shrink-0 flex items-center gap-3 pl-6 pr-4 h-12 border-b border-gray-200/60 dark:border-white/10">
             <div className="flex items-center gap-2 shrink-0">
               <p className="text-base font-medium text-gray-800 dark:text-gray-200">
                 {currentPageLabel}
@@ -126,13 +124,9 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 </button>
               )}
             </div>
-
-            {/* Center slot (tips, search bar, etc.) */}
             <div className="flex-1 flex items-center justify-center min-w-0">
               {headerCenter}
             </div>
-
-            {/* Right controls */}
             <div className="shrink-0 flex items-center gap-1">
               {headerRight}
               <button
@@ -150,27 +144,22 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
                 <BellNotificationIcon size={18} />
               </button>
               <div className="h-5 w-px bg-gray-200/60 dark:bg-white/10 self-center mx-1 shrink-0" aria-hidden />
-              {/* Pro badge */}
               {isPro && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-200/60 dark:border-amber-500/25 mr-1">
                   ⚡ Pro
                 </span>
               )}
-              {/* Clerk user button — shows avatar, sign out, profile */}
               <UserButton />
             </div>
           </div>
 
-          {/* Main content card */}
-          <main id="main-content" className="main-panel flex-1 flex flex-col overflow-hidden min-w-0 rounded-2xl bg-white dark:bg-black border border-gray-200/60 dark:border-white/10">
-            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-              <RefreshSearchesProvider refresh={loadSearches}>
-                {children}
-              </RefreshSearchesProvider>
-            </div>
-          </main>
-
-        </div>
+          {/* Page content — full height */}
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+            <RefreshSearchesProvider refresh={loadSearches}>
+              {children}
+            </RefreshSearchesProvider>
+          </div>
+        </main>
       </div>
     </div>
   );

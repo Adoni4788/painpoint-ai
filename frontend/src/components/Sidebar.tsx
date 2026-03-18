@@ -162,8 +162,8 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
         {/* Separator — hidden when rail is collapsed, fades in when expanded/hovered */}
         <div className="mx-3 border-b border-gray-200 dark:border-white/20 opacity-0 group-hover:opacity-100 group-data-[expanded=true]:opacity-100 transition-opacity duration-200" />
       </div>
-      {/* Scrollable body — everything below the header scrolls together */}
-      <div className="flex-1 overflow-y-auto scrollbar-sidebar min-h-0 flex flex-col">
+      {/* Scrollable body — nav, workspace, recent searches */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-sidebar min-h-0 flex flex-col">
 
         {/* Navigation Links */}
         <div className="flex flex-col gap-0.5 px-2 pt-3 pb-2">
@@ -193,151 +193,117 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
           })}
         </div>
 
-        {/* Workspace Selector — hidden when rail collapsed */}
-        <div className="hidden group-hover:block group-data-[expanded=true]:block px-3 py-2 transition-opacity" ref={menuRef}>
+        {/* Workspace Selector — inline expansion (no absolute dropdown to avoid overflow-clip issues) */}
+        <div className="hidden group-hover:block group-data-[expanded=true]:block px-3 py-2" ref={menuRef}>
           <div className="px-2 mb-1.5">
             <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Workspace</p>
           </div>
-          <div className="relative">
-            <button
-              onClick={() => setWorkspaceMenuOpen(!workspaceMenuOpen)}
-              className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100/80 dark:bg-black rounded-lg hover:bg-gray-200/80 dark:hover:bg-[#262626] transition-colors border border-transparent"
-            >
-              <span className="flex items-center gap-2 truncate">
-                <FolderPlusCircleIcon size={20} className="text-gray-500 shrink-0" />
-                <span className="truncate">{displayName}</span>
-              </span>
-              <MdExpandMore size={20} className={`shrink-0 transition-transform ${workspaceMenuOpen ? "rotate-180" : ""}`} />
-            </button>
-            {workspaceMenuOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1 py-1 bg-white dark:bg-black rounded-lg shadow-lg border border-gray-200 dark:border-white/10 z-20 max-h-56 overflow-y-auto">
-                <button
-                  onClick={() => {
-                    setActiveWorkspaceId(null);
-                    setWorkspaceMenuOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-[#262626] ${!activeWorkspaceId ? "bg-gray-100 dark:bg-[#262626] font-medium" : ""}`}
-                >
-                  <FolderPlusCircleIcon size={14} className="text-gray-400" />
-                  All workspaces
-                </button>
-                {workspaces.map((w) =>
-                  editingId === w.id ? (
-                    <div key={w.id} className="flex items-center gap-1 px-2 py-1.5" onClick={(e) => e.stopPropagation()}>
-                      <input
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            updateWorkspace(w.id, editName).then(() => setEditingId(null));
-                          }
-                          if (e.key === "Escape") setEditingId(null);
-                        }}
-                        className="flex-1 px-2 py-1 text-sm border border-gray-200 dark:border-white/10 rounded bg-white dark:bg-[#262626] focus:outline-none focus:ring-1 focus:ring-[#4d7c7a]/50"
-                        autoFocus
-                      />
-                      <button
-                        onClick={() => updateWorkspace(w.id, editName).then(() => setEditingId(null))}
-                        className="p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-950/40 rounded"
-                        title="Save"
-                        aria-label="Save rename"
-                      >
-                        <MdEdit size={14} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div
-                      key={w.id}
-                      className={`group flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-[#262626] ${activeWorkspaceId === w.id ? "bg-gray-100 dark:bg-[#262626] font-medium" : ""}`}
-                    >
-                      <button
-                        onClick={() => {
-                          setActiveWorkspaceId(w.id);
-                          setWorkspaceMenuOpen(false);
-                        }}
-                        className="flex-1 flex items-center gap-2 truncate text-left"
-                      >
-                        <FolderPlusCircleIcon size={14} className="text-gray-400 shrink-0" />
-                        <span className="truncate">{w.name}</span>
-                      </button>
-                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingId(w.id);
-                            setEditName(w.name);
-                          }}
-                          className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded"
-                          title="Rename"
-                        >
-                          <MdEdit size={14} />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (confirm(`Delete "${w.name}"? Searches will be unassigned.`)) {
-                              deleteWorkspace(w.id);
-                            }
-                          }}
-                          className="p-1 text-gray-400 hover:text-red-500 rounded"
-                          title="Delete"
-                        >
-                          <MdDelete size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  )
-                )}
-                {createMode ? (
-                  <div className="flex items-center gap-1 px-2 py-1.5 border-t border-gray-100 dark:border-white/10" onClick={(e) => e.stopPropagation()}>
+          {/* Trigger button */}
+          <button
+            onClick={() => setWorkspaceMenuOpen(!workspaceMenuOpen)}
+            className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100/80 dark:bg-black rounded-lg hover:bg-gray-200/80 dark:hover:bg-[#262626] transition-colors"
+          >
+            <span className="flex items-center gap-2 min-w-0">
+              <FolderPlusCircleIcon size={20} className="text-gray-500 shrink-0" />
+              <span className="truncate">{displayName}</span>
+            </span>
+            <MdExpandMore size={20} className={`shrink-0 transition-transform ${workspaceMenuOpen ? "rotate-180" : ""}`} />
+          </button>
+          {/* Inline expanded list — no absolute positioning */}
+          {workspaceMenuOpen && (
+            <div className="mt-1 py-1 bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-white/10">
+              <button
+                onClick={() => { setActiveWorkspaceId(null); setWorkspaceMenuOpen(false); }}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-[#262626] ${!activeWorkspaceId ? "bg-gray-100 dark:bg-[#262626] font-medium" : ""}`}
+              >
+                <FolderPlusCircleIcon size={14} className="text-gray-400 shrink-0" />
+                <span className="truncate">All workspaces</span>
+              </button>
+              {workspaces.map((w) =>
+                editingId === w.id ? (
+                  <div key={w.id} className="flex items-center gap-1 px-2 py-1.5">
                     <input
-                      value={newWorkspaceName}
-                      onChange={(e) => setNewWorkspaceName(e.target.value)}
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" && newWorkspaceName.trim()) {
-                          createWorkspace(newWorkspaceName.trim()).then(() => {
-                            setCreateMode(false);
-                            setNewWorkspaceName("");
-                          });
-                        }
-                        if (e.key === "Escape") {
-                          setCreateMode(false);
-                          setNewWorkspaceName("");
-                        }
+                        if (e.key === "Enter") updateWorkspace(w.id, editName).then(() => setEditingId(null));
+                        if (e.key === "Escape") setEditingId(null);
                       }}
-                      placeholder="Workspace name"
-                      className="flex-1 px-2 py-1 text-sm border border-gray-200 dark:border-white/10 rounded bg-white dark:bg-[#262626] focus:outline-none focus:ring-1 focus:ring-[#4d7c7a]/50"
+                      className="flex-1 min-w-0 px-2 py-1 text-sm border border-gray-200 dark:border-white/10 rounded bg-white dark:bg-[#262626] focus:outline-none focus:ring-1 focus:ring-[#4d7c7a]/50"
                       autoFocus
                     />
                     <button
-                      onClick={() => {
-                        if (newWorkspaceName.trim()) {
-                          createWorkspace(newWorkspaceName.trim()).then(() => {
-                            setCreateMode(false);
-                            setNewWorkspaceName("");
-                          });
-                        }
-                      }}
-                      disabled={!newWorkspaceName.trim()}
-                      className="p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-950/40 rounded disabled:opacity-50"
-                      title="Create workspace"
-                      aria-label="Create workspace"
+                      onClick={() => updateWorkspace(w.id, editName).then(() => setEditingId(null))}
+                      className="shrink-0 p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-950/40 rounded"
+                      title="Save" aria-label="Save rename"
                     >
-                      <MdAdd size={18} />
+                      <MdEdit size={14} />
                     </button>
                   </div>
                 ) : (
+                  <div key={w.id} className={`group/item flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-[#262626] ${activeWorkspaceId === w.id ? "bg-gray-100 dark:bg-[#262626] font-medium" : ""}`}>
+                    <button
+                      onClick={() => { setActiveWorkspaceId(w.id); setWorkspaceMenuOpen(false); }}
+                      className="flex-1 flex items-center gap-2 min-w-0 text-left"
+                    >
+                      <FolderPlusCircleIcon size={14} className="text-gray-400 shrink-0" />
+                      <span className="truncate">{w.name}</span>
+                    </button>
+                    <div className="flex items-center gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setEditingId(w.id); setEditName(w.name); }}
+                        className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded"
+                        title="Rename"
+                      ><MdEdit size={14} /></button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); if (confirm(`Delete "${w.name}"? Searches will be unassigned.`)) deleteWorkspace(w.id); }}
+                        className="p-1 text-gray-400 hover:text-red-500 rounded"
+                        title="Delete"
+                      ><MdDelete size={14} /></button>
+                    </div>
+                  </div>
+                )
+              )}
+              {/* Create new workspace */}
+              {createMode ? (
+                <div className="flex items-center gap-1 px-2 py-1.5 border-t border-gray-100 dark:border-white/10">
+                  <input
+                    value={newWorkspaceName}
+                    onChange={(e) => setNewWorkspaceName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && newWorkspaceName.trim()) {
+                        createWorkspace(newWorkspaceName.trim()).then(() => { setCreateMode(false); setNewWorkspaceName(""); });
+                      }
+                      if (e.key === "Escape") { setCreateMode(false); setNewWorkspaceName(""); }
+                    }}
+                    placeholder="Workspace name"
+                    className="flex-1 min-w-0 px-2 py-1 text-sm border border-gray-200 dark:border-white/10 rounded bg-white dark:bg-[#262626] focus:outline-none focus:ring-1 focus:ring-[#4d7c7a]/50"
+                    autoFocus
+                  />
                   <button
-                    onClick={() => setCreateMode(true)}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 dark:hover:bg-[#262626] border-t border-gray-100 dark:border-white/10"
+                    onClick={() => {
+                      if (newWorkspaceName.trim()) {
+                        createWorkspace(newWorkspaceName.trim()).then(() => { setCreateMode(false); setNewWorkspaceName(""); });
+                      }
+                    }}
+                    disabled={!newWorkspaceName.trim()}
+                    className="shrink-0 p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-950/40 rounded disabled:opacity-50"
+                    title="Create workspace" aria-label="Create workspace"
                   >
-                    <MdAdd size={20} />
-                    New workspace
+                    <MdAdd size={18} />
                   </button>
-                )}
-              </div>
-            )}
-          </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setCreateMode(true)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 dark:hover:bg-[#262626] border-t border-gray-100 dark:border-white/10"
+                >
+                  <MdAdd size={20} />
+                  New workspace
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Divider */}
@@ -379,17 +345,13 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
           )}
         </nav>
 
-        {/* Spacer pushes upgrade + version to bottom when content is short */}
-        <div className="flex-1" />
-
-        {/* Search usage indicator — free users only */}
-        <SearchUsage searches={searches} />
-
-        <div className="hidden group-hover:block group-data-[expanded=true]:block px-3 pb-3">
-          <p className="font-mono text-[10px] text-gray-400 dark:text-gray-500 text-center">GapLens v0.1</p>
-        </div>
-
       </div>{/* end scrollable body */}
+
+      {/* Sticky bottom — upgrade banner + version, always visible, content scrolls behind */}
+      <div className="hidden group-hover:flex group-data-[expanded=true]:flex shrink-0 flex-col border-t border-gray-200/60 dark:border-white/10 bg-[#F7F7F7] dark:bg-ink">
+        <SearchUsage searches={searches} />
+        <p className="font-mono text-[10px] text-gray-400 dark:text-gray-500 text-center pb-3">GapLens v0.1</p>
+      </div>
     </aside>
   );
 }

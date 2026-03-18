@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Inter, Space_Grotesk, JetBrains_Mono, Outfit } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
@@ -32,6 +32,12 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
 });
 
+const outfit = Outfit({
+  weight: ["400", "500", "600", "700", "800"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-outfit",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://gaplens.io"),
@@ -64,8 +70,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} dark:bg-ink`} suppressHydrationWarning>
-      <body className={`${inter.className} ${spaceGrotesk.variable} ${jetbrainsMono.variable} bg-paper text-ink dark:bg-ink dark:text-paper antialiased transition-colors`} suppressHydrationWarning>
+    <html lang="en" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${outfit.variable} dark:bg-ink`} suppressHydrationWarning>
+      <body className={`${inter.className} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${outfit.variable} bg-paper text-ink dark:bg-ink dark:text-paper antialiased transition-colors`} suppressHydrationWarning>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-white focus:dark:bg-gray-900 focus:rounded-lg focus:ring-2 focus:ring-[#4d7c7a] focus:outline-none"

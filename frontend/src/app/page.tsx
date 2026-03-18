@@ -171,13 +171,13 @@ export default function LandingPage() {
         <div className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group z-50">
-            <Logo size={26} color="#4d7c7a" className="group-hover:opacity-80 transition-opacity" />
-            <span className="text-base font-semibold tracking-tight" style={{
+            <Logo size={32} color="#4d7c7a" className="group-hover:opacity-80 transition-opacity" />
+            <span className="text-2xl font-bold font-logo tracking-tight" style={{
               backgroundImage: "linear-gradient(to right, #4d7c7a, #a16207)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
-            }}>GapLens</span>
+            }}>GapLens.io</span>
           </Link>
 
           {/* Desktop Navigation */}

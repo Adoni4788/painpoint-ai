@@ -13,6 +13,7 @@ const config: Config = {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         heading: ["var(--font-space-grotesk)", "system-ui", "sans-serif"],
         mono: ["var(--font-jetbrains-mono)", "monospace"],
+        logo: ["var(--font-outfit)", "system-ui", "sans-serif"],
       },
       colors: {
         ink: "#0A0A0B",

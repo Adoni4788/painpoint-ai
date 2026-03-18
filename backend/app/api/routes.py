@@ -199,7 +199,7 @@ async def validate_minimal(
         raise
     except Exception as exc:
         logger.exception("validate_minimal failed for idea='%s': %s", payload.idea[:80], exc)
-        raise HTTPException(status_code=500, detail=f"Validate failed: {type(exc).__name__}: {exc}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred. Please try again.")
 
 
 # ---------------------------------------------------------------------------
@@ -269,6 +269,12 @@ async def list_searches(
     """List searches, newest first (max 50). Optionally filter by workspace_id."""
     q = select(Search).order_by(Search.created_at.desc()).limit(50)
     if workspace_id is not None:
+        # Verify the workspace belongs to the current user before filtering
+        if current_user is not None:
+            from ..models.search import Workspace
+            workspace = await db.get(Workspace, workspace_id)
+            if not workspace or workspace.user_id != current_user.id:
+                raise HTTPException(status_code=404, detail="Workspace not found.")
         q = q.where(Search.workspace_id == workspace_id)
     if current_user is not None:
         q = q.where(Search.user_id == current_user.id)

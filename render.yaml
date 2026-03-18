@@ -42,6 +42,8 @@ services:
         sync: false
       - key: LEMON_SQUEEZY_WEBHOOK_SECRET
         sync: false
+      - key: SENTRY_DSN
+        sync: false
     buildFilter:
       paths:
         - backend/**
@@ -64,6 +66,14 @@ services:
       - key: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
         sync: false
       - key: CLERK_SECRET_KEY
+        sync: false
+      - key: NEXT_PUBLIC_POSTHOG_KEY
+        sync: false
+      - key: NEXT_PUBLIC_POSTHOG_HOST
+        value: https://us.i.posthog.com
+      - key: NEXT_PUBLIC_SENTRY_DSN
+        sync: false
+      - key: SENTRY_AUTH_TOKEN
         sync: false
     buildFilter:
       paths:

@@ -7,6 +7,7 @@ const isPublicRoute = createRouteMatcher([
   "/sign-up(.*)",
   "/api/(.*)",   // backend handles its own auth
   "/terms",
+  "/privacy",
   "/refund-policy",
   "/gummysearch-alternative",
 ]);

@@ -237,8 +237,8 @@ export default function ReportsPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Toolbar */}
         <div className="py-4 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-black shrink-0">
-          <div className="px-6">
-          <div className="flex items-center justify-between mb-3">
+          <div className="px-4 sm:px-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
             <div>
               {filtered.length === 0 ? (
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
@@ -262,7 +262,7 @@ export default function ReportsPage() {
                 </>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {compareIds.size === 2 && (
                 <button
                   onClick={() => setShowCompare(true)}
@@ -290,7 +290,7 @@ export default function ReportsPage() {
           </div>
 
           {/* Filters */}
-          <div className="flex items-center gap-3 flex-nowrap">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 shrink-0">
               <MdFilterList size={14} />
               Filters
@@ -356,7 +356,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        {/* Cluster Table */}
+        {/* Cluster Table (desktop) / Cards (mobile) */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden min-w-0">
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-48 gap-2 text-sm text-gray-500 dark:text-gray-400">
@@ -369,25 +369,11 @@ export default function ReportsPage() {
               </button>
             </div>
           ) : (
-            <table className="w-full text-sm table-fixed">
-              <thead className="sticky top-0 bg-white dark:bg-black z-10">
-                <tr className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-white/10">
-                  <th className="pl-6 pr-2 py-3 text-left w-8"><span className="sr-only">Select</span></th>
-                  <th className="px-2 py-3 text-left w-8">#</th>
-                  <th className="px-3 py-3 text-left w-[22%]">Opportunity</th>
-                  <th className="px-3 py-3 text-left w-[12%]">Niche</th>
-                  <th className="px-3 py-3 text-center w-20">Score</th>
-                  <th className="px-3 py-3 text-center w-16">Rel</th>
-                  <th className="px-3 py-3 text-center w-16">Freq</th>
-                  <th className="px-3 py-3 text-center w-16">Emo</th>
-                  <th className="px-3 py-3 text-center w-16">Urg</th>
-                  <th className="px-3 py-3 text-center w-20">Evidence</th>
-                  <th className="px-3 py-3 text-right pr-6 w-24">Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-800/50">
+            <>
+              {/* Mobile: card layout */}
+              <div className="md:hidden p-4 space-y-3 pb-8">
                 {filtered.map((cluster, idx) => (
-                  <ClusterRow
+                  <ClusterCard
                     key={cluster.id}
                     cluster={cluster}
                     rank={idx + 1}
@@ -396,8 +382,41 @@ export default function ReportsPage() {
                     onToggle={() => toggleCompare(cluster.id)}
                   />
                 ))}
-              </tbody>
-            </table>
+              </div>
+
+              {/* Desktop: table */}
+              <div className="hidden md:block">
+                <table className="w-full text-sm table-fixed">
+                  <thead className="sticky top-0 bg-white dark:bg-black z-10">
+                    <tr className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-white/10">
+                      <th className="pl-6 pr-2 py-3 text-left w-8"><span className="sr-only">Select</span></th>
+                      <th className="px-2 py-3 text-left w-8">#</th>
+                      <th className="px-3 py-3 text-left w-[22%]">Opportunity</th>
+                      <th className="px-3 py-3 text-left w-[12%]">Niche</th>
+                      <th className="px-3 py-3 text-center w-20">Score</th>
+                      <th className="px-3 py-3 text-center w-16">Rel</th>
+                      <th className="px-3 py-3 text-center w-16">Freq</th>
+                      <th className="px-3 py-3 text-center w-16">Emo</th>
+                      <th className="px-3 py-3 text-center w-16">Urg</th>
+                      <th className="px-3 py-3 text-center w-20">Evidence</th>
+                      <th className="px-3 py-3 text-right pr-6 w-24">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800/50">
+                    {filtered.map((cluster, idx) => (
+                      <ClusterRow
+                        key={cluster.id}
+                        cluster={cluster}
+                        rank={idx + 1}
+                        isSelected={compareIds.has(cluster.id)}
+                        canSelect={compareIds.size < 2 || compareIds.has(cluster.id)}
+                        onToggle={() => toggleCompare(cluster.id)}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       </div>
@@ -440,6 +459,66 @@ function FilterSelect({
       <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 dark:text-gray-500">
         <MdExpandMore size={16} />
       </span>
+    </div>
+  );
+}
+
+
+function ClusterCard({
+  cluster,
+  rank,
+  isSelected,
+  canSelect,
+  onToggle,
+}: {
+  cluster: ClusterWithQuery;
+  rank: number;
+  isSelected: boolean;
+  canSelect: boolean;
+  onToggle: () => void;
+}) {
+  const scoreColor = getScoreColorClasses(cluster.opportunity_score, { includeBorder: false });
+  const authPct = Math.round(cluster.avg_authenticity * 100);
+  const authColor = getAuthenticityColorClasses(cluster.avg_authenticity);
+
+  return (
+    <div className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-4 shadow-sm">
+      <div className="flex items-start gap-3">
+        <button
+          onClick={onToggle}
+          disabled={!canSelect && !isSelected}
+          className="mt-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-30 shrink-0"
+          title={isSelected ? "Deselect" : canSelect ? "Select for comparison" : "Max 2 selected"}
+        >
+          {isSelected ? <MdCheckBox size={18} /> : <MdCheckBoxOutlineBlank size={18} />}
+        </button>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <span className="text-xs font-bold text-gray-400 dark:text-gray-500">#{rank}</span>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100 mt-0.5 line-clamp-2">{cluster.label}</h3>
+              <span className="inline-flex mt-1.5 px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-600 dark:text-gray-400 rounded-full truncate max-w-full">
+                {cluster.search_query}
+              </span>
+            </div>
+            <span className={`shrink-0 px-2.5 py-1 rounded-lg text-sm font-bold ${scoreColor}`}>
+              {cluster.opportunity_score.toFixed(1)}
+            </span>
+          </div>
+          {cluster.summary && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 line-clamp-2">{cluster.summary}</p>
+          )}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-3 text-xs text-gray-500 dark:text-gray-400">
+            <span>Rel {cluster.relevance_score.toFixed(1)}</span>
+            <span>Freq {cluster.frequency_score.toFixed(1)}</span>
+            <span>Emo {cluster.emotion_score.toFixed(1)}</span>
+            <span>Urg {cluster.urgency_score.toFixed(1)}</span>
+            <span className={authColor}>{authPct}% auth</span>
+            <span>{cluster.complaint_count} complaints</span>
+            <span>{new Date(cluster.created_at).toLocaleDateString()}</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

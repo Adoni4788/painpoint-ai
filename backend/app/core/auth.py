@@ -34,12 +34,12 @@ _bearer = HTTPBearer(auto_error=False)
 # JWKS cached for 1 hour — avoids a round-trip to Clerk on every request
 _jwks_cache: TTLCache = TTLCache(maxsize=1, ttl=3600)
 
-# Pro status cached 5 minutes — avoids hitting Clerk API on every request
-_pro_cache: TTLCache = TTLCache(maxsize=256, ttl=300)
+# Pro status cached 90 seconds — user sees upgrade within ~1.5 min
+_pro_cache: TTLCache = TTLCache(maxsize=256, ttl=90)
 
 
 async def _check_pro_via_api(clerk_id: str) -> bool:
-    """Check Clerk API for public_metadata.pro — cached 5 minutes."""
+    """Check Clerk API for public_metadata.pro — cached 90 seconds."""
     if not clerk_id or not settings.clerk_secret_key:
         return False
 
@@ -92,15 +92,18 @@ async def _verify_token(token: str) -> dict:
             algorithms=["RS256"],
             options={
                 "verify_aud": False,   # Clerk JWTs have no `aud` by default
-                "verify_iss": False,   # Issuer varies between custom domain and
-                                       # accounts.dev URL — signature check is sufficient
+                "verify_iss": False,   # We enforce issuer manually below
             },
         )
-        # Soft-check: log if issuer looks unexpected but don't reject
-        iss = claims.get("iss", "")
+        # Enforce issuer match — reject tokens from wrong Clerk instance
         configured = settings.clerk_issuer_url.rstrip("/")
+        iss = (claims.get("iss") or "").rstrip("/")
         if configured and iss and iss != configured:
-            logger.debug("JWT issuer %s differs from CLERK_ISSUER_URL %s (OK if custom domain)", iss, configured)
+            logger.warning("JWT issuer mismatch: got %s, expected %s", iss, configured)
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token issuer.",
+            )
         return claims
     except JWTError as exc:
         logger.warning("JWT verification failed: %s (type=%s)", exc, type(exc).__name__)

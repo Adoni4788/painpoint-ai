@@ -107,6 +107,7 @@ export default function LandingPage() {
   const [email, setEmail] = useState("");
   const [emailSubmitted, setEmailSubmitted] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   useEffect(() => {
     const onScroll = () => setHeaderSolid(window.scrollY > 60);
@@ -118,10 +119,24 @@ export default function LandingPage() {
     e.preventDefault();
     if (!email) return;
     setEmailLoading(true);
-    // TODO: replace with real email service (Loops, ConvertKit, Buttondown, etc.)
-    await new Promise((r) => setTimeout(r, 800));
-    setEmailSubmitted(true);
-    setEmailLoading(false);
+    setEmailError(null);
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = (await res.json()) as { error?: string };
+      if (res.ok) {
+        setEmailSubmitted(true);
+      } else {
+        setEmailError(data?.error ?? "Something went wrong. Please try again.");
+      }
+    } catch {
+      setEmailError("Something went wrong. Please try again.");
+    } finally {
+      setEmailLoading(false);
+    }
   };
 
   return (
@@ -459,19 +474,25 @@ export default function LandingPage() {
             <span>You&apos;re in — see you Friday.</span>
           </div>
         ) : (
-          <form onSubmit={handleEmailSubmit} className="flex gap-2 max-w-sm mx-auto">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              required
-              className="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-gray-700 text-sm focus:outline-none focus:border-white/20 transition-colors"
-            />
-            <button type="submit" disabled={emailLoading}
-              className="px-4 py-2.5 bg-white text-black rounded-xl font-semibold text-sm hover:bg-gray-100 transition-colors disabled:opacity-40 whitespace-nowrap">
-              {emailLoading ? "···" : "Subscribe"}
-            </button>
+          <form onSubmit={handleEmailSubmit} className="flex flex-col items-center gap-2 max-w-sm mx-auto">
+            <div className="flex gap-2 w-full">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setEmailError(null); }}
+                placeholder="you@example.com"
+                required
+                disabled={emailLoading}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-gray-700 text-sm focus:outline-none focus:border-white/20 transition-colors disabled:opacity-60"
+              />
+              <button type="submit" disabled={emailLoading}
+                className="px-4 py-2.5 bg-white text-black rounded-xl font-semibold text-sm hover:bg-gray-100 transition-colors disabled:opacity-40 whitespace-nowrap">
+                {emailLoading ? "···" : "Subscribe"}
+              </button>
+            </div>
+            {emailError && (
+              <p className="text-sm text-amber-400/90">{emailError}</p>
+            )}
           </form>
         )}
       </section>

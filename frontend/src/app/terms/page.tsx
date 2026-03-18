@@ -154,9 +154,9 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-white mb-3">12. Governing Law</h2>
             <p>
-              These Terms shall be governed by and construed in accordance with the laws of the jurisdiction in which
-              the operator resides, without regard to its conflict of law provisions. Any disputes shall be resolved
-              through good-faith negotiation first, then binding arbitration if necessary.
+              These Terms shall be governed by and construed in accordance with the laws of Jamaica, without regard
+              to its conflict of law provisions. Any disputes shall be resolved through good-faith negotiation first,
+              then binding arbitration if necessary.
             </p>
           </section>
 

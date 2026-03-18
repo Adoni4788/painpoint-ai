@@ -29,6 +29,54 @@ settings = get_settings()
 
 
 # ---------------------------------------------------------------------------
+# Ownership verification helpers
+# ---------------------------------------------------------------------------
+
+async def _get_search_or_403(
+    search_id: UUID,
+    db: AsyncSession,
+    current_user: Optional[User],
+) -> Search:
+    """Fetch search by ID; raise 404 if not found, 403 if not owned by current_user."""
+    search = await db.get(Search, search_id)
+    if not search:
+        raise HTTPException(status_code=404, detail="Search not found")
+    if current_user is not None and search.user_id is not None and search.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    return search
+
+
+async def _get_cluster_or_403(
+    cluster_id: UUID,
+    db: AsyncSession,
+    current_user: Optional[User],
+) -> PainCluster:
+    """Fetch cluster by ID; raise 404 if not found, 403 if parent search not owned by current_user."""
+    cluster = await db.get(PainCluster, cluster_id)
+    if not cluster:
+        raise HTTPException(status_code=404, detail="Cluster not found")
+    if current_user is not None:
+        search = await db.get(Search, cluster.search_id)
+        if search and search.user_id is not None and search.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized")
+    return cluster
+
+
+async def _get_workspace_or_403(
+    workspace_id: UUID,
+    db: AsyncSession,
+    current_user: Optional[User],
+) -> Workspace:
+    """Fetch workspace by ID; raise 404 if not found, 403 if not owned by current_user."""
+    workspace = await db.get(Workspace, workspace_id)
+    if not workspace:
+        raise HTTPException(status_code=404, detail="Workspace not found")
+    if current_user is not None and workspace.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    return workspace
+
+
+# ---------------------------------------------------------------------------
 # Pro-gate: free users get 3 searches/month, Pro users are unlimited.
 # Pro status is stored in Clerk public_metadata.pro (set by LS webhook).
 # The backend checks the JWT claims for this � Clerk includes public_metadata
@@ -109,11 +157,7 @@ async def get_workspace(
     db: AsyncSession = Depends(get_db),
     current_user: Optional[User] = Depends(get_current_user),
 ):
-    workspace = await db.get(Workspace, workspace_id)
-    if not workspace:
-        raise HTTPException(status_code=404, detail="Workspace not found")
-    if current_user is not None and workspace.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+    workspace = await _get_workspace_or_403(workspace_id, db, current_user)
     return workspace
 
 
@@ -124,11 +168,7 @@ async def update_workspace(
     db: AsyncSession = Depends(get_db),
     current_user: Optional[User] = Depends(get_current_user),
 ):
-    workspace = await db.get(Workspace, workspace_id)
-    if not workspace:
-        raise HTTPException(status_code=404, detail="Workspace not found")
-    if current_user is not None and workspace.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+    workspace = await _get_workspace_or_403(workspace_id, db, current_user)
     workspace.name = payload.name
     await db.commit()
     await db.refresh(workspace)
@@ -142,17 +182,13 @@ async def delete_workspace(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Delete a workspace and unlink its searches (searches themselves are kept)."""
-    # Eagerly load searches to avoid async lazy-load error (M6)
+    await _get_workspace_or_403(workspace_id, db, current_user)
     result = await db.execute(
         select(Workspace)
         .where(Workspace.id == workspace_id)
         .options(selectinload(Workspace.searches))
     )
-    workspace = result.scalar_one_or_none()
-    if not workspace:
-        raise HTTPException(status_code=404, detail="Workspace not found")
-    if current_user is not None and workspace.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+    workspace = result.scalar_one()
 
     for search in workspace.searches:
         search.workspace_id = None
@@ -269,12 +305,7 @@ async def list_searches(
     """List searches, newest first (max 50). Optionally filter by workspace_id."""
     q = select(Search).order_by(Search.created_at.desc()).limit(50)
     if workspace_id is not None:
-        # Verify the workspace belongs to the current user before filtering
-        if current_user is not None:
-            from ..models.search import Workspace
-            workspace = await db.get(Workspace, workspace_id)
-            if not workspace or workspace.user_id != current_user.id:
-                raise HTTPException(status_code=404, detail="Workspace not found.")
+        await _get_workspace_or_403(workspace_id, db, current_user)
         q = q.where(Search.workspace_id == workspace_id)
     if current_user is not None:
         q = q.where(Search.user_id == current_user.id)
@@ -288,11 +319,7 @@ async def get_search(
     db: AsyncSession = Depends(get_db),
     current_user: Optional[User] = Depends(get_current_user),
 ):
-    search = await db.get(Search, search_id)
-    if not search:
-        raise HTTPException(status_code=404, detail="Search not found")
-    if current_user is not None and search.user_id is not None and search.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+    search = await _get_search_or_403(search_id, db, current_user)
     return search
 
 
@@ -303,12 +330,7 @@ async def get_clusters(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Get all pain point clusters for a search, ranked by opportunity score."""
-    # Verify search ownership before returning clusters
-    search = await db.get(Search, search_id)
-    if not search:
-        raise HTTPException(status_code=404, detail="Search not found")
-    if current_user is not None and search.user_id is not None and search.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+    await _get_search_or_403(search_id, db, current_user)
 
     result = await db.execute(
         select(PainCluster)
@@ -325,11 +347,7 @@ async def delete_search(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Delete a search and all associated data."""
-    search = await db.get(Search, search_id)
-    if not search:
-        raise HTTPException(status_code=404, detail="Search not found")
-    if current_user is not None and search.user_id is not None and search.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+    search = await _get_search_or_403(search_id, db, current_user)
 
     # Refuse deletion while pipeline is actively running to prevent orphaned state (L3)
     if search.status in IN_PROGRESS_STATUSES:
@@ -394,14 +412,7 @@ async def get_cluster(
     db: AsyncSession = Depends(get_db),
     current_user: Optional[User] = Depends(get_current_user),
 ):
-    cluster = await db.get(PainCluster, cluster_id)
-    if not cluster:
-        raise HTTPException(status_code=404, detail="Cluster not found")
-    # Verify ownership via the parent search
-    if current_user is not None:
-        search = await db.get(Search, cluster.search_id)
-        if search and search.user_id is not None and search.user_id != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized")
+    cluster = await _get_cluster_or_403(cluster_id, db, current_user)
     return cluster
 
 
@@ -412,14 +423,7 @@ async def get_opportunity_report(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Get full opportunity report for a cluster."""
-    cluster = await db.get(PainCluster, cluster_id)
-    if not cluster:
-        raise HTTPException(status_code=404, detail="Cluster not found")
-    # Verify ownership via the parent search
-    if current_user is not None:
-        search = await db.get(Search, cluster.search_id)
-        if search and search.user_id is not None and search.user_id != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized")
+    cluster = await _get_cluster_or_403(cluster_id, db, current_user)
 
     posts_result = await db.execute(
         select(RawPost).where(RawPost.cluster_id == cluster_id).limit(20)
@@ -447,14 +451,7 @@ async def create_prd(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Generate a PRD draft for a pain point cluster."""
-    # Verify ownership via the parent search before incurring OpenAI cost
-    cluster = await db.get(PainCluster, cluster_id)
-    if not cluster:
-        raise HTTPException(status_code=404, detail="Cluster not found")
-    if current_user is not None:
-        search = await db.get(Search, cluster.search_id)
-        if search and search.user_id is not None and search.user_id != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized")
+    cluster = await _get_cluster_or_403(cluster_id, db, current_user)
     try:
         prd = await generate_prd_for_cluster(cluster_id, db)
         return prd

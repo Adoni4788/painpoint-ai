@@ -7,6 +7,8 @@ import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
 import { SearchesProvider } from "@/contexts/SearchesContext";
 import { ClerkTokenSyncer } from "@/components/ClerkTokenSyncer";
 import { PostHogPageView } from "@/components/PostHogPageView";
+import { CookieConsentProvider } from "@/contexts/CookieConsentContext";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import "./globals.css";
 
 const inter = Inter({
@@ -73,14 +75,17 @@ export default function RootLayout({
         <ClerkProvider afterSignOutUrl="/">
           <ClerkTokenSyncer />
           <ThemeProvider>
-            <WorkspaceProvider>
-              <SearchesProvider>
-                <Suspense fallback={null}>
-                  <PostHogPageView />
-                </Suspense>
-                {children}
-              </SearchesProvider>
-            </WorkspaceProvider>
+            <CookieConsentProvider>
+              <WorkspaceProvider>
+                <SearchesProvider>
+                  <Suspense fallback={null}>
+                    <PostHogPageView />
+                  </Suspense>
+                  {children}
+                  <CookieConsentBanner />
+                </SearchesProvider>
+              </WorkspaceProvider>
+            </CookieConsentProvider>
           </ThemeProvider>
         </ClerkProvider>
       </body>

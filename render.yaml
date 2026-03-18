@@ -75,6 +75,8 @@ services:
         sync: false
       - key: SENTRY_AUTH_TOKEN
         sync: false
+      - key: LOOPS_API_KEY
+        sync: false
     buildFilter:
       paths:
         - frontend/**

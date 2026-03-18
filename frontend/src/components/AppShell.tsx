@@ -95,7 +95,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
           </button>
         </div>
       )}
-      {/* Body: sidebar + main content */}
+      {/* Body: sidebar + right column */}
       <div className="flex flex-1 overflow-hidden bg-[#F7F7F7] dark:bg-ink">
         <Sidebar
           searches={searches}
@@ -105,11 +105,11 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
           onSelectSearch={handleSelectSearch}
         />
 
-        {/* Main panel — white/black card, no gray strip */}
-        <main id="main-content" className="main-panel flex-1 flex flex-col overflow-hidden min-w-0 mt-2 mr-2 mb-2 rounded-2xl bg-white dark:bg-black border border-gray-200/60 dark:border-white/10">
+        {/* Right column: standalone header card + main content card */}
+        <div className="flex-1 flex flex-col min-w-0 mt-2 mr-2 mb-2 gap-2">
 
-          {/* Full-width header — spans the entire panel, no tab shape */}
-          <div className="shrink-0 flex items-center gap-3 pl-6 pr-3 h-12 border-b border-gray-200/60 dark:border-white/10">
+          {/* Standalone header card — floats on its own */}
+          <div className="shrink-0 flex items-center gap-3 pl-6 pr-3 h-12 rounded-2xl bg-white dark:bg-black border border-gray-200/60 dark:border-white/10">
             {/* Page label */}
             <div className="flex items-center gap-2 shrink-0">
               <p className="text-base font-medium text-gray-800 dark:text-gray-200">
@@ -161,13 +161,16 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
             </div>
           </div>
 
-          {/* Page content */}
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-            <RefreshSearchesProvider refresh={loadSearches}>
-              {children}
-            </RefreshSearchesProvider>
-          </div>
-        </main>
+          {/* Main content card */}
+          <main id="main-content" className="main-panel flex-1 flex flex-col overflow-hidden min-w-0 rounded-2xl bg-white dark:bg-black border border-gray-200/60 dark:border-white/10">
+            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+              <RefreshSearchesProvider refresh={loadSearches}>
+                {children}
+              </RefreshSearchesProvider>
+            </div>
+          </main>
+
+        </div>
       </div>
     </div>
   );

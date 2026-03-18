@@ -150,7 +150,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             <div className="w-10 flex items-center justify-center shrink-0">
               <Logo size={22} color="#4d7c7a" className="logo-app" />
             </div>
-            <span className="gradient-brand-text text-lg font-heading font-semibold tracking-tight truncate overflow-hidden opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300">
+            <span className="gradient-brand-text text-lg font-heading font-semibold tracking-tight truncate overflow-hidden opacity-0 w-0 group-hover:opacity-0 group-hover:w-auto group-data-[expanded=true]:opacity-0 group-data-[expanded=true]:w-auto transition-all duration-300">
               GapLens
             </span>
           </div>

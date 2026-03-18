@@ -44,7 +44,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#e9edf5] dark:bg-[#171717]">
+    <div className="flex flex-col h-screen overflow-hidden bg-[#F0F2F5] dark:bg-[#050505]">
       {backendUnavailable && (
         <div className="shrink-0 px-4 py-2.5 bg-amber-500/15 dark:bg-amber-500/10 border-b border-amber-500/30 dark:border-amber-500/20 flex items-center justify-between gap-4">
           <p className="text-sm text-amber-800 dark:text-amber-200">
@@ -86,7 +86,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
         </div>
       )}
       {/* Body: sidebar + right column */}
-      <div className="flex flex-1 overflow-hidden bg-[#F7F7F7] dark:bg-ink">
+      <div className="flex flex-1 overflow-hidden bg-transparent">
         <Sidebar
           searches={searches}
           activeSearchId={activeSearchId ?? null}
@@ -96,7 +96,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
         />
 
         {/* Right column: single full-height main panel with integrated header */}
-        <main id="main-content" className="main-panel flex-1 flex flex-col overflow-hidden min-w-0 rounded-l-2xl bg-white dark:bg-black border border-gray-200/60 dark:border-white/10 border-r-0">
+        <main id="main-content" className="main-panel flex-1 flex flex-col overflow-hidden min-w-0 my-3 mr-3 rounded-2xl bg-white dark:bg-[#0A0A0B] border border-gray-200/60 dark:border-white/5 shadow-sm dark:shadow-[0_0_40px_rgba(0,0,0,0.8)] border-l">
           {/* Integrated header — one row: page label | center slot | controls */}
           <div className="shrink-0 flex items-center gap-3 pl-6 pr-4 h-12 border-b border-gray-200/60 dark:border-white/10">
             <div className="flex items-center gap-2 shrink-0">

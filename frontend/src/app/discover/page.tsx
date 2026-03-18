@@ -202,30 +202,30 @@ function DiscoverPageContent() {
       {!activeSearch ? (
         /* Immersive search: full-screen */
         <>
-          <div className="noise-overlay flex-1 overflow-y-auto scrollbar-main flex flex-col items-center justify-center min-h-0 px-6 py-12 relative">
-            <div className="relative z-10 max-w-2xl w-full mx-auto text-center">
+          <div className="noise-overlay flex-1 overflow-y-auto scrollbar-main flex flex-col items-center justify-center min-h-0 px-6 py-12 relative bg-gradient-to-b from-transparent to-white/30 dark:to-black/20">
+            <div className="relative z-10 max-w-2xl w-full mx-auto text-center animate-in fade-in slide-in-from-bottom-6 duration-1000">
 
               {/* Deep Search heading */}
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-ink dark:text-paper mb-2">
-                Find the Gap
+              <h2 className="font-logo text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 tracking-tight mb-4">
+                What are users complaining about?
               </h2>
-              <p className="font-mono text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-8">
-                Deep Search · Opportunity Discovery
+              <p className="font-mono text-xs text-brand-600 dark:text-teal-400/80 uppercase tracking-[0.2em] font-medium mb-8">
+                Opportunity Discovery Engine
               </p>
 
               {/* Subtitle */}
-              <p className="text-gray-600 dark:text-gray-400 mb-10 leading-relaxed max-w-lg mx-auto">
-                Enter a keyword, niche, or product category. GapLens mines six platforms for real frustrations—with authenticity scoring.
+              <p className="text-gray-600 dark:text-gray-400 mb-10 leading-relaxed max-w-lg mx-auto text-sm md:text-base">
+                Enter a niche, competitor, or product category. GapLens mines millions of discussions for real frustrations, grouped and scored by AI.
               </p>
 
-              {/* Million-Dollar search bar — pill shape, shadow, focus-within accent */}
+              {/* AI Prompt search bar */}
               <DiscoverSearchForm onSearch={handleSearch} loading={loading} />
 
               {/* Source badges */}
-              <div className="flex items-center justify-center gap-6 flex-wrap mt-8">
+              <div className="flex items-center justify-center gap-6 flex-wrap mt-10 opacity-70">
                 {SOURCES.map((src) => (
-                  <span key={src.id} className="flex items-center gap-1.5 font-mono text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                    <src.Icon size={12} className={src.iconColor} />
+                  <span key={src.id} className="flex items-center gap-2 font-mono text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-widest hover:text-gray-800 dark:hover:text-gray-200 transition-colors cursor-default">
+                    <src.Icon size={14} className={src.iconColor} />
                     {src.label}
                   </span>
                 ))}
@@ -316,10 +316,13 @@ function DiscoverSearchForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-3xl relative mx-auto">
-      <div className="relative flex items-center p-2 bg-white dark:bg-[#121214] border border-black/10 dark:border-white/10 rounded-[32px] shadow-2xl focus-within:border-accent/50 transition-all duration-500">
+    <form onSubmit={handleSubmit} className="w-full max-w-3xl relative mx-auto group">
+      {/* Glow effect behind the prompt */}
+      <div className="absolute -inset-1 bg-gradient-to-r from-[#4d7c7a]/20 to-[#f97316]/20 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-700 pointer-events-none" />
+      
+      <div className="relative flex items-center p-2 bg-white/90 dark:bg-[#0A0A0B]/90 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] focus-within:border-[#4d7c7a]/40 dark:focus-within:border-[#4d7c7a]/40 transition-all duration-300">
         {/* Search/Command icon */}
-        <div className="pl-6 pr-4 text-slate-400 dark:text-slate-500 shrink-0">
+        <div className="pl-5 pr-3 text-[#4d7c7a] dark:text-teal-500 shrink-0">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
@@ -330,23 +333,24 @@ function DiscoverSearchForm({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search a niche, competitor, or pain point..."
-          className="flex-1 bg-transparent border-none focus:ring-0 text-xl py-6 placeholder:text-slate-300 dark:placeholder:text-slate-500 text-ink dark:text-paper outline-none min-w-0"
+          placeholder="e.g., fitness tracking apps, cold email software..."
+          className="flex-1 bg-transparent border-none focus:ring-0 text-lg md:text-xl py-5 md:py-6 placeholder:text-gray-400 dark:placeholder:text-gray-600 text-gray-900 dark:text-gray-100 outline-none min-w-0 font-medium"
           disabled={loading}
+          autoFocus
         />
 
         {/* Analyze button */}
         <button
           type="submit"
           disabled={loading || !query.trim()}
-          className="gradient-brand hover:opacity-90 text-white px-10 py-5 rounded-[24px] font-bold transition-all flex items-center gap-3 shadow-xl shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          className="group/btn gradient-brand hover:opacity-90 text-white px-8 md:px-10 py-4 md:py-5 rounded-xl font-bold transition-all flex items-center gap-3 shadow-md shadow-orange-500/10 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
         >
           {loading ? (
             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           ) : (
             <>
               Analyze
-              <HiOutlineArrowUpRight size={20} />
+              <HiOutlineArrowUpRight size={18} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
             </>
           )}
         </button>

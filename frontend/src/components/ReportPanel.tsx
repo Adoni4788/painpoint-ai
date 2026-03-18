@@ -39,10 +39,10 @@ export function ReportPanel({ report, onClose, onReportUpdate, analyticsSource }
     <div className="flex flex-col h-full min-w-0 overflow-hidden">
       {/* Header — same height as Key insight area (pt-4 pb-2) */}
       <div className="bg-white dark:bg-black min-w-0">
-        <div className="flex items-center justify-between gap-3 px-4 sm:px-6 pt-4 pb-2 text-left">
+        <div className="flex items-center justify-between gap-3 px-4 sm:px-6 pt-5 pb-3 text-left">
           <div className="min-w-0 flex-1">
-            <h3 className="font-heading font-semibold text-gray-900 dark:text-gray-100 truncate">{cluster.label}</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Opportunity Report</p>
+            <h3 className="font-logo text-xl font-bold text-gray-900 dark:text-white tracking-tight truncate leading-snug">{cluster.label}</h3>
+            <p className="font-mono text-[10px] uppercase tracking-wider text-[#4d7c7a] dark:text-teal-500/80 mt-1 font-semibold">Opportunity Report</p>
           </div>
           <button
             onClick={onClose}
@@ -59,23 +59,23 @@ export function ReportPanel({ report, onClose, onReportUpdate, analyticsSource }
       </div>
 
       {/* Tabs — left-aligned */}
-      <div className="flex justify-start gap-6 px-4 sm:px-6 text-left">
+      <div className="flex justify-start gap-8 px-4 sm:px-6 text-left border-b border-gray-200 dark:border-white/10 dark:bg-[#0A0A0B]">
         <button
           onClick={() => setActiveTab("report")}
-          className={`py-3 px-0 text-sm font-medium border-b-2 transition-colors -mb-px ${
+          className={`py-3.5 px-1 text-sm font-semibold border-b-2 transition-colors -mb-px ${
             activeTab === "report"
-              ? "border-gray-600 text-gray-600 dark:border-gray-400 dark:text-gray-400"
-              : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              ? "border-[#4d7c7a] text-[#4d7c7a] dark:text-teal-400"
+              : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
           }`}
         >
-          Report
+          Insights Report
         </button>
         <button
           onClick={() => prd ? setActiveTab("prd") : handleGeneratePRD()}
-          className={`py-3 px-0 text-sm font-medium border-b-2 transition-colors -mb-px ${
+          className={`py-3.5 px-1 text-sm font-semibold border-b-2 transition-colors -mb-px ${
             activeTab === "prd"
-              ? "border-gray-600 text-gray-600 dark:border-gray-400 dark:text-gray-400"
-              : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              ? "border-[#4d7c7a] text-[#4d7c7a] dark:text-teal-400"
+              : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
           }`}
         >
           PRD Draft
@@ -124,13 +124,16 @@ function ReportContent({
   generatingPRD: boolean;
 }) {
   return (
-    <div className="space-y-6 min-w-0">
+    <div className="space-y-8 min-w-0 pb-12">
       {/* Opportunity Score */}
-      <div className="rounded-xl p-4 sm:p-5 min-w-0 bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-white/10">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="shrink-0">
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Opportunity Score</p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{cluster.opportunity_score.toFixed(1)} <span className="text-lg font-normal text-gray-500 dark:text-gray-500">/ 10</span></p>
+      <div className="rounded-2xl p-5 sm:p-6 min-w-0 bg-gradient-to-br from-[#4d7c7a]/5 to-transparent border border-[#4d7c7a]/10 dark:border-white/5 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+          <div className="shrink-0 flex flex-col justify-center">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-[#4d7c7a] dark:text-teal-500 font-bold mb-1">Opportunity Score</p>
+            <div className="flex items-baseline gap-1">
+              <p className="text-4xl font-logo font-extrabold text-[#4d7c7a] dark:text-white tracking-tight leading-none">{cluster.opportunity_score.toFixed(1)}</p>
+              <span className="text-lg font-bold text-gray-400 dark:text-gray-500">/10</span>
+            </div>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center min-w-0">
             <ScoreCell label="Relev." value={cluster.relevance_score} title="Relevance" />
@@ -171,9 +174,9 @@ function ReportContent({
       </Section>
 
       <Section title="Top Complaint Examples">
-        <div className="space-y-3">
+        <div className="space-y-4 mt-3">
           {cluster.top_complaints.map((text, i) => (
-            <blockquote key={i} className="text-sm text-gray-600 dark:text-gray-400 border-l-3 border-gray-300 dark:border-white/20 pl-4 py-1 italic leading-relaxed break-words bg-gray-50 dark:bg-[#262626] rounded-r-lg pr-3">
+            <blockquote key={i} className="text-sm border-l-[3px] border-[#4d7c7a]/60 pl-5 py-2 italic text-gray-700 dark:text-gray-300 leading-relaxed font-medium bg-gradient-to-r from-[#4d7c7a]/5 to-transparent rounded-r-xl pr-4">
               &ldquo;{text}&rdquo;
             </blockquote>
           ))}
@@ -257,9 +260,9 @@ function PRDContent({ prd }: { prd: NonNullable<OpportunityReport["prd"]> }) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="font-heading font-semibold text-gray-900 dark:text-gray-100">PRD Draft</h3>
+    <div className="space-y-8 pb-12">
+      <div className="flex items-center justify-between border-b border-gray-200 dark:border-white/10 pb-4">
+        <h3 className="font-logo text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Product Requirements</h3>
         <button
           onClick={handleCopy}
           className="px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-[#333333] transition-colors shrink-0"
@@ -321,8 +324,10 @@ function PRDContent({ prd }: { prd: NonNullable<OpportunityReport["prd"]> }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="min-w-0 overflow-hidden break-words">
-      <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{title}</h4>
-      {children}
+      <h4 className="font-mono text-xs font-bold text-gray-900 dark:text-gray-200 uppercase tracking-widest mb-3 border-b border-gray-100 dark:border-white/5 pb-2">{title}</h4>
+      <div className="text-gray-700 dark:text-gray-300">
+        {children}
+      </div>
     </div>
   );
 }

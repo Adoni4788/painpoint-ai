@@ -35,9 +35,9 @@ export function ClusterList({
   return (
     <div className="text-left min-w-0 font-sans">
       {/* Bento Grid Header */}
-      <div className="mb-6 flex items-end justify-between gap-4">
+      <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h2 className="font-heading text-2xl font-bold text-ink dark:text-paper">
+          <h2 className="font-logo text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
             Opportunity Board
           </h2>
           <p className="mt-1 font-mono text-xs text-gray-500 dark:text-gray-400">
@@ -45,11 +45,11 @@ export function ClusterList({
           </p>
         </div>
         {totalDataPoints > 0 && (
-          <div className="rounded-lg border border-gray-200/80 dark:border-white/10 bg-gray-50/50 dark:bg-ink/50 px-4 py-2">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400">
+          <div className="rounded-xl border border-gray-200/80 dark:border-white/10 bg-white/50 dark:bg-white/5 px-5 py-2.5 shadow-sm backdrop-blur-sm">
+            <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-gray-500 dark:text-gray-400 mb-0.5">
               Data Coverage
             </p>
-            <p className="font-mono text-lg font-semibold text-ink dark:text-paper">
+            <p className="font-mono text-lg font-semibold text-gray-900 dark:text-white">
               {dataPointsFormatted} analyzed
             </p>
           </div>
@@ -110,12 +110,14 @@ function FeaturedClusterCard({
   return (
     <button
       onClick={onClick}
-      className={`noise-overlay w-full min-w-0 text-left p-6 rounded-2xl border-2 transition-all duration-300 overflow-hidden ${
+      className={`group/card relative noise-overlay w-full min-w-0 text-left p-6 md:p-8 rounded-[24px] border transition-all duration-500 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both delay-100 ${
         isSelected
-          ? "border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30 shadow-lg dark:shadow-indigo-500/10"
-          : "border-gray-200 dark:border-white/20 bg-white dark:bg-ink/50 hover:border-indigo-300 dark:hover:border-indigo-500/40 hover:shadow-lg"
+          ? "border-[#4d7c7a]/50 bg-white dark:bg-[#0A0A0B] shadow-xl shadow-[#4d7c7a]/15 dark:shadow-[#4d7c7a]/20 ring-1 ring-[#4d7c7a]"
+          : "border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 hover:border-[#4d7c7a]/30 hover:bg-white dark:hover:bg-[#121214] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_8px_30px_rgba(77,124,122,0.15)] hover:-translate-y-1"
       }`}
     >
+      {/* Dynamic ambient glow on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#4d7c7a]/5 to-[#f97316]/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none" />
       <div className="relative z-10 flex flex-col md:flex-row md:items-start md:justify-between gap-6">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
@@ -126,7 +128,7 @@ function FeaturedClusterCard({
               #{rank}
             </span>
           </div>
-          <h3 className="font-heading text-xl md:text-2xl font-bold text-ink dark:text-paper">
+          <h3 className="font-logo text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight leading-snug">
             {cluster.label}
           </h3>
           {cluster.summary && (
@@ -174,19 +176,21 @@ function BentoClusterCard({
   return (
     <button
       onClick={onClick}
-      className={`noise-overlay w-full min-w-0 text-left p-5 rounded-xl border transition-all duration-300 overflow-hidden ${
+      style={{ animationDelay: `${(rank * 100) + 100}ms` }}
+      className={`group/card relative noise-overlay w-full min-w-0 text-left p-5 rounded-[20px] border transition-all duration-500 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both ${
         isSelected
-          ? "border-indigo-500 bg-indigo-50/30 dark:bg-indigo-950/20 shadow-md"
-          : "border border-gray-200 dark:border-white/10 bg-white dark:bg-ink/30 hover:border-indigo-300 dark:hover:border-indigo-500/30 hover:shadow-md"
+          ? "border-[#4d7c7a]/50 bg-white dark:bg-[#0A0A0B] shadow-lg shadow-[#4d7c7a]/10 ring-1 ring-[#4d7c7a]/50"
+          : "border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 hover:border-[#4d7c7a]/30 hover:bg-white dark:hover:bg-[#121214] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:hover:shadow-[0_8px_30px_rgba(77,124,122,0.1)] hover:-translate-y-1"
       }`}
     >
+      <div className="absolute inset-0 bg-gradient-to-br from-[#4d7c7a]/0 via-transparent to-[#f97316]/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none" />
       <div className="relative z-10 flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="font-mono text-[10px] font-bold text-gray-400 dark:text-gray-500">
               #{rank}
             </span>
-            <h3 className="font-heading font-semibold text-ink dark:text-paper truncate">
+            <h3 className="font-logo text-lg font-bold text-gray-900 dark:text-white truncate tracking-tight">
               {cluster.label}
             </h3>
           </div>

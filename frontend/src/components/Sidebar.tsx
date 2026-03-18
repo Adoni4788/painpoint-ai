@@ -140,7 +140,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   return (
     <aside
       data-expanded={isOpen}
-      className={`sidebar-aside group bg-[#F7F7F7] dark:bg-ink flex flex-col shrink-0 transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-60" : "w-16 hover:w-60"}`}
+      className={`sidebar-aside group bg-transparent flex flex-col shrink-0 transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
     >
       {/* Sidebar header: logo, name, collapse */}
       <div className="shrink-0 flex flex-col min-w-[240px]">
@@ -156,7 +156,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
           </div>
           <button
             onClick={onToggle}
-            className={`ml-auto p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-200/60 dark:hover:bg-[#262626] transition-colors shrink-0 ${!isOpen ? "opacity-0 group-hover:opacity-100" : ""}`}
+            className={`ml-auto p-1 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-lg hover:bg-gray-200/60 dark:hover:bg-white/10 transition-colors shrink-0 ${!isOpen ? "opacity-0 group-hover:opacity-100" : ""}`}
             title={isOpen ? "Collapse sidebar" : "Expand sidebar"}
             aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
           >
@@ -164,7 +164,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
           </button>
         </div>
         {/* Separator — hidden when rail is collapsed, fades in when expanded/hovered */}
-        <div className="mx-3 border-b border-gray-200 dark:border-white/20 opacity-0 group-hover:opacity-100 group-data-[expanded=true]:opacity-100 transition-opacity duration-200" />
+        <div className="mx-3 border-b border-gray-200/60 dark:border-white/5 opacity-0 group-hover:opacity-100 group-data-[expanded=true]:opacity-100 transition-opacity duration-200" />
       </div>
       {/* Scrollable body — nav, workspace, recent searches */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-sidebar min-h-0 flex flex-col">
@@ -180,13 +180,13 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-2 px-3 py-2.5 text-[13px] font-medium transition-colors w-full rounded-xl ${
+                className={`flex items-center gap-2 px-3 py-2.5 text-[13px] font-medium transition-all duration-200 w-full rounded-xl ${
                   isActive
-                    ? "bg-white text-gray-900 dark:bg-black dark:text-gray-100"
-                    : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#262626] dark:hover:text-gray-200"
+                    ? "bg-white text-gray-900 dark:bg-white/10 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10"
+                    : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
                 }`}
               >
-                <span className={isActive ? "text-[#434343] dark:text-gray-300" : "text-gray-400 dark:text-gray-500"}>
+                <span className={isActive ? "text-[#434343] dark:text-white" : "text-gray-400 dark:text-gray-500"}>
                   {item.icon}
                 </span>
                 <span className="opacity-0 w-0 overflow-hidden group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300 whitespace-nowrap">
@@ -205,7 +205,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
           {/* Trigger button */}
           <button
             onClick={() => setWorkspaceMenuOpen(!workspaceMenuOpen)}
-            className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100/80 dark:bg-black rounded-lg hover:bg-gray-200/80 dark:hover:bg-[#262626] transition-colors"
+            className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white/50 dark:bg-white/5 rounded-lg border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors shadow-sm"
           >
             <span className="flex items-center gap-2 min-w-0">
               <FolderPlusCircleIcon size={20} className="text-gray-500 shrink-0" />
@@ -215,10 +215,10 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
           </button>
           {/* Inline expanded list — no absolute positioning */}
           {workspaceMenuOpen && (
-            <div className="mt-1 py-1 bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-white/10">
+            <div className="mt-1 py-1 bg-white/50 dark:bg-[#0A0A0B]/80 backdrop-blur-md rounded-lg border border-gray-200 dark:border-white/10 shadow-lg">
               <button
                 onClick={() => { setActiveWorkspaceId(null); setWorkspaceMenuOpen(false); }}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-[#262626] ${!activeWorkspaceId ? "bg-gray-100 dark:bg-[#262626] font-medium" : ""}`}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-white dark:hover:bg-white/10 transition-colors ${!activeWorkspaceId ? "bg-white dark:bg-white/10 font-medium text-gray-900 dark:text-white" : ""}`}
               >
                 <FolderPlusCircleIcon size={14} className="text-gray-400 shrink-0" />
                 <span className="truncate">All workspaces</span>
@@ -245,7 +245,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                     </button>
                   </div>
                 ) : (
-                  <div key={w.id} className={`group/item flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-[#262626] ${activeWorkspaceId === w.id ? "bg-gray-100 dark:bg-[#262626] font-medium" : ""}`}>
+                  <div key={w.id} className={`group/item flex items-center gap-2 px-3 py-2 text-sm hover:bg-white dark:hover:bg-white/10 transition-colors ${activeWorkspaceId === w.id ? "bg-white dark:bg-white/10 font-medium text-gray-900 dark:text-white" : ""}`}>
                     <button
                       onClick={() => { setActiveWorkspaceId(w.id); setWorkspaceMenuOpen(false); }}
                       className="flex-1 flex items-center gap-2 min-w-0 text-left"
@@ -300,7 +300,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
               ) : (
                 <button
                   onClick={() => setCreateMode(true)}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 dark:hover:bg-[#262626] border-t border-gray-100 dark:border-white/10"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:bg-white dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white border-t border-gray-200 dark:border-white/10 transition-colors"
                 >
                   <MdAdd size={20} />
                   New workspace
@@ -311,7 +311,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
         </div>
 
         {/* Divider */}
-        <div className="hidden group-hover:block group-data-[expanded=true]:block mx-4 border-t border-gray-100 dark:border-white/10" />
+        <div className="hidden group-hover:block group-data-[expanded=true]:block mx-4 border-t border-gray-200/60 dark:border-white/5" />
 
         {/* Recent Searches */}
         <nav className="hidden group-hover:flex group-data-[expanded=true]:flex flex-col py-3 min-h-0">
@@ -326,10 +326,10 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                 <li key={s.id}>
                   <button
                     onClick={() => onSelectSearch(s)}
-                    className={`w-full text-left pl-5 pr-4 py-2.5 text-sm transition-colors border-0 ring-0 -ml-4 rounded-r-xl relative z-10 ${
+                    className={`w-full text-left pl-5 pr-4 py-2 text-sm transition-colors border-0 ring-0 -ml-4 rounded-r-xl relative z-10 ${
                       s.id === activeSearchId
-                        ? "bg-white text-gray-900 dark:bg-black dark:text-gray-100"
-                        : "text-gray-700 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:bg-[#262626]"
+                        ? "bg-white text-gray-900 dark:bg-white/10 dark:text-white shadow-sm font-medium"
+                        : "text-gray-600 hover:bg-white/60 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-200"
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -352,7 +352,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
       </div>{/* end scrollable body */}
 
       {/* Sticky bottom — upgrade banner + version, always visible, content scrolls behind */}
-      <div className="hidden group-hover:flex group-data-[expanded=true]:flex shrink-0 flex-col bg-[#F7F7F7] dark:bg-ink">
+      <div className="hidden group-hover:flex group-data-[expanded=true]:flex shrink-0 flex-col bg-transparent">
         <SearchUsage searches={searches} />
         <p className="font-mono text-[10px] text-gray-400 dark:text-gray-500 text-center pb-3">GapLens v0.1</p>
       </div>
@@ -391,7 +391,7 @@ function SearchUsage({ searches }: { searches: SearchResult[] }) {
 
   return (
     <div className="hidden group-hover:block group-data-[expanded=true]:block px-3 pb-2">
-      <div className={`p-3 rounded-xl border ${isAtLimit ? "bg-red-50 dark:bg-red-500/10 border-red-200/60 dark:border-red-500/20" : "bg-gray-100/80 dark:bg-white/5 border-gray-200/60 dark:border-white/10"}`}>
+      <div className={`p-3 rounded-xl border shadow-sm ${isAtLimit ? "bg-red-50 dark:bg-red-950/20 border-red-200/60 dark:border-red-500/20" : "bg-white/50 dark:bg-white/5 border-black/5 dark:border-white/10"}`}>
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[11px] font-semibold text-gray-600 dark:text-gray-400">
             {isAtLimit ? "Limit reached" : `${remaining} search${remaining === 1 ? "" : "es"} left`}

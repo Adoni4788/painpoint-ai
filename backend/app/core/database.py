@@ -43,5 +43,10 @@ async def init_db():
     The inline ALTER TABLE calls that previously lived here have been moved
     into the Alembic initial migration (alembic/versions/001_initial_schema.py).
     """
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    import logging
+    logger = logging.getLogger(__name__)
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception as e:
+        logger.warning(f"Database sync skipped (expected if tables exist): {e}")

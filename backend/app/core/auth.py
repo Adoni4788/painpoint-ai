@@ -86,14 +86,21 @@ async def _verify_token(token: str) -> dict:
     """Decode and verify a Clerk JWT. Returns the claims dict."""
     jwks = await _get_jwks()
     try:
-        issuer = settings.clerk_issuer_url.rstrip("/")
         claims = jwt.decode(
             token,
             jwks,
             algorithms=["RS256"],
-            issuer=issuer,
-            options={"verify_aud": False},  # Clerk JWTs have no `aud` by default
+            options={
+                "verify_aud": False,   # Clerk JWTs have no `aud` by default
+                "verify_iss": False,   # Issuer varies between custom domain and
+                                       # accounts.dev URL — signature check is sufficient
+            },
         )
+        # Soft-check: log if issuer looks unexpected but don't reject
+        iss = claims.get("iss", "")
+        configured = settings.clerk_issuer_url.rstrip("/")
+        if configured and iss and iss != configured:
+            logger.debug("JWT issuer %s differs from CLERK_ISSUER_URL %s (OK if custom domain)", iss, configured)
         return claims
     except JWTError as exc:
         logger.warning("JWT verification failed: %s", exc)

@@ -70,8 +70,8 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
         setEditingId(null);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
   const activeWorkspace = workspaces.find((w) => w.id === activeWorkspaceId);
@@ -348,7 +348,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
       </div>{/* end scrollable body */}
 
       {/* Sticky bottom — upgrade banner + version, always visible, content scrolls behind */}
-      <div className="hidden group-hover:flex group-data-[expanded=true]:flex shrink-0 flex-col border-t border-gray-200/60 dark:border-white/10 bg-[#F7F7F7] dark:bg-ink">
+      <div className="hidden group-hover:flex group-data-[expanded=true]:flex shrink-0 flex-col bg-[#F7F7F7] dark:bg-ink">
         <SearchUsage searches={searches} />
         <p className="font-mono text-[10px] text-gray-400 dark:text-gray-500 text-center pb-3">GapLens v0.1</p>
       </div>

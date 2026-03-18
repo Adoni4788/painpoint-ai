@@ -205,7 +205,7 @@ function DiscoverPageContent() {
           <div className="shrink-0 flex items-center justify-start gap-4 px-6 pt-4 pb-3 border-b border-gray-200/60 dark:border-white/5">
             <SourceFilters sources={sources} onToggle={toggleSource} />
           </div>
-          <div className="noise-overlay flex-1 overflow-y-auto flex flex-col items-center justify-center min-h-0 px-6 py-12 relative">
+          <div className="noise-overlay flex-1 overflow-y-auto scrollbar-main flex flex-col items-center justify-center min-h-0 px-6 py-12 relative">
             <div className="relative z-10 max-w-2xl w-full mx-auto text-center">
 
               {/* Deep Search heading */}

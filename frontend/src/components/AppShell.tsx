@@ -18,10 +18,9 @@ interface AppShellProps {
   activeSearchId?: string | null;
   onSelectSearch?: (search: SearchResult) => void;
   onNewSearch?: () => void;
-  pageLabel?: string;
 }
 
-export function AppShell({ children, headerCenter, headerRight, activeSearchId, onSelectSearch, onNewSearch, pageLabel }: AppShellProps) {
+export function AppShell({ children, headerCenter, headerRight, activeSearchId, onSelectSearch, onNewSearch }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { theme, toggle: toggleTheme } = useTheme();
   const { user } = useUser();
@@ -38,15 +37,6 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
     setRateLimited,
     loadSearches,
   } = useSearches();
-
-  const PAGE_LABELS: Record<string, string> = {
-    "/discover": "Discover",
-    "/validate": "Validate",
-    "/reports": "Opportunity Reports",
-    "/settings": "Settings",
-    "/test-sentry": "Test Sentry",
-  };
-  const currentPageLabel = pageLabel ?? PAGE_LABELS[pathname] ?? pathname?.replace(/^\//, "") ?? "GapLens";
 
   const handleSelectSearch = async (search: SearchResult) => {
     onSelectSearch?.(search);
@@ -110,9 +100,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
           {/* Integrated header — one row: page label | center slot | controls */}
           <div className="shrink-0 flex items-center gap-3 pl-6 pr-4 h-12 border-b border-gray-200/60 dark:border-white/10">
             <div className="flex items-center gap-2 shrink-0">
-              <p className="text-base font-medium text-gray-800 dark:text-gray-200">
-                {currentPageLabel}
-              </p>
+              {headerCenter}
               {pathname === "/discover" && onNewSearch && (
                 <button
                   onClick={onNewSearch}
@@ -125,7 +113,6 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
               )}
             </div>
             <div className="flex-1 flex items-center justify-center min-w-0">
-              {headerCenter}
             </div>
             <div className="shrink-0 flex items-center gap-1">
               {headerRight}

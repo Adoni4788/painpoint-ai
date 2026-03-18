@@ -197,7 +197,6 @@ function DiscoverPageContent() {
       activeSearchId={activeSearch?.id}
       onSelectSearch={handleSelectSearch}
       onNewSearch={handleNewSearch}
-      pageLabel={activeSearch ? "Recent Search" : undefined}
       headerCenter={<SourceFilters sources={sources} onToggle={toggleSource} />}
     >
       {!activeSearch ? (

@@ -31,7 +31,7 @@ settings = get_settings()
 # ---------------------------------------------------------------------------
 # Pro-gate: free users get 3 searches/month, Pro users are unlimited.
 # Pro status is stored in Clerk public_metadata.pro (set by LS webhook).
-# The backend checks the JWT claims for this — Clerk includes public_metadata
+# The backend checks the JWT claims for this ï¿½ Clerk includes public_metadata
 # in the session token when configured, but we also accept header override.
 # For simplicity we count searches per calendar month in the DB.
 # ---------------------------------------------------------------------------
@@ -44,7 +44,7 @@ async def _check_search_limit(
 ) -> None:
     """Raise 402 if a free-tier user has hit their monthly search limit."""
     if current_user is None:
-        return  # dev mode — no limits
+        return  # dev mode ï¿½ no limits
 
     # Pro status is attached to the user object by get_current_user()
     # from the Clerk JWT public_metadata.pro claim.
@@ -175,23 +175,30 @@ async def validate_minimal(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Minimal Validate flow: idea â†’ 3 keywords â†’ OR query â†’ existing pipeline."""
-    await _check_search_limit(db, current_user)
-    keywords = await ai_service.extract_keywords_from_idea(payload.idea)
-    query = " OR ".join(kw[:50] for kw in keywords)
-    sources = ["reddit", "hackernews", "amazon"]
+    try:
+        await _check_search_limit(db, current_user)
+        keywords = await ai_service.extract_keywords_from_idea(payload.idea)
+        logger.info("Validate keywords for idea '%s': %s", payload.idea[:80], keywords)
+        query = " OR ".join(kw[:50] for kw in keywords)
+        sources = ["reddit", "hackernews", "amazon"]
 
-    search = Search(
-        query=query,
-        sources=sources,
-        workspace_id=None,
-        user_id=current_user.id if current_user else None,
-    )
-    db.add(search)
-    await db.commit()
-    await db.refresh(search)
+        search = Search(
+            query=query,
+            sources=sources,
+            workspace_id=None,
+            user_id=current_user.id if current_user else None,
+        )
+        db.add(search)
+        await db.commit()
+        await db.refresh(search)
 
-    background_tasks.add_task(_run_pipeline_with_session, search.id, query, sources)
-    return search
+        background_tasks.add_task(_run_pipeline_with_session, search.id, query, sources)
+        return search
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("validate_minimal failed for idea='%s': %s", payload.idea[:80], exc)
+        raise HTTPException(status_code=500, detail=f"Validate failed: {type(exc).__name__}: {exc}")
 
 
 # ---------------------------------------------------------------------------

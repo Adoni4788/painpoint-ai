@@ -262,7 +262,7 @@ function DiscoverPageContent() {
                 </div>
               )}
               {/* Scrollable content — full width when no report, padded when report open */}
-              <div className={`flex-1 min-w-0 overflow-y-auto overflow-x-hidden py-6 transition-all scrollbar-dark ${selectedReport ? "px-6" : "px-6"}`}>
+              <div className={`flex-1 min-w-0 overflow-y-auto overflow-x-hidden py-6 transition-all scrollbar-main ${selectedReport ? "px-6" : "px-6"}`}>
               {activeSearch?.status === "completed" && activeSearch.summary && (
                 <KeyInsightsSummary summary={activeSearch.summary} />
               )}
@@ -285,7 +285,7 @@ function DiscoverPageContent() {
             </div>
 
             {selectedReport && (
-              <div className="flex-1 min-w-0 border-l border-gray-200 dark:border-white/10 overflow-y-auto overflow-x-hidden bg-white dark:bg-black scrollbar-dark rounded-tr-2xl rounded-br-2xl">
+              <div className="flex-1 min-w-0 border-l border-gray-200 dark:border-white/10 overflow-y-auto overflow-x-hidden bg-white dark:bg-black scrollbar-main rounded-tr-2xl rounded-br-2xl">
                 <ReportPanel
                   report={selectedReport}
                   onClose={() => setSelectedReport(null)}

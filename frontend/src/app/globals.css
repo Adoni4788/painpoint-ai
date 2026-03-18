@@ -136,3 +136,34 @@
 .dark .sidebar-aside:hover .scrollbar-sidebar::-webkit-scrollbar-thumb:hover {
   background: #525252;
 }
+
+/* Scrollbar for main content panels — hidden until main panel is hovered */
+.scrollbar-main::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-main::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 5px;
+  transition: background 0.2s ease;
+}
+.main-panel:hover .scrollbar-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+.main-panel:hover .scrollbar-main::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+}
+.main-panel:hover .scrollbar-main::-webkit-scrollbar-thumb:hover {
+  background: #a3a3a3;
+}
+.dark .main-panel:hover .scrollbar-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dark .main-panel:hover .scrollbar-main::-webkit-scrollbar-thumb {
+  background: #404040;
+}
+.dark .main-panel:hover .scrollbar-main::-webkit-scrollbar-thumb:hover {
+  background: #525252;
+}

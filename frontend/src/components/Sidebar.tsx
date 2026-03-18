@@ -64,6 +64,10 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
+      // If the clicked element was removed from the DOM by a React re-render
+      // (e.g. "New workspace" button replaced by the input), don't close —
+      // the click was inside our component.
+      if (!document.body.contains(e.target as Node)) return;
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setWorkspaceMenuOpen(false);
         setCreateMode(false);

@@ -103,10 +103,11 @@ async def _verify_token(token: str) -> dict:
             logger.debug("JWT issuer %s differs from CLERK_ISSUER_URL %s (OK if custom domain)", iss, configured)
         return claims
     except JWTError as exc:
-        logger.warning("JWT verification failed: %s", exc)
+        logger.warning("JWT verification failed: %s (type=%s)", exc, type(exc).__name__)
+        # Include error detail so we can diagnose from browser console
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token.",
+            detail=f"Invalid or expired token: {exc}",
         )
 
 

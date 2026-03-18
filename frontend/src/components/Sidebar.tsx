@@ -148,9 +148,9 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
           <div className="flex items-center gap-2 shrink-0">
             {/* Fixed-width centering shell: w-10 (40px) + px-3 (12px) = 32px center = exact middle of w-16 rail */}
             <div className="w-10 flex items-center justify-center shrink-0">
-              <Logo size={22} color="#4d7c7a" className="logo-app" />
+              <Logo size={22} gradient="brand" className="logo-app" />
             </div>
-            <span className="gradient-brand-text text-lg font-heading font-semibold tracking-tight truncate overflow-hidden opacity-0 w-0 group-hover:opacity-0 group-hover:w-auto group-data-[expanded=true]:opacity-0 group-data-[expanded=true]:w-auto transition-all duration-300">
+            <span className="text-gray-500 dark:text-gray-400 text-lg font-heading font-semibold tracking-tight truncate overflow-hidden opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300">
               GapLens
             </span>
           </div>

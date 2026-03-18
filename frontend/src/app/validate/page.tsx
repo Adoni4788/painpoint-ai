@@ -121,8 +121,8 @@ export default function ValidatePage() {
     <AppShell headerCenter={<ValidateHeaderContent />}>
 
       {/* Immersive validate — mirrors Discover's "Find the Gap" layout */}
-      <div className="noise-overlay flex-1 overflow-y-auto flex flex-col items-center justify-center min-h-0 px-6 py-6 relative">
-        <div className="relative z-10 max-w-2xl w-full mx-auto text-center">
+      <div className="noise-overlay flex-1 overflow-y-auto flex flex-col items-center justify-center min-h-0 px-6 py-6 relative bg-gradient-to-b from-transparent to-white/30 dark:to-black/20">
+        <div className="relative z-10 max-w-2xl w-full mx-auto text-center animate-in fade-in slide-in-from-bottom-6 duration-1000">
 
           {/* Heading */}
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-ink dark:text-paper mb-1.5">
@@ -138,8 +138,11 @@ export default function ValidatePage() {
           </p>
 
           {/* Idea input card */}
-          <form onSubmit={handleSubmit}>
-            <div className="relative bg-white dark:bg-[#121214] border border-black/10 dark:border-white/10 rounded-3xl shadow-2xl focus-within:border-indigo-500/40 transition-all duration-500">
+          <form onSubmit={handleSubmit} className="w-full relative mx-auto group">
+            {/* Glow effect behind the prompt */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-[#4d7c7a]/20 to-[#f97316]/20 rounded-3xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+            <div className="relative bg-white/90 dark:bg-[#0A0A0B]/90 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] focus-within:border-[#4d7c7a]/40 dark:focus-within:border-[#4d7c7a]/40 transition-all duration-500">
               <label htmlFor="validate-idea-input" className="sr-only">
                 Describe your product idea
               </label>
@@ -174,10 +177,10 @@ export default function ValidatePage() {
                   <button
                     type="submit"
                     disabled={loading || !idea.trim()}
-                    className={`${
+                    className={`group/btn ${
                       submitted
                         ? "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20"
-                        : "gradient-brand hover:opacity-90 shadow-orange-500/20"
+                        : "gradient-brand hover:opacity-90 shadow-orange-500/10"
                     } text-white px-7 py-3 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {submitted ? (
@@ -190,7 +193,7 @@ export default function ValidatePage() {
                     ) : (
                       <>
                         Validate
-                        <HiOutlineArrowUpRight size={16} />
+                        <HiOutlineArrowUpRight size={16} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                       </>
                     )}
                   </button>
@@ -204,13 +207,13 @@ export default function ValidatePage() {
           </form>
 
           {/* Source badges — mirrors Discover's platform list */}
-          <div className="flex items-center justify-center gap-5 flex-wrap mt-5">
+          <div className="flex items-center justify-center gap-6 flex-wrap mt-8 opacity-70">
             {SOURCES.map((src) => (
               <span
                 key={src.id}
-                className="flex items-center gap-1.5 font-mono text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest"
+                className="flex items-center gap-2 font-mono text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-widest hover:text-gray-800 dark:hover:text-gray-200 transition-colors cursor-default"
               >
-                <src.Icon size={12} className={src.iconColor} />
+                <src.Icon size={14} className={src.iconColor} />
                 {src.label}
               </span>
             ))}

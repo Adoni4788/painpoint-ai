@@ -180,6 +180,7 @@ export default function TermsPage() {
           <div className="flex gap-4">
             <Link href="/terms" className="hover:text-gray-400 transition-colors">Terms</Link>
             <Link href="/refund-policy" className="hover:text-gray-400 transition-colors">Refund Policy</Link>
+            <Link href="/privacy" className="hover:text-gray-400 transition-colors">Privacy</Link>
           </div>
         </div>
       </footer>

@@ -106,7 +106,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
         />
 
         {/* Main panel — white/black card, no gray strip */}
-        <main id="main-content" className="main-panel flex-1 flex flex-col overflow-hidden min-w-0 mt-2 mr-2 mb-2 rounded-xl bg-white dark:bg-black border border-gray-200/60 dark:border-white/10">
+        <main id="main-content" className="main-panel flex-1 flex flex-col overflow-hidden min-w-0 mt-2 mr-2 mb-2 rounded-lg bg-white dark:bg-black border border-gray-200/60 dark:border-white/10">
 
           {/* Full-width header — spans the entire panel, no tab shape */}
           <div className="shrink-0 flex items-center gap-3 pl-6 pr-3 h-12 border-b border-gray-200/60 dark:border-white/10">

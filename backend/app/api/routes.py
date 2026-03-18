@@ -52,7 +52,8 @@ async def _check_search_limit(
         return
 
     # Count searches this calendar month
-    now = datetime.now(timezone.utc)
+    # Use naive UTC datetime to match the DB column (TIMESTAMP WITHOUT TIME ZONE)
+    now = datetime.utcnow()
     first_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     result = await db.execute(
         select(func.count(Search.id))

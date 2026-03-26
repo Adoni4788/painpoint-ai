@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     const res = await fetch(LOOPS_API_URL, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `ApiKey ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

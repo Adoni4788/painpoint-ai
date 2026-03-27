@@ -313,7 +313,9 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                     onChange={(e) => setNewWorkspaceName(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && newWorkspaceName.trim()) {
-                        createWorkspace(newWorkspaceName.trim()).then(() => { setCreateMode(false); setNewWorkspaceName(""); });
+                        createWorkspace(newWorkspaceName.trim())
+                          .then(() => { setCreateMode(false); setNewWorkspaceName(""); })
+                          .catch((err) => { console.error("Failed to create workspace:", err); alert("Failed to create workspace. Please try again."); });
                       }
                       if (e.key === "Escape") { setCreateMode(false); setNewWorkspaceName(""); }
                     }}
@@ -324,7 +326,9 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                   <button
                     onClick={() => {
                       if (newWorkspaceName.trim()) {
-                        createWorkspace(newWorkspaceName.trim()).then(() => { setCreateMode(false); setNewWorkspaceName(""); });
+                        createWorkspace(newWorkspaceName.trim())
+                          .then(() => { setCreateMode(false); setNewWorkspaceName(""); })
+                          .catch((err) => { console.error("Failed to create workspace:", err); alert("Failed to create workspace. Please try again."); });
                       }
                     }}
                     disabled={!newWorkspaceName.trim()}

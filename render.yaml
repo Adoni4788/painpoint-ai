@@ -44,9 +44,41 @@ services:
         sync: false
       - key: SENTRY_DSN
         sync: false
+      - key: LOOPS_API_KEY
+        sync: false
+      - key: DIGEST_SECRET
+        sync: false
+      - key: LOOPS_DIGEST_TEMPLATE_ID
+        value: cmn88kowo093w0ixod8kfquuj
     buildFilter:
       paths:
         - backend/**
+
+  - type: cron
+    name: painpoint-digest-cron
+    runtime: python
+    plan: free
+    region: oregon
+    repo: https://github.com/Adoni4788/painpoint-ai.git
+    branch: main
+    rootDir: backend
+    buildCommand: pip install httpx
+    # Every Friday at 1pm UTC = 8am Jamaica time
+    schedule: "0 13 * * 5"
+    startCommand: >
+      python -c "
+      import httpx, os, sys;
+      secret = os.environ.get('DIGEST_SECRET', '');
+      url = os.environ.get('BACKEND_URL', 'https://painpoint-ai-backend.onrender.com');
+      r = httpx.post(f'{url}/api/digest/send', headers={'X-Digest-Secret': secret}, timeout=600);
+      print(r.status_code, r.text);
+      sys.exit(0 if r.status_code == 200 else 1)
+      "
+    envVars:
+      - key: BACKEND_URL
+        value: https://painpoint-ai-backend.onrender.com
+      - key: DIGEST_SECRET
+        sync: false
 
   - type: web
     name: painpoint-ai-frontend

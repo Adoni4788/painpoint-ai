@@ -13,6 +13,7 @@ from .core.database import init_db
 from .core.limiter import limiter
 from .api.routes import router
 from .api.webhooks import router as webhooks_router
+from .api.digest import router as digest_router
 
 # ---------------------------------------------------------------------------
 # Structured logging — JSON-style lines, easier to filter in Render / Sentry
@@ -102,6 +103,7 @@ app.add_middleware(
 
 app.include_router(router, prefix="/api")
 app.include_router(webhooks_router)  # /webhooks/lemonsqueezy — no /api prefix, called by LS servers
+app.include_router(digest_router, prefix="/api")  # /api/digest/send — triggered by Render cron job
 
 
 # ---------------------------------------------------------------------------

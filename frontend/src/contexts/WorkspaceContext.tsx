@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from "react";
 import {
   Workspace,
   listWorkspaces,
@@ -26,18 +26,46 @@ const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [activeWorkspaceId, setActiveWorkspaceIdState] = useState<string | null>(null);
+  const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const loadWorkspaces = useCallback(async () => {
     try {
       const data = await listWorkspaces();
       setWorkspaces(data);
+      // Clear any pending retry — successful load
+      if (retryTimer.current) {
+        clearTimeout(retryTimer.current);
+        retryTimer.current = null;
+      }
     } catch (e) {
       console.error("Failed to load workspaces:", e);
+      // Auto-retry after 5 seconds if the load failed (e.g. backend cold start)
+      // Only schedule one retry at a time
+      if (!retryTimer.current) {
+        retryTimer.current = setTimeout(() => {
+          retryTimer.current = null;
+          loadWorkspaces();
+        }, 5000);
+      }
     }
   }, []);
 
   useEffect(() => {
     loadWorkspaces();
+    return () => {
+      if (retryTimer.current) clearTimeout(retryTimer.current);
+    };
+  }, [loadWorkspaces]);
+
+  // Re-fetch workspaces when the tab becomes visible again (user returns after idle)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        loadWorkspaces();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [loadWorkspaces]);
 
   useEffect(() => {

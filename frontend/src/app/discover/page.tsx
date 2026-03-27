@@ -333,8 +333,8 @@ function DiscoverSearchForm({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="e.g., fitness tracking apps, cold email software..."
-          className="flex-1 bg-transparent border-none focus:ring-0 text-lg md:text-xl py-5 md:py-6 placeholder:text-gray-400 dark:placeholder:text-gray-600 text-gray-900 dark:text-gray-100 outline-none min-w-0 font-medium"
+          placeholder="e.g., fitness tracking apps, cold email softwa…"
+          className="flex-1 bg-transparent border-none focus:ring-0 text-lg md:text-xl py-5 md:py-6 pr-3 placeholder:text-gray-400 dark:placeholder:text-gray-600 text-gray-900 dark:text-gray-100 outline-none min-w-0 font-medium"
           disabled={loading}
           autoFocus
         />

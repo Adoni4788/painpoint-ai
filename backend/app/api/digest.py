@@ -250,11 +250,18 @@ async def _send_digest_email(
 # Endpoint
 # ---------------------------------------------------------------------------
 @router.post("/digest/send")
-async def send_digest(x_digest_secret: str = Header(default="")):
+async def send_digest(
+    x_digest_secret: str = Header(default=""),
+    test_email: str | None = None,
+):
     """
     Trigger the weekly Pain Point Digest send.
     Called by Render cron job every Friday at 8am Jamaica time (1pm UTC).
     Protected by X-Digest-Secret header.
+
+    Optional query param:
+      ?test_email=you@example.com — skips all real subscribers and sends only to this address.
+      Use this to verify the pipeline and email template without touching real users.
     """
     # --- Auth ---
     if not settings.digest_secret or x_digest_secret != settings.digest_secret:
@@ -308,10 +315,14 @@ async def send_digest(x_digest_secret: str = Header(default="")):
     # Use exactly the first 3 successful results
     niche_data = niche_data[:3]
 
-    # --- Fetch subscribers ---
-    logger.info("Fetching Loops subscribers...")
-    subscribers = await _fetch_loops_subscribers()
-    logger.info("Found %d subscribers", len(subscribers))
+    # --- Fetch subscribers (or use test email) ---
+    if test_email:
+        logger.info("TEST MODE — sending only to: %s", test_email)
+        subscribers = [test_email]
+    else:
+        logger.info("Fetching Loops subscribers...")
+        subscribers = await _fetch_loops_subscribers()
+        logger.info("Found %d subscribers", len(subscribers))
 
     if not subscribers:
         return {
@@ -340,6 +351,7 @@ async def send_digest(x_digest_secret: str = Header(default="")):
 
     return {
         "status": "ok",
+        "mode": "test" if test_email else "live",
         "week": iso_week,
         "send_date": send_date,
         "subscribers": len(subscribers),

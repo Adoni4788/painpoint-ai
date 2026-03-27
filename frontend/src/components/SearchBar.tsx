@@ -124,7 +124,7 @@ export function SourceFilters({
                     key={src.id}
                     type="button"
                     onClick={() => onToggle(src.id)}
-                    className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                    className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 overflow-hidden ${
                       active
                         ? "text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-white/10"
                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5"
@@ -133,7 +133,7 @@ export function SourceFilters({
                   <span className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold text-white shrink-0 ${active ? src.color : "bg-gray-300 dark:bg-[#404040]"}`}>
                     {src.icon}
                   </span>
-                  {src.label}
+                  <span className="truncate">{src.label}</span>
                   {active && (
                     <svg className="w-3 h-3 text-emerald-500 dark:text-emerald-400 ml-auto shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />

@@ -145,6 +145,20 @@ class PainCluster(Base):
         return f"<PainCluster id={self.id} label={self.label!r} score={self.opportunity_score}>"
 
 
+class DigestSubscriber(Base):
+    """Email addresses subscribed to the weekly Pain Point Digest."""
+    __tablename__ = "digest_subscribers"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+    subscribed: Mapped[bool] = mapped_column(default=True)
+    created_at: Mapped[str] = mapped_column(DateTime, default=utcnow)
+    unsubscribed_at: Mapped[str] = mapped_column(DateTime, nullable=True)
+
+    def __repr__(self) -> str:
+        return f"<DigestSubscriber email={self.email!r} subscribed={self.subscribed}>"
+
+
 class PRDDraft(Base):
     __tablename__ = "prd_drafts"
 

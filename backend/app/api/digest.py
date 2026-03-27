@@ -23,7 +23,7 @@ from sqlalchemy import select, desc
 
 from ..core.config import get_settings
 from ..core.database import async_session
-from ..models.search import Search, PainCluster, RawPost
+from ..models.search import Search, PainCluster, RawPost, DigestSubscriber
 from ..services.pipeline import run_search_pipeline
 
 logger = logging.getLogger(__name__)
@@ -143,44 +143,16 @@ async def _run_pipeline_for_niche(niche: str) -> dict | None:
         }
 
 
-async def _fetch_loops_subscribers() -> list[str]:
+async def _fetch_digest_subscribers() -> list[str]:
     """
-    Fetch all contact emails from Loops using the /contacts endpoint.
-    Loops returns paginated results — iterate until exhausted.
+    Fetch all active digest subscriber emails from our own database.
+    Only returns subscribers where `subscribed = True`.
     """
-    emails: list[str] = []
-    headers = {"Authorization": f"Bearer {settings.loops_api_key}"}
-
-    async with httpx.AsyncClient(timeout=30) as client:
-        page = 1
-        while True:
-            resp = await client.get(
-                f"{LOOPS_API}/contacts",
-                headers=headers,
-                params={"page": page, "limit": 100},
-            )
-            if resp.status_code != 200:
-                logger.error("Loops contacts fetch failed: %s %s", resp.status_code, resp.text)
-                break
-
-            data = resp.json()
-            contacts = data if isinstance(data, list) else data.get("data", [])
-
-            if not contacts:
-                break
-
-            for contact in contacts:
-                email = contact.get("email", "")
-                if email:
-                    emails.append(email)
-
-            # Loops returns fewer than limit when on the last page
-            if len(contacts) < 100:
-                break
-
-            page += 1
-
-    return emails
+    async with async_session() as db:
+        result = await db.execute(
+            select(DigestSubscriber.email).where(DigestSubscriber.subscribed == True)  # noqa: E712
+        )
+        return list(result.scalars().all())
 
 
 async def _send_digest_email(
@@ -320,8 +292,8 @@ async def send_digest(
         logger.info("TEST MODE — sending only to: %s", test_email)
         subscribers = [test_email]
     else:
-        logger.info("Fetching Loops subscribers...")
-        subscribers = await _fetch_loops_subscribers()
+        logger.info("Fetching digest subscribers from database...")
+        subscribers = await _fetch_digest_subscribers()
         logger.info("Found %d subscribers", len(subscribers))
 
     if not subscribers:
@@ -358,3 +330,78 @@ async def send_digest(
         "delivered": delivered,
         "niches": [n["label"] for n in niche_data],
     }
+
+
+# ---------------------------------------------------------------------------
+# Subscribe / Unsubscribe endpoints
+# ---------------------------------------------------------------------------
+@router.post("/digest/subscribe")
+async def subscribe_to_digest(email: str):
+    """
+    Subscribe an email to the Pain Point Digest.
+    Also creates/updates the contact in Loops for marketing purposes.
+    """
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Invalid email address")
+
+    email = email.strip().lower()
+
+    async with async_session() as db:
+        # Check if already exists
+        result = await db.execute(
+            select(DigestSubscriber).where(DigestSubscriber.email == email)
+        )
+        existing = result.scalar_one_or_none()
+
+        if existing:
+            if existing.subscribed:
+                return {"status": "already_subscribed", "email": email}
+            # Re-subscribe
+            existing.subscribed = True
+            existing.unsubscribed_at = None
+            await db.commit()
+        else:
+            subscriber = DigestSubscriber(email=email)
+            db.add(subscriber)
+            await db.commit()
+
+    # Also push to Loops as a contact (best-effort, don't fail if Loops is down)
+    if settings.loops_api_key:
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                await client.post(
+                    f"{LOOPS_API}/contacts/create",
+                    headers={
+                        "Authorization": f"Bearer {settings.loops_api_key}",
+                        "Content-Type": "application/json",
+                    },
+                    json={"email": email, "source": "digest_subscribe"},
+                )
+        except Exception as e:
+            logger.warning("Failed to sync subscriber to Loops: %s", e)
+
+    return {"status": "subscribed", "email": email}
+
+
+@router.post("/digest/unsubscribe")
+async def unsubscribe_from_digest(email: str):
+    """Unsubscribe an email from the Pain Point Digest."""
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Invalid email address")
+
+    email = email.strip().lower()
+
+    async with async_session() as db:
+        result = await db.execute(
+            select(DigestSubscriber).where(DigestSubscriber.email == email)
+        )
+        existing = result.scalar_one_or_none()
+
+        if not existing or not existing.subscribed:
+            return {"status": "not_subscribed", "email": email}
+
+        existing.subscribed = False
+        existing.unsubscribed_at = datetime.datetime.utcnow()
+        await db.commit()
+
+    return {"status": "unsubscribed", "email": email}

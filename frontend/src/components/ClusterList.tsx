@@ -128,7 +128,7 @@ function FeaturedClusterCard({
               #{rank}
             </span>
           </div>
-          <h3 className="font-logo text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight leading-snug">
+          <h3 className="font-logo text-2xl md:text-3xl font-medium text-gray-900 dark:text-white tracking-tight leading-snug">
             {cluster.label}
           </h3>
           {cluster.summary && (
@@ -190,7 +190,7 @@ function BentoClusterCard({
             <span className="font-mono text-[10px] font-bold text-gray-400 dark:text-gray-500">
               #{rank}
             </span>
-            <h3 className="font-logo text-lg font-bold text-gray-900 dark:text-white truncate tracking-tight">
+            <h3 className="font-logo text-lg font-medium text-gray-900 dark:text-white truncate tracking-tight">
               {cluster.label}
             </h3>
           </div>

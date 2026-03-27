@@ -177,7 +177,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
 
         {/* Search bar — single container, icon anchored, input fades in like nav labels */}
         <div className="px-2 pt-3 pb-1">
-          <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-white/[0.04] border border-gray-200/60 dark:border-white/[0.07] focus-within:border-[#4d7c7a]/50 dark:focus-within:border-[#4d7c7a]/40 focus-within:bg-white dark:focus-within:bg-white/[0.07] focus-within:shadow-[0_0_0_3px_rgba(77,124,122,0.08)] dark:focus-within:shadow-[0_0_0_3px_rgba(77,124,122,0.12)] transition-all duration-300 shadow-sm backdrop-blur-sm">
+          <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-white/[0.04] border border-gray-200/60 dark:border-white/[0.07] shadow-[inset_0_1px_3px_rgba(0,0,0,0.06)] dark:shadow-[inset_0_1px_3px_rgba(0,0,0,0.25)] focus-within:border-[#4d7c7a]/50 dark:focus-within:border-[#4d7c7a]/40 focus-within:bg-white dark:focus-within:bg-white/[0.07] focus-within:shadow-[inset_0_1px_3px_rgba(0,0,0,0.06),0_0_0_3px_rgba(77,124,122,0.08)] dark:focus-within:shadow-[inset_0_1px_3px_rgba(0,0,0,0.25),0_0_0_3px_rgba(77,124,122,0.12)] transition-all duration-300 backdrop-blur-sm">
             {/* Icon — always visible, stays in place */}
             <div className="w-[18px] flex items-center justify-center shrink-0">
               <svg className="w-[15px] h-[15px] text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>

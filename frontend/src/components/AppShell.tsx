@@ -98,7 +98,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
         {/* Right column: single full-height main panel with integrated header */}
         <main id="main-content" className="main-panel flex-1 flex flex-col overflow-hidden min-w-0 bg-white dark:bg-[#0A0A0B] border-l border-gray-200/60 dark:border-white/5">
           {/* Integrated header — one row: page label | center slot | controls */}
-          <div className="shrink-0 flex items-center gap-3 pl-6 pr-4 h-16 border-b border-gray-200/60 dark:border-white/10">
+          <div className="noise-overlay shrink-0 flex items-center gap-3 pl-6 pr-4 h-16 rounded-tl-xl rounded-bl-xl">
             <div className="flex items-center gap-2 shrink-0">
               {headerCenter}
               {pathname === "/discover" && onNewSearch && (

@@ -171,8 +171,6 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             {isOpen ? <MdChevronLeft size={20} /> : <MdMenu size={20} />}
           </button>
         </div>
-        {/* Separator — hidden when rail is collapsed, fades in when expanded/hovered */}
-        <div className="mx-3 border-b border-gray-200/60 dark:border-white/5 opacity-0 group-hover:opacity-100 group-data-[expanded=true]:opacity-100 transition-opacity duration-200" />
       </div>
       {/* Scrollable body — nav, workspace, recent searches */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-sidebar min-h-0 flex flex-col">

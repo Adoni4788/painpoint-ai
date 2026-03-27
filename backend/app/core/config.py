@@ -35,6 +35,13 @@ class Settings(BaseSettings):
     # Lemon Squeezy webhook signing secret — from LS dashboard → Webhooks → signing secret.
     lemon_squeezy_webhook_secret: str = ""
 
+    # Loops — email marketing / Pain Point Digest
+    loops_api_key: str = ""
+    loops_digest_template_id: str = ""
+
+    # Digest cron secret — sent as X-Digest-Secret header by Render cron job.
+    digest_secret: str = ""
+
     # Pipeline controls
     pipeline_timeout_seconds: int = 600          # 10 minutes max per search
     max_posts_per_pipeline: int = 300             # cap posts sent to LLM to control cost

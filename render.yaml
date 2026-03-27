@@ -42,9 +42,39 @@ services:
         sync: false
       - key: LEMON_SQUEEZY_WEBHOOK_SECRET
         sync: false
+      - key: LOOPS_API_KEY
+        sync: false
+      - key: LOOPS_DIGEST_TEMPLATE_ID
+        sync: false
+      - key: DIGEST_SECRET
+        sync: false
     buildFilter:
       paths:
         - backend/**
+
+  - type: cron
+    name: painpoint-digest-cron
+    runtime: python
+    plan: free
+    region: oregon
+    repo: https://github.com/Adoni4788/painpoint-ai.git
+    branch: main
+    rootDir: backend
+    buildCommand: pip install requests
+    schedule: "0 13 * * 5"
+    command: >-
+      python -c "
+      import requests, os;
+      r = requests.post(
+        'https://painpoint-ai-backend.onrender.com/api/digest/send',
+        headers={'X-Digest-Secret': os.environ['DIGEST_SECRET']},
+        timeout=1800
+      );
+      print(r.status_code, r.text)
+      "
+    envVars:
+      - key: DIGEST_SECRET
+        sync: false
 
   - type: web
     name: painpoint-ai-frontend

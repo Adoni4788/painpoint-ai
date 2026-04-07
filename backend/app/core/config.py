@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     youtube_api_key: str = ""
     cors_origins: str = "http://localhost:3000"
     sentry_dsn: str = ""
-    rate_limit: str = "10/minute"
+    rate_limit: str = "60/minute"
     debug: bool = False  # When True, 500 responses include the actual error
 
     # Deployment environment — set to "production" in prod to enable safety guards.

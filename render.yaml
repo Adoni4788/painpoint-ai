@@ -31,7 +31,7 @@ services:
       - key: DEBUG
         value: "false"
       - key: RATE_LIMIT
-        value: "5/minute"
+        value: "60/minute"
       - key: PYTHON_VERSION
         value: "3.11.0"
       - key: ENVIRONMENT

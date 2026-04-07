@@ -39,9 +39,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       }
     } catch (e) {
       console.error("Failed to load workspaces:", e);
-      // Auto-retry after 5 seconds if the load failed (e.g. backend cold start)
-      // Only schedule one retry at a time
-      if (!retryTimer.current) {
+      // Don't retry on rate limit errors — retrying makes it worse
+      const isRateLimit = e instanceof Error && e.message.toLowerCase().includes("rate limit");
+      if (!isRateLimit && !retryTimer.current) {
         retryTimer.current = setTimeout(() => {
           retryTimer.current = null;
           loadWorkspaces();
@@ -58,9 +58,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   }, [loadWorkspaces]);
 
   // Re-fetch workspaces when the tab becomes visible again (user returns after idle)
+  // Only refetch if there's no pending retry (avoids hammering during rate limit recovery)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
+      if (document.visibilityState === "visible" && !retryTimer.current) {
         loadWorkspaces();
       }
     };

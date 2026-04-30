@@ -44,7 +44,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#ffffff] dark:bg-[#0A0A0B]">
+    <div className="noise-overlay flex flex-col h-screen overflow-hidden bg-[#ffffff] dark:bg-[#0A0A0B]">
       {backendUnavailable && (
         <div className="shrink-0 px-4 py-2.5 bg-amber-500/15 dark:bg-amber-500/10 border-b border-amber-500/30 dark:border-amber-500/20 flex items-center justify-between gap-4">
           <p className="text-sm text-amber-800 dark:text-amber-200">

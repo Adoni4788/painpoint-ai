@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MdAdd, MdExpandMore, MdEdit, MdDelete, MdPushPin, MdOutlinePushPin, MdOpenInNew } from "react-icons/md";
+import { MdAdd, MdExpandMore, MdEdit, MdDelete, MdOutlinePushPin, MdOpenInNew } from "react-icons/md";
+import { LuPinOff } from "react-icons/lu";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { SearchResult } from "@/lib/api";
@@ -133,7 +134,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             title={isOpen ? "Unpin sidebar" : "Pin sidebar"}
             aria-label={isOpen ? "Unpin sidebar" : "Pin sidebar"}
           >
-            {isOpen ? <MdPushPin size={18} /> : <MdOutlinePushPin size={18} />}
+            {isOpen ? <LuPinOff size={16} /> : <MdOutlinePushPin size={18} />}
           </button>
         </div>
         <div className="mx-3 border-b border-[#dcdcde] dark:border-white/[0.07]" />

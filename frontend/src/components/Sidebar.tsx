@@ -103,14 +103,14 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   return (
     <aside
       data-expanded={isOpen}
-      className={`sidebar-aside group h-full flex flex-col bg-[#ffffff] dark:bg-[#0D0D0D] rounded-2xl ring-1 ring-black/[0.06] dark:ring-white/[0.07] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_48px_rgba(0,0,0,0.7)] transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
+      className={`sidebar-aside group h-full flex flex-col bg-[#f2f3f5] dark:bg-[#0D0D0D] rounded-2xl ring-1 ring-black/[0.06] dark:ring-white/[0.07] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_48px_rgba(0,0,0,0.7)] transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
     >
       {/* Sidebar header: logo, name, collapse */}
       <div className="shrink-0 flex flex-col min-w-[240px]">
         <div className="flex items-center gap-2 px-3 py-4">
           <div className="flex items-center gap-2 shrink-0">
             {/* Fixed-width centering shell: w-10 (40px) + px-3 (12px) = 32px center = exact middle of w-16 rail */}
-            <div className="w-10 flex items-center justify-center shrink-0 text-black dark:text-white">
+            <div className="w-10 flex items-center justify-center shrink-0 text-[#050505] dark:text-white">
               <Logo size={22} className="logo-app" />
             </div>
             <span className="text-gray-500 dark:text-gray-400 text-lg font-heading font-semibold tracking-tight truncate overflow-hidden opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300">
@@ -119,7 +119,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
           </div>
           <button
             onClick={onToggle}
-            className={`ml-auto p-1 text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-white rounded-lg hover:bg-gray-200/60 dark:hover:bg-white/10 transition-colors shrink-0 opacity-0 group-hover:opacity-100 group-data-[expanded=true]:opacity-100`}
+            className={`ml-auto p-1 text-[#050505] hover:text-gray-700 dark:text-gray-500 dark:hover:text-white rounded-lg hover:bg-gray-200/60 dark:hover:bg-white/10 transition-colors shrink-0 opacity-0 group-hover:opacity-100 group-data-[expanded=true]:opacity-100`}
             title={isOpen ? "Unpin sidebar" : "Pin sidebar"}
             aria-label={isOpen ? "Unpin sidebar" : "Pin sidebar"}
           >
@@ -137,7 +137,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             onClick={() => setSearchModalOpen(true)}
             className="flex items-center gap-2 px-3 py-2.5 text-[13px] font-medium transition-all duration-200 w-full rounded-xl text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
           >
-            <span className="text-gray-400 dark:text-gray-500 shrink-0 w-5 flex items-center justify-center">
+            <span className="text-[#050505] dark:text-gray-500 shrink-0 w-5 flex items-center justify-center">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
@@ -162,7 +162,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                     : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
                 }`}
               >
-                <span className={isActive ? "text-[#434343] dark:text-white" : "text-gray-400 dark:text-gray-500"}>
+                <span className={isActive ? "text-[#050505] dark:text-white" : "text-[#050505] dark:text-gray-500"}>
                   {item.icon}
                 </span>
                 <span className="opacity-0 w-0 overflow-hidden group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300 whitespace-nowrap">

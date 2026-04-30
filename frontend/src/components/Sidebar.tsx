@@ -113,7 +113,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             <div className="w-10 flex items-center justify-center shrink-0 text-[#050505] dark:text-white">
               <Logo size={22} className="logo-app" />
             </div>
-            <span className="text-gray-500 dark:text-gray-400 text-lg font-heading font-semibold tracking-tight truncate overflow-hidden opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300">
+            <span className="text-[#050505] dark:text-white text-lg font-heading font-semibold tracking-tight truncate overflow-hidden opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300">
               GapLens
             </span>
           </div>
@@ -146,7 +146,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                 className={`flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-200 w-full rounded-lg ${
                   isActive
                     ? "bg-[#dcdcde] text-gray-900 dark:bg-white/10 dark:text-white"
-                    : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
+                    : "text-[#050505] hover:bg-gray-200/60 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
                 }`}
               >
                 <span className={`[&>svg]:w-4 [&>svg]:h-4 ${isActive ? "text-[#050505] dark:text-white" : "text-[#050505] dark:text-gray-500"}`}>
@@ -162,7 +162,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
           {/* Search — after Validate */}
           <button
             onClick={() => setSearchModalOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-200 w-full rounded-lg text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
+            className="flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-200 w-full rounded-lg text-[#050505] hover:bg-gray-200/60 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
           >
             <span className="text-[#050505] dark:text-gray-500 shrink-0 w-4 flex items-center justify-center">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -184,7 +184,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                 className={`flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-200 w-full rounded-lg ${
                   isActive
                     ? "bg-[#dcdcde] text-gray-900 dark:bg-white/10 dark:text-white"
-                    : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
+                    : "text-[#050505] hover:bg-gray-200/60 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
                 }`}
               >
                 <span className={`[&>svg]:w-4 [&>svg]:h-4 ${isActive ? "text-[#050505] dark:text-white" : "text-[#050505] dark:text-gray-500"}`}>
@@ -206,7 +206,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
           {/* Trigger button */}
           <button
             onClick={() => setWorkspaceMenuOpen(!workspaceMenuOpen)}
-            className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white/50 dark:bg-white/5 rounded-lg border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors shadow-sm"
+            className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-[#050505] dark:text-gray-300 bg-white/50 dark:bg-white/5 rounded-lg border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors shadow-sm"
           >
             <span className="flex items-center gap-2 min-w-0">
               <FolderPlusCircleIcon size={16} className="text-gray-500 shrink-0" />

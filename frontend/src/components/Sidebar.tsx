@@ -56,12 +56,22 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
     deleteWorkspace,
   } = useWorkspace();
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
   const [createMode, setCreateMode] = useState(false);
   const [newWorkspaceName, setNewWorkspaceName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!searchModalOpen) return;
+    function handleEsc(e: KeyboardEvent) {
+      if (e.key === "Escape") { setSearchModalOpen(false); setSearchQuery(""); }
+    }
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, [searchModalOpen]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -120,39 +130,23 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
       {/* Scrollable body — nav, workspace, recent searches */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-sidebar min-h-0 flex flex-col">
 
-        {/* Search bar — single container, icon anchored, input fades in like nav labels */}
-        <div className="px-2 pt-3 pb-1">
-          <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-white/[0.04] border border-gray-200/60 dark:border-white/[0.07] shadow-[inset_0_1px_3px_rgba(0,0,0,0.06)] dark:shadow-[inset_0_1px_3px_rgba(0,0,0,0.25)] focus-within:border-[#4d7c7a]/50 dark:focus-within:border-[#4d7c7a]/40 focus-within:bg-white dark:focus-within:bg-white/[0.07] focus-within:shadow-[inset_0_1px_3px_rgba(0,0,0,0.06),0_0_0_3px_rgba(77,124,122,0.08)] dark:focus-within:shadow-[inset_0_1px_3px_rgba(0,0,0,0.25),0_0_0_3px_rgba(77,124,122,0.12)] transition-all duration-300 backdrop-blur-sm">
-            {/* Icon — always visible, stays in place */}
-            <div className="w-[18px] flex items-center justify-center shrink-0">
-              <svg className="w-[15px] h-[15px] text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            {/* Input + clear — fades in exactly like nav labels */}
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search history…"
-              className="opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300 flex-1 bg-transparent text-[12.5px] font-medium text-gray-700 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-600 placeholder:font-normal outline-none border-none focus:ring-0 min-w-0 overflow-hidden"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="opacity-0 group-hover:opacity-100 group-data-[expanded=true]:opacity-100 transition-opacity duration-300 shrink-0 w-4 h-4 flex items-center justify-center rounded-full bg-gray-200/80 dark:bg-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-300/80 dark:hover:bg-white/20"
-                aria-label="Clear search"
-              >
-                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            )}
-          </div>
-        </div>
-
         {/* Navigation Links */}
         <div className="flex flex-col gap-0.5 px-2 pt-3 pb-2">
+          {/* Search — opens modal */}
+          <button
+            onClick={() => setSearchModalOpen(true)}
+            className="flex items-center gap-2 px-3 py-2.5 text-[13px] font-medium transition-all duration-200 w-full rounded-xl text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
+          >
+            <span className="text-gray-400 dark:text-gray-500 shrink-0 w-5 flex items-center justify-center">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </span>
+            <span className="opacity-0 w-0 overflow-hidden group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300 whitespace-nowrap">
+              Search
+            </span>
+          </button>
+
           {NAV_ITEMS.map((item) => {
             const isActive =
               item.href === "/discover"
@@ -344,6 +338,73 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
         <SearchUsage searches={searches} />
         <p className="font-mono text-[10px] text-gray-400 dark:text-gray-500 text-center pb-3">GapLens v0.1</p>
       </div>
+
+      {/* Search modal */}
+      {searchModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center pt-[18vh]"
+          onClick={() => { setSearchModalOpen(false); setSearchQuery(""); }}
+        >
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <div
+            className="relative bg-[#ffffff] dark:bg-[#111111] rounded-2xl shadow-2xl ring-1 ring-black/10 dark:ring-white/10 w-full max-w-lg mx-4 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Input row */}
+            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-gray-100 dark:border-white/[0.07]">
+              <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                autoFocus
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search history…"
+                className="flex-1 bg-transparent text-sm text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none border-none focus:ring-0"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-gray-100 dark:bg-white/10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                  aria-label="Clear"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            {/* Results */}
+            <div className="max-h-80 overflow-y-auto py-1">
+              {filteredSearches.length === 0 ? (
+                <p className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">
+                  {searchQuery ? "No matches found" : "No searches yet"}
+                </p>
+              ) : (
+                filteredSearches.map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => { onSelectSearch(s); setSearchModalOpen(false); setSearchQuery(""); }}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors ${s.id === activeSearchId ? "bg-gray-50 dark:bg-white/5" : ""}`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[13px] font-medium text-gray-800 dark:text-gray-200 truncate">{s.query}</span>
+                      <StatusDot status={s.status} />
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-400 dark:text-gray-500">
+                      <span>{new Date(s.created_at).toLocaleDateString()}</span>
+                      {s.status === "completed" && (
+                        <span>{s.total_relevant_complaints || s.total_complaints_found} relevant</span>
+                      )}
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

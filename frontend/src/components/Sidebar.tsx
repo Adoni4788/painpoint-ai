@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MdAdd, MdExpandMore, MdEdit, MdDelete, MdChevronLeft, MdMenu } from "react-icons/md";
+import { MdAdd, MdExpandMore, MdEdit, MdDelete, MdPushPin, MdOutlinePushPin } from "react-icons/md";
 import { useUser } from "@clerk/nextjs";
 import { SearchResult } from "@/lib/api";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
@@ -147,7 +147,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   return (
     <aside
       data-expanded={isOpen}
-      className={`sidebar-aside group h-full flex flex-col bg-white dark:bg-[#0D0D0D] rounded-r-2xl border-r border-black/[0.06] dark:border-white/[0.06] shadow-[4px_0_24px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_32px_rgba(0,0,0,0.6)] transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
+      className={`sidebar-aside group h-full flex flex-col bg-white dark:bg-[#0D0D0D] rounded-2xl ring-1 ring-black/[0.06] dark:ring-white/[0.07] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_48px_rgba(0,0,0,0.7)] transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
     >
       {/* Sidebar header: logo, name, collapse */}
       <div className="shrink-0 flex flex-col min-w-[240px]">
@@ -163,11 +163,11 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
           </div>
           <button
             onClick={onToggle}
-            className={`ml-auto p-1 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-lg hover:bg-gray-200/60 dark:hover:bg-white/10 transition-colors shrink-0 ${!isOpen ? "opacity-0 group-hover:opacity-100" : ""}`}
-            title={isOpen ? "Collapse sidebar" : "Expand sidebar"}
-            aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+            className={`ml-auto p-1 text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-white rounded-lg hover:bg-gray-200/60 dark:hover:bg-white/10 transition-colors shrink-0 opacity-0 group-hover:opacity-100 group-data-[expanded=true]:opacity-100`}
+            title={isOpen ? "Unpin sidebar" : "Pin sidebar"}
+            aria-label={isOpen ? "Unpin sidebar" : "Pin sidebar"}
           >
-            {isOpen ? <MdChevronLeft size={20} /> : <MdMenu size={20} />}
+            {isOpen ? <MdPushPin size={18} /> : <MdOutlinePushPin size={18} />}
           </button>
         </div>
       </div>

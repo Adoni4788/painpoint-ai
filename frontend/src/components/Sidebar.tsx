@@ -143,7 +143,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-200 w-full rounded-xl ${
+                className={`flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-200 w-full rounded-lg ${
                   isActive
                     ? "bg-[#dcdcde] text-gray-900 dark:bg-white/10 dark:text-white"
                     : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
@@ -162,7 +162,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
           {/* Search — after Validate */}
           <button
             onClick={() => setSearchModalOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-200 w-full rounded-xl text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
+            className="flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-200 w-full rounded-lg text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
           >
             <span className="text-[#050505] dark:text-gray-500 shrink-0 w-4 flex items-center justify-center">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -181,7 +181,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-200 w-full rounded-xl ${
+                className={`flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-200 w-full rounded-lg ${
                   isActive
                     ? "bg-[#dcdcde] text-gray-900 dark:bg-white/10 dark:text-white"
                     : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"

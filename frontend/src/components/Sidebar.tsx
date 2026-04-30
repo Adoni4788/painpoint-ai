@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MdAdd, MdExpandMore, MdEdit, MdDelete, MdPushPin, MdOutlinePushPin } from "react-icons/md";
+import { MdAdd, MdExpandMore, MdEdit, MdDelete, MdPushPin, MdOutlinePushPin, MdOpenInNew } from "react-icons/md";
+import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { SearchResult } from "@/lib/api";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
@@ -22,7 +23,7 @@ interface SidebarProps {
   onSelectSearch: (search: SearchResult) => void;
 }
 
-const NAV_ITEMS = [
+const PRIMARY_NAV_ITEMS = [
   {
     label: "Workspaces",
     href: "/workspaces",
@@ -38,6 +39,9 @@ const NAV_ITEMS = [
     href: "/validate",
     icon: <VoteYeaIcon />,
   },
+];
+
+const SECONDARY_NAV_ITEMS = [
   {
     label: "Reports",
     href: "/reports",
@@ -52,6 +56,7 @@ const NAV_ITEMS = [
 
 export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSearch }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const {
     workspaces,
     activeWorkspaceId,
@@ -138,8 +143,8 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
 
         {/* Navigation Links */}
         <div className="flex flex-col gap-0.5 px-2 pt-3 pb-2">
-          {/* Workspaces, Discover, Validate */}
-          {NAV_ITEMS.slice(0, 3).map((item) => {
+          {/* Primary: Workspaces, Discover, Validate */}
+          {PRIMARY_NAV_ITEMS.map((item) => {
             const isActive =
               item.href === "/discover"
                 ? pathname === "/discover" && !activeSearchId
@@ -164,7 +169,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             );
           })}
 
-          {/* Search — after Validate */}
+          {/* Search — after primary nav */}
           <button
             onClick={() => setSearchModalOpen(true)}
             className="flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-200 w-full rounded-lg text-[#050505] hover:bg-gray-200/60 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
@@ -179,8 +184,8 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             </span>
           </button>
 
-          {/* Reports, Settings */}
-          {NAV_ITEMS.slice(3).map((item) => {
+          {/* Secondary: Reports, Settings */}
+          {SECONDARY_NAV_ITEMS.map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (
               <Link
@@ -206,7 +211,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
         {/* Workspace Selector — inline expansion (no absolute dropdown to avoid overflow-clip issues) */}
         <div className="hidden group-hover:block group-data-[expanded=true]:block px-3 py-2" ref={menuRef}>
           <div className="px-2 mb-1.5">
-            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Workspace</p>
+            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Current workspace</p>
           </div>
           {/* Trigger button */}
           <button
@@ -316,6 +321,14 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                   New workspace
                 </button>
               )}
+              {/* Manage workspaces link */}
+              <button
+                onClick={() => { setWorkspaceMenuOpen(false); router.push("/workspaces"); }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:bg-white dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white border-t border-gray-200 dark:border-white/10 transition-colors"
+              >
+                <MdOpenInNew size={14} className="shrink-0" />
+                Manage workspaces
+              </button>
             </div>
           )}
         </div>

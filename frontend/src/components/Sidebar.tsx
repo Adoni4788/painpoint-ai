@@ -22,27 +22,15 @@ interface SidebarProps {
   onSelectSearch: (search: SearchResult) => void;
 }
 
-const NAV_ITEMS = [
-  {
-    label: "Discover",
-    href: "/discover",
-    icon: <GlobalResearchIcon />,
-  },
-  {
-    label: "Validate",
-    href: "/validate",
-    icon: <VoteYeaIcon />,
-  },
-  {
-    label: "Reports",
-    href: "/reports",
-    icon: <DiscoverIcon />,
-  },
-  {
-    label: "Settings",
-    href: "/settings",
-    icon: <SettingsIcon />,
-  },
+const PRIMARY_NAV_ITEMS = [
+  { label: "Workspaces", href: "/workspaces", icon: <FolderPlusCircleIcon /> },
+  { label: "Discover", href: "/discover", icon: <GlobalResearchIcon /> },
+  { label: "Validate", href: "/validate", icon: <VoteYeaIcon /> },
+];
+
+const SECONDARY_NAV_ITEMS = [
+  { label: "Reports", href: "/reports", icon: <DiscoverIcon /> },
+  { label: "Settings", href: "/settings", icon: <SettingsIcon /> },
 ];
 
 export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSearch }: SidebarProps) {
@@ -133,8 +121,8 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
 
         {/* Navigation Links */}
         <div className="flex flex-col gap-0.5 px-2 pt-3 pb-2">
-          {/* Discover, Validate */}
-          {NAV_ITEMS.slice(0, 2).map((item) => {
+          {/* Primary navigation */}
+          {PRIMARY_NAV_ITEMS.map((item) => {
             const isActive =
               item.href === "/discover"
                 ? pathname === "/discover" && !activeSearchId
@@ -174,8 +162,8 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             </span>
           </button>
 
-          {/* Reports, Settings */}
-          {NAV_ITEMS.slice(2).map((item) => {
+          {/* Secondary navigation */}
+          {SECONDARY_NAV_ITEMS.map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (
               <Link
@@ -201,7 +189,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
         {/* Workspace Selector — inline expansion (no absolute dropdown to avoid overflow-clip issues) */}
         <div className="hidden group-hover:block group-data-[expanded=true]:block px-3 py-2" ref={menuRef}>
           <div className="px-2 mb-1.5">
-            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Workspace</p>
+            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Current workspace</p>
           </div>
           {/* Trigger button */}
           <button
@@ -311,6 +299,13 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                   New workspace
                 </button>
               )}
+              <Link
+                href="/workspaces"
+                onClick={() => setWorkspaceMenuOpen(false)}
+                className="block w-full border-t border-gray-200 dark:border-white/10 px-3 py-2 text-xs font-medium text-[#4d7c7a] dark:text-[#98cfcb] hover:bg-white dark:hover:bg-white/10 transition-colors"
+              >
+                Manage workspaces
+              </Link>
             </div>
           )}
         </div>

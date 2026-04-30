@@ -24,6 +24,11 @@ interface SidebarProps {
 
 const NAV_ITEMS = [
   {
+    label: "Workspaces",
+    href: "/workspaces",
+    icon: <FolderPlusCircleIcon />,
+  },
+  {
     label: "Discover",
     href: "/discover",
     icon: <GlobalResearchIcon />,
@@ -133,8 +138,8 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
 
         {/* Navigation Links */}
         <div className="flex flex-col gap-0.5 px-2 pt-3 pb-2">
-          {/* Discover, Validate */}
-          {NAV_ITEMS.slice(0, 2).map((item) => {
+          {/* Workspaces, Discover, Validate */}
+          {NAV_ITEMS.slice(0, 3).map((item) => {
             const isActive =
               item.href === "/discover"
                 ? pathname === "/discover" && !activeSearchId
@@ -175,7 +180,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
           </button>
 
           {/* Reports, Settings */}
-          {NAV_ITEMS.slice(2).map((item) => {
+          {NAV_ITEMS.slice(3).map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (
               <Link

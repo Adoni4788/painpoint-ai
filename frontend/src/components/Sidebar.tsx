@@ -103,7 +103,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   return (
     <aside
       data-expanded={isOpen}
-      className={`sidebar-aside group h-full flex flex-col bg-[#f2f3f5] dark:bg-[#0D0D0D] rounded-2xl ring-1 ring-black/[0.06] dark:ring-white/[0.07] shadow-none dark:shadow-[0_8px_48px_rgba(0,0,0,0.7)] transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
+      className={`sidebar-aside group h-full flex flex-col bg-[#f2f3f5] dark:bg-[#0D0D0D] rounded-2xl ring-1 ring-[#e8e9eb] dark:ring-white/[0.07] shadow-none dark:shadow-[0_8px_48px_rgba(0,0,0,0.7)] transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
     >
       {/* Sidebar header: logo, name, collapse */}
       <div className="shrink-0 flex flex-col min-w-[240px]">
@@ -137,8 +137,8 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             onClick={() => setSearchModalOpen(true)}
             className="flex items-center gap-2 px-3 py-2.5 text-[13px] font-medium transition-all duration-200 w-full rounded-xl text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
           >
-            <span className="text-[#050505] dark:text-gray-500 shrink-0 w-5 flex items-center justify-center">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+            <span className="text-[#050505] dark:text-gray-500 shrink-0 w-4 flex items-center justify-center">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </span>
@@ -162,7 +162,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                     : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
                 }`}
               >
-                <span className={isActive ? "text-[#050505] dark:text-white" : "text-[#050505] dark:text-gray-500"}>
+                <span className={`[&>svg]:w-4 [&>svg]:h-4 ${isActive ? "text-[#050505] dark:text-white" : "text-[#050505] dark:text-gray-500"}`}>
                   {item.icon}
                 </span>
                 <span className="opacity-0 w-0 overflow-hidden group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300 whitespace-nowrap">

@@ -147,7 +147,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   return (
     <aside
       data-expanded={isOpen}
-      className={`sidebar-aside group bg-transparent flex flex-col shrink-0 transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
+      className={`sidebar-aside group h-full flex flex-col bg-white dark:bg-[#0D0D0D] rounded-r-2xl border-r border-black/[0.06] dark:border-white/[0.06] shadow-[4px_0_24px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_32px_rgba(0,0,0,0.6)] transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
     >
       {/* Sidebar header: logo, name, collapse */}
       <div className="shrink-0 flex flex-col min-w-[240px]">

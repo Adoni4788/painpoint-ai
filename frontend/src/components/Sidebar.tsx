@@ -126,7 +126,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             {isOpen ? <MdPushPin size={18} /> : <MdOutlinePushPin size={18} />}
           </button>
         </div>
-        <div className="mx-3 h-px bg-[#dcdcde]/60 dark:bg-white/[0.07]" />
+        <div className="mx-3 h-px bg-[#dcdcde] dark:bg-white/[0.07]" />
       </div>
       {/* Scrollable body — nav, workspace, recent searches */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-sidebar min-h-0 flex flex-col">

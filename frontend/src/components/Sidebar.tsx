@@ -106,7 +106,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
       className={`sidebar-aside group h-full flex flex-col bg-[#f2f3f5] dark:bg-[#0D0D0D] rounded-2xl ring-1 ring-[#e8e9eb] dark:ring-white/[0.07] shadow-none dark:shadow-[0_8px_48px_rgba(0,0,0,0.7)] transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
     >
       {/* Sidebar header: logo, name, collapse */}
-      <div className="shrink-0 flex flex-col min-w-[240px] border-b border-[#e8e9eb] dark:border-white/[0.07]">
+      <div className="shrink-0 flex flex-col min-w-[240px]">
         <div className="flex items-center gap-2 px-3 py-4">
           <div className="flex items-center gap-2 shrink-0">
             {/* Fixed-width centering shell: w-10 (40px) + px-3 (12px) = 32px center = exact middle of w-16 rail */}
@@ -126,6 +126,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             {isOpen ? <MdPushPin size={18} /> : <MdOutlinePushPin size={18} />}
           </button>
         </div>
+        <div className="mx-3 h-px bg-[#e8e9eb] dark:bg-white/[0.07]" />
       </div>
       {/* Scrollable body — nav, workspace, recent searches */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-sidebar min-h-0 flex flex-col">

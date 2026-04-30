@@ -103,7 +103,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   return (
     <aside
       data-expanded={isOpen}
-      className={`sidebar-aside group h-full flex flex-col bg-[#f2f3f5] dark:bg-[#0D0D0D] rounded-2xl ring-1 ring-[#dcdcde] dark:ring-white/[0.07] shadow-none dark:shadow-[0_8px_48px_rgba(0,0,0,0.7)] transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
+      className={`sidebar-aside group h-full flex flex-col bg-[#f2f3f5] dark:bg-[#0D0D0D] rounded-2xl border border-[#dcdcde] dark:border-white/[0.07] shadow-none dark:shadow-[0_8px_48px_rgba(0,0,0,0.7)] transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
     >
       {/* Sidebar header: logo, name, collapse */}
       <div className="shrink-0 flex flex-col min-w-[240px]">
@@ -451,7 +451,7 @@ function SearchUsage({ searches }: { searches: SearchResult[] }) {
 
   if (isPro) {
     return (
-      <div className="hidden group-hover:flex group-data-[expanded=true]:flex items-center gap-2 px-4 py-2.5 mx-2 mb-2 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20">
+      <div className="hidden group-hover:flex group-data-[expanded=true]:flex items-center gap-2 px-3 py-2 mx-3 mb-2 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20">
         <span className="text-amber-500 text-sm">⚡</span>
         <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">Pro — Unlimited</span>
       </div>

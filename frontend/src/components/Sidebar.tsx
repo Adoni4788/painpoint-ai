@@ -103,7 +103,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   return (
     <aside
       data-expanded={isOpen}
-      className={`sidebar-aside group h-full flex flex-col bg-[#f2f3f5] dark:bg-[#0D0D0D] rounded-2xl ring-1 ring-black/[0.06] dark:ring-white/[0.07] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_48px_rgba(0,0,0,0.7)] transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
+      className={`sidebar-aside group h-full flex flex-col bg-[#f2f3f5] dark:bg-[#0D0D0D] rounded-2xl ring-1 ring-black/[0.06] dark:ring-white/[0.07] shadow-none dark:shadow-[0_8px_48px_rgba(0,0,0,0.7)] transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
     >
       {/* Sidebar header: logo, name, collapse */}
       <div className="shrink-0 flex flex-col min-w-[240px]">
@@ -158,7 +158,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
                 href={item.href}
                 className={`flex items-center gap-2 px-3 py-2.5 text-[13px] font-medium transition-all duration-200 w-full rounded-xl ${
                   isActive
-                    ? "bg-white text-gray-900 dark:bg-white/10 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10"
+                    ? "bg-[#dcdcde] text-gray-900 dark:bg-white/10 dark:text-white"
                     : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
                 }`}
               >

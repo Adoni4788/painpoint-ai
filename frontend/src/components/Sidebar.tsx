@@ -126,7 +126,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             {isOpen ? <MdPushPin size={18} /> : <MdOutlinePushPin size={18} />}
           </button>
         </div>
-        <div className="mx-3 h-px bg-[#dcdcde] dark:bg-white/[0.07]" />
+        <div className="mx-3 border-b border-[#dcdcde] dark:border-white/[0.07]" />
       </div>
       {/* Scrollable body — nav, workspace, recent searches */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-sidebar min-h-0 flex flex-col">
@@ -358,10 +358,15 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
 
       </div>{/* end scrollable body */}
 
-      {/* Sticky bottom — upgrade banner + version, always visible, content scrolls behind */}
-      <div className="hidden group-hover:flex group-data-[expanded=true]:flex shrink-0 flex-col bg-transparent">
-        <SearchUsage searches={searches} />
-        <p className="font-mono text-[10px] text-gray-400 dark:text-gray-500 text-center pb-3">GapLens v0.1</p>
+      {/* Sticky bottom */}
+      <div className="shrink-0 flex flex-col">
+        {/* Collapsed: pro lightning only */}
+        <ProCollapsedBadge />
+        {/* Expanded: full banner + version */}
+        <div className="hidden group-hover:flex group-data-[expanded=true]:flex flex-col">
+          <SearchUsage searches={searches} />
+          <p className="font-mono text-[10px] text-gray-400 dark:text-gray-500 text-center pb-3">GapLens v0.1</p>
+        </div>
       </div>
 
       {/* Search modal */}
@@ -431,6 +436,17 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
         </div>
       )}
     </aside>
+  );
+}
+
+function ProCollapsedBadge() {
+  const { user } = useUser();
+  const isPro = user?.publicMetadata?.pro === true;
+  if (!isPro) return null;
+  return (
+    <div className="flex group-hover:hidden group-data-[expanded=true]:hidden justify-center py-3">
+      <span className="text-amber-500 text-base" title="Pro — Unlimited">⚡</span>
+    </div>
   );
 }
 

@@ -87,8 +87,8 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
       )}
       {/* Body: floating sidebar overlay + main content */}
       <div className="flex flex-1 overflow-hidden bg-transparent">
-        {/* Fixed floating sidebar — overlays content */}
-        <div className="fixed top-0 bottom-0 left-0 z-40">
+        {/* Fixed floating sidebar — overlays content, gap on all 4 sides */}
+        <div className="fixed top-0 bottom-0 left-0 z-40 p-2">
           <Sidebar
             searches={searches}
             activeSearchId={activeSearchId ?? null}
@@ -98,8 +98,8 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
           />
         </div>
 
-        {/* Right column: offset for the collapsed icon rail (w-16 = 64px) */}
-        <main id="main-content" className="main-panel flex-1 ml-16 flex flex-col overflow-hidden min-w-0 bg-white dark:bg-[#0A0A0B]">
+        {/* Right column: offset = p-2 (8px) + w-16 (64px) + p-2 (8px) = 80px */}
+        <main id="main-content" className="main-panel flex-1 ml-20 flex flex-col overflow-hidden min-w-0 bg-white dark:bg-[#0A0A0B]">
           {/* Integrated header — one row: page label | center slot | controls */}
           <div className="noise-overlay shrink-0 flex items-center gap-3 pl-6 pr-4 h-16">
             <div className="flex items-center gap-2 shrink-0">

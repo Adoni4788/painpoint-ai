@@ -71,7 +71,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${outfit.variable} dark:bg-ink`} suppressHydrationWarning>
-      <body className={`${inter.className} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${outfit.variable} bg-paper text-ink dark:bg-ink dark:text-paper antialiased transition-colors`} suppressHydrationWarning>
+      <body className={`${inter.className} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${outfit.variable} bg-[#ffffff] text-ink dark:bg-ink dark:text-paper antialiased transition-colors`} suppressHydrationWarning>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-white focus:dark:bg-gray-900 focus:rounded-lg focus:ring-2 focus:ring-[#4d7c7a] focus:outline-none"

@@ -85,20 +85,23 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
           </button>
         </div>
       )}
-      {/* Body: sidebar + right column */}
+      {/* Body: floating sidebar overlay + main content */}
       <div className="flex flex-1 overflow-hidden bg-transparent">
-        <Sidebar
-          searches={searches}
-          activeSearchId={activeSearchId ?? null}
-          isOpen={sidebarOpen}
-          onToggle={() => setSidebarOpen(!sidebarOpen)}
-          onSelectSearch={handleSelectSearch}
-        />
+        {/* Fixed floating sidebar — overlays content */}
+        <div className="fixed top-0 bottom-0 left-0 z-40">
+          <Sidebar
+            searches={searches}
+            activeSearchId={activeSearchId ?? null}
+            isOpen={sidebarOpen}
+            onToggle={() => setSidebarOpen(!sidebarOpen)}
+            onSelectSearch={handleSelectSearch}
+          />
+        </div>
 
-        {/* Right column: single full-height main panel with integrated header */}
-        <main id="main-content" className="main-panel flex-1 flex flex-col overflow-hidden min-w-0 bg-white dark:bg-[#0A0A0B] border-l border-gray-200/60 dark:border-white/5">
+        {/* Right column: offset for the collapsed icon rail (w-16 = 64px) */}
+        <main id="main-content" className="main-panel flex-1 ml-16 flex flex-col overflow-hidden min-w-0 bg-white dark:bg-[#0A0A0B]">
           {/* Integrated header — one row: page label | center slot | controls */}
-          <div className="noise-overlay shrink-0 flex items-center gap-3 pl-6 pr-4 h-16 rounded-tl-xl rounded-bl-xl">
+          <div className="noise-overlay shrink-0 flex items-center gap-3 pl-6 pr-4 h-16">
             <div className="flex items-center gap-2 shrink-0">
               {headerCenter}
               {pathname === "/discover" && onNewSearch && (

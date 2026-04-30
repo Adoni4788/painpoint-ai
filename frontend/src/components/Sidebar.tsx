@@ -209,7 +209,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white/50 dark:bg-white/5 rounded-lg border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors shadow-sm"
           >
             <span className="flex items-center gap-2 min-w-0">
-              <FolderPlusCircleIcon size={20} className="text-gray-500 shrink-0" />
+              <FolderPlusCircleIcon size={16} className="text-gray-500 shrink-0" />
               <span className="truncate">{displayName}</span>
             </span>
             <MdExpandMore size={20} className={`shrink-0 transition-transform ${workspaceMenuOpen ? "rotate-180" : ""}`} />

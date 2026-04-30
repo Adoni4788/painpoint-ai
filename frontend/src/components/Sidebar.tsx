@@ -103,7 +103,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   return (
     <aside
       data-expanded={isOpen}
-      className={`sidebar-aside group h-full flex flex-col bg-[#f2f3f5] dark:bg-[#0D0D0D] rounded-2xl ring-1 ring-[#e8e9eb] dark:ring-white/[0.07] shadow-none dark:shadow-[0_8px_48px_rgba(0,0,0,0.7)] transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
+      className={`sidebar-aside group h-full flex flex-col bg-[#f2f3f5] dark:bg-[#0D0D0D] rounded-2xl ring-1 ring-[#dcdcde] dark:ring-white/[0.07] shadow-none dark:shadow-[0_8px_48px_rgba(0,0,0,0.7)] transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${isOpen ? "w-64" : "w-16 hover:w-64"}`}
     >
       {/* Sidebar header: logo, name, collapse */}
       <div className="shrink-0 flex flex-col min-w-[240px]">
@@ -126,7 +126,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             {isOpen ? <MdPushPin size={18} /> : <MdOutlinePushPin size={18} />}
           </button>
         </div>
-        <div className="mx-3 h-px bg-[#e8e9eb] dark:bg-white/[0.07]" />
+        <div className="mx-3 h-px bg-[#dcdcde]/60 dark:bg-white/[0.07]" />
       </div>
       {/* Scrollable body — nav, workspace, recent searches */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-sidebar min-h-0 flex flex-col">

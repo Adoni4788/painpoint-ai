@@ -44,7 +44,7 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
   };
 
   return (
-    <div className="noise-overlay flex flex-col h-screen overflow-hidden bg-[#ffffff] dark:bg-[#0A0A0B]">
+    <div className="flex flex-col h-screen overflow-hidden bg-[#ffffff] dark:bg-[#0A0A0B]">
       {backendUnavailable && (
         <div className="shrink-0 px-4 py-2.5 bg-amber-500/15 dark:bg-amber-500/10 border-b border-amber-500/30 dark:border-amber-500/20 flex items-center justify-between gap-4">
           <p className="text-sm text-amber-800 dark:text-amber-200">
@@ -99,9 +99,9 @@ export function AppShell({ children, headerCenter, headerRight, activeSearchId, 
         </div>
 
         {/* Right column: pushes right when sidebar is pinned open (280px = 12+256+12), collapses to 88px when closed */}
-        <main id="main-content" className={`main-panel flex-1 flex flex-col overflow-hidden min-w-0 bg-transparent transition-[margin-left] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${sidebarOpen ? "ml-[280px]" : "ml-[88px]"}`}>
+        <main id="main-content" className={`main-panel flex-1 flex flex-col overflow-hidden min-w-0 bg-[#ffffff] dark:bg-[#0A0A0B] transition-[margin-left] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${sidebarOpen ? "ml-[280px]" : "ml-[88px]"}`}>
           {/* Integrated header — one row: page label | center slot | controls */}
-          <div className="noise-overlay shrink-0 flex items-center gap-3 pl-6 pr-4 h-16">
+          <div className="shrink-0 flex items-center gap-3 pl-6 pr-4 h-16">
             <div className="flex items-center gap-2 shrink-0">
               {headerCenter}
               {pathname === "/discover" && onNewSearch && (

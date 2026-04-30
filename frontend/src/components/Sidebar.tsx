@@ -89,60 +89,6 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
     [searches, searchQuery]
   );
 
-  if (false) {
-    return (
-      <aside className="w-14 bg-paper dark:bg-ink flex flex-col shrink-0">
-        <div className="shrink-0 flex flex-col">
-          <div className="flex flex-col items-center gap-2 px-2 pt-4 pb-3">
-          <Logo size={24} color="#4d7c7a" className="logo-app shrink-0" />
-          <button
-            onClick={onToggle}
-            className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-200/60 dark:hover:bg-[#262626] transition-colors"
-            title="Expand sidebar"
-            aria-label="Expand sidebar"
-          >
-            <MdMenu size={20} />
-          </button>
-          </div>
-        </div>
-        <div className="flex flex-col gap-0.5 px-2 pt-3 pb-2">
-          {NAV_ITEMS.map((item) => {
-            const isActive =
-              item.href === "/discover"
-                ? pathname === "/discover" && !activeSearchId
-                : pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                title={item.label}
-                className={`flex items-center justify-center p-2 transition-colors border-0 ring-0 rounded-full ${
-                  isActive
-                    ? "bg-[#dedede] text-gray-900 dark:bg-[#262626] dark:text-gray-100"
-                    : "text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#262626] dark:hover:text-gray-200"
-                }`}
-              >
-                <span className={isActive ? "text-[#434343] dark:text-gray-300" : "text-gray-400 dark:text-gray-500"}>
-                  {item.icon}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-        {searches.length > 0 && (
-          <button
-            onClick={onToggle}
-            title={`Expand to see ${searches.length} recent search${searches.length === 1 ? "" : "es"}`}
-            className="mt-auto mx-2 mb-2 p-2 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200/60 dark:hover:bg-[#262626] transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 12h14" />
-            </svg>
-          </button>
-        )}
-      </aside>
-    );
-  }
 
   return (
     <aside

@@ -104,6 +104,8 @@ Open http://localhost:3000
 
 ## API Endpoints
 
+### Application
+
 | Method | Endpoint | Description |
 |---|---|---|
 | POST | `/api/validate-minimal` | Validate an idea (idea → keywords → pipeline) |
@@ -111,11 +113,31 @@ Open http://localhost:3000
 | GET | `/api/searches` | List all searches |
 | GET | `/api/searches/{id}` | Get search status |
 | GET | `/api/searches/{id}/clusters` | Get clusters for a search |
+| DELETE | `/api/searches/{id}` | Delete a search |
+| POST | `/api/workspaces` | Create a workspace |
+| GET | `/api/workspaces` | List workspaces |
+| GET | `/api/workspaces/{id}` | Get a workspace |
+| PATCH | `/api/workspaces/{id}` | Rename a workspace |
+| DELETE | `/api/workspaces/{id}` | Delete a workspace (searches are unlinked, not deleted) |
 | GET | `/api/clusters` | List all clusters (optionally by workspace) |
 | GET | `/api/clusters/{id}` | Get single cluster |
 | GET | `/api/clusters/{id}/report` | Get full opportunity report |
 | POST | `/api/clusters/{id}/prd` | Generate PRD draft |
-| DELETE | `/api/searches/{id}` | Delete a search |
+| GET | `/health` | Liveness/readiness check (200 ok / 503 if DB unavailable) |
+
+### Digest (newsletter)
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/digest/send` | `X-Digest-Secret` header | Triggered weekly by Render cron — picks 3 niches, runs pipelines, emails subscribers via Loops |
+| POST | `/api/digest/subscribe` | Public (rate-limited) | Subscribe email to the Pain Point Digest |
+| POST | `/api/digest/unsubscribe` | Public (rate-limited) | Unsubscribe email |
+
+### Webhooks
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/webhooks/lemonsqueezy` | HMAC-SHA256 (`X-Signature`) | Lemon Squeezy purchase webhook — flips `public_metadata.pro` on the corresponding Clerk user |
 
 ## Adding New Data Sources
 

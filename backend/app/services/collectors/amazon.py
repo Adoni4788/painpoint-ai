@@ -1,7 +1,14 @@
 import httpx
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from .base import BaseCollector, CollectedPost
+
+
+def _utc_from_ts(ts: float | int | None) -> datetime | None:
+    """Convert a unix timestamp to a naive UTC datetime (matches DB column type)."""
+    if not ts:
+        return None
+    return datetime.fromtimestamp(ts, tz=timezone.utc).replace(tzinfo=None)
 
 logger = logging.getLogger(__name__)
 
@@ -61,10 +68,7 @@ class AmazonCollector(BaseCollector):
                                     text=text[:2000],
                                     author=pd.get("author"),
                                     url=f"https://reddit.com{pd.get('permalink', '')}",
-                                    timestamp=(
-                                        datetime.utcfromtimestamp(pd.get("created_utc", 0))
-                                        if pd.get("created_utc") else None
-                                    ),
+                                    timestamp=_utc_from_ts(pd.get("created_utc")),
                                 ))
                     except Exception as e:
                         logger.debug("Amazon proxy search failed: %s", e)

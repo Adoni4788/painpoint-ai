@@ -107,20 +107,43 @@ function DiscoverPageContent() {
       return;
     }
 
-    const interval = setInterval(async () => {
+    // Self-rescheduling poll with exponential backoff (3s → 30s) and a hard
+    // 12-minute cap. The backend's pipeline_timeout_seconds is 600s, so any
+    // longer-running search will already have been marked "failed" server-side.
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const startedAt = Date.now();
+    const HARD_CAP_MS = 12 * 60 * 1000;
+    const MAX_DELAY_MS = 30_000;
+    let nextDelay = 3_000;
+
+    const tick = async () => {
+      if (cancelled) return;
       try {
         const updated = await getSearch(activeSearch.id);
+        if (cancelled) return;
         setActiveSearch(updated);
         if (updated.status === "completed") {
           const clusterData = await getClusters(updated.id);
-          setClusters(clusterData);
+          if (!cancelled) setClusters(clusterData);
+          return; // status change unmounts this effect via deps
         }
+        if (updated.status === "failed") return;
       } catch (e) {
         console.error("Poll error:", e);
+        // Errors also count toward the hard cap — back off the same way.
       }
-    }, 3000);
+      if (Date.now() - startedAt >= HARD_CAP_MS) return;
+      nextDelay = Math.min(nextDelay * 2, MAX_DELAY_MS);
+      timer = setTimeout(tick, nextDelay);
+    };
 
-    return () => clearInterval(interval);
+    timer = setTimeout(tick, nextDelay);
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
   }, [activeSearch]);
 
   const handleSearch = async (query: string) => {
@@ -138,9 +161,10 @@ function DiscoverPageContent() {
       const search = await createSearch(query, sources, activeWorkspaceId ?? undefined);
       setActiveSearch(search);
       refreshSearches();
-    } catch (e: any) {
+    } catch (e: unknown) {
       // 402 = free tier limit reached — show upgrade modal
-      if (e?.message?.includes("402")) {
+      const message = e instanceof Error ? e.message : "";
+      if (message.includes("402")) {
         setShowUpgradeModal(true);
       } else {
         console.error("Search failed:", e);

@@ -71,6 +71,7 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
   const [createMode, setCreateMode] = useState(false);
   const [newWorkspaceName, setNewWorkspaceName] = useState("");
+  const [createError, setCreateError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
@@ -282,40 +283,58 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
               )}
               {/* Create new workspace */}
               {createMode ? (
-                <div className="flex items-center gap-1 px-2 py-1.5 border-t border-gray-100 dark:border-white/10">
-                  <input
-                    value={newWorkspaceName}
-                    onChange={(e) => setNewWorkspaceName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && newWorkspaceName.trim()) {
-                        createWorkspace(newWorkspaceName.trim())
-                          .then(() => { setCreateMode(false); setNewWorkspaceName(""); })
-                          .catch((err) => { console.error("Failed to create workspace:", err); alert("Failed to create workspace. Please try again."); });
-                      }
-                      if (e.key === "Escape") { setCreateMode(false); setNewWorkspaceName(""); }
-                    }}
-                    placeholder="Workspace name"
-                    className="flex-1 min-w-0 px-2 py-1 text-sm border border-gray-200 dark:border-white/10 rounded bg-white dark:bg-[#262626] focus:outline-none focus:ring-1 focus:ring-[#4d7c7a]/50"
-                    autoFocus
-                  />
-                  <button
-                    onClick={() => {
-                      if (newWorkspaceName.trim()) {
-                        createWorkspace(newWorkspaceName.trim())
-                          .then(() => { setCreateMode(false); setNewWorkspaceName(""); })
-                          .catch((err) => { console.error("Failed to create workspace:", err); alert("Failed to create workspace. Please try again."); });
-                      }
-                    }}
-                    disabled={!newWorkspaceName.trim()}
-                    className="shrink-0 p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-950/40 rounded disabled:opacity-50"
-                    title="Create workspace" aria-label="Create workspace"
-                  >
-                    <MdAdd size={18} />
-                  </button>
+                <div className="flex flex-col gap-1 px-2 py-1.5 border-t border-gray-100 dark:border-white/10">
+                  <div className="flex items-center gap-1">
+                    <input
+                      value={newWorkspaceName}
+                      onChange={(e) => setNewWorkspaceName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && newWorkspaceName.trim()) {
+                          setCreateError(null);
+                          createWorkspace(newWorkspaceName.trim())
+                            .then(() => { setCreateMode(false); setNewWorkspaceName(""); setCreateError(null); })
+                            .catch((err) => {
+                              console.error("Failed to create workspace:", err);
+                              setCreateError(err instanceof Error ? err.message : "Failed to create workspace. Please try again.");
+                            });
+                        }
+                        if (e.key === "Escape") { setCreateMode(false); setNewWorkspaceName(""); setCreateError(null); }
+                      }}
+                      placeholder="Workspace name"
+                      className="flex-1 min-w-0 px-2 py-1 text-sm border border-gray-200 dark:border-white/10 rounded bg-white dark:bg-[#262626] focus:outline-none focus:ring-1 focus:ring-[#4d7c7a]/50"
+                      autoFocus
+                      aria-invalid={createError ? "true" : "false"}
+                      aria-describedby={createError ? "workspace-create-error" : undefined}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (newWorkspaceName.trim()) {
+                          setCreateError(null);
+                          createWorkspace(newWorkspaceName.trim())
+                            .then(() => { setCreateMode(false); setNewWorkspaceName(""); setCreateError(null); })
+                            .catch((err) => {
+                              console.error("Failed to create workspace:", err);
+                              setCreateError(err instanceof Error ? err.message : "Failed to create workspace. Please try again.");
+                            });
+                        }
+                      }}
+                      disabled={!newWorkspaceName.trim()}
+                      className="shrink-0 p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-950/40 rounded disabled:opacity-50"
+                      title="Create workspace" aria-label="Create workspace"
+                    >
+                      <MdAdd size={18} />
+                    </button>
+                  </div>
+                  {createError && (
+                    <p id="workspace-create-error" role="alert" className="text-xs text-red-600 dark:text-red-400 px-1">
+                      {createError}
+                    </p>
+                  )}
                 </div>
               ) : (
                 <button
-                  onClick={() => setCreateMode(true)}
+                  onClick={() => { setCreateError(null); setCreateMode(true); }}
                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:bg-white dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white border-t border-gray-200 dark:border-white/10 transition-colors"
                 >
                   <MdAdd size={20} />

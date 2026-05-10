@@ -105,12 +105,13 @@ export default function ValidatePage() {
       setSubmitted(true);
       setPendingSearch(search);
       setShowFeedbackModal(true);
-    } catch (e: any) {
+    } catch (e: unknown) {
       // 402 = free tier limit reached — show upgrade modal
-      if (e?.message?.includes("402")) {
+      const message = e instanceof Error ? e.message : "";
+      if (message.includes("402")) {
         setShowUpgradeModal(true);
       } else {
-        setError(e instanceof Error ? e.message : "Validation failed");
+        setError(message || "Validation failed");
       }
     } finally {
       setLoading(false);

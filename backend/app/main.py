@@ -141,9 +141,12 @@ async def health():
         logger.warning("Health check DB failure: %s", e)
         db_status = "unavailable"
 
-    return {
+    body = {
         "status": "ok" if db_status == "ok" else "degraded",
         "service": "PainPoint AI",
         "db": db_status,
         "auth_enabled": bool(settings.clerk_issuer_url),
     }
+    # Return 503 when degraded so Render's load balancer / external monitors
+    # can route around / page on a dead instance instead of getting a green 200.
+    return JSONResponse(content=body, status_code=200 if db_status == "ok" else 503)

@@ -1,8 +1,15 @@
 "use client";
 
 import * as Sentry from "@sentry/nextjs";
+import { notFound } from "next/navigation";
 
 export default function TestSentryPage() {
+  // Diagnostic page — disabled in production. NODE_ENV is replaced at build time
+  // so the rest of this component is dead-code-eliminated from the prod bundle.
+  if (process.env.NODE_ENV === "production") {
+    notFound();
+  }
+
   const handleCapture = () => {
     Sentry.captureException(new Error("Sentry test — triggered from /test-sentry button"));
   };

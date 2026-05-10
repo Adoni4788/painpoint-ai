@@ -14,15 +14,18 @@ Flow:
 """
 import asyncio
 import datetime
+import hmac
 import logging
 import uuid
 
 import httpx
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Header, HTTPException, Request
 from sqlalchemy import select, desc
 
 from ..core.config import get_settings
 from ..core.database import async_session
+from ..core.limiter import limiter
+from ..core.utils import utcnow
 from ..models.search import Search, PainCluster, RawPost, DigestSubscriber
 from ..services.pipeline import run_search_pipeline
 
@@ -236,7 +239,10 @@ async def send_digest(
       Use this to verify the pipeline and email template without touching real users.
     """
     # --- Auth ---
-    if not settings.digest_secret or x_digest_secret != settings.digest_secret:
+    # hmac.compare_digest avoids timing-side-channel leaks on the shared secret.
+    if not settings.digest_secret or not hmac.compare_digest(
+        x_digest_secret or "", settings.digest_secret
+    ):
         raise HTTPException(status_code=401, detail="Invalid or missing digest secret")
 
     if not settings.loops_api_key:
@@ -336,10 +342,15 @@ async def send_digest(
 # Subscribe / Unsubscribe endpoints
 # ---------------------------------------------------------------------------
 @router.post("/digest/subscribe")
-async def subscribe_to_digest(email: str):
+@limiter.limit("5/minute")
+async def subscribe_to_digest(request: Request, email: str):
     """
     Subscribe an email to the Pain Point Digest.
     Also creates/updates the contact in Loops for marketing purposes.
+
+    Returns a uniform {"status": "ok"} response on success — we deliberately
+    don't reveal whether the email was already in our DB, to prevent
+    email-enumeration via this public endpoint.
     """
     if not email or "@" not in email:
         raise HTTPException(status_code=400, detail="Invalid email address")
@@ -347,19 +358,16 @@ async def subscribe_to_digest(email: str):
     email = email.strip().lower()
 
     async with async_session() as db:
-        # Check if already exists
         result = await db.execute(
             select(DigestSubscriber).where(DigestSubscriber.email == email)
         )
         existing = result.scalar_one_or_none()
 
         if existing:
-            if existing.subscribed:
-                return {"status": "already_subscribed", "email": email}
-            # Re-subscribe
-            existing.subscribed = True
-            existing.unsubscribed_at = None
-            await db.commit()
+            if not existing.subscribed:
+                existing.subscribed = True
+                existing.unsubscribed_at = None
+                await db.commit()
         else:
             subscriber = DigestSubscriber(email=email)
             db.add(subscriber)
@@ -380,12 +388,16 @@ async def subscribe_to_digest(email: str):
         except Exception as e:
             logger.warning("Failed to sync subscriber to Loops: %s", e)
 
-    return {"status": "subscribed", "email": email}
+    return {"status": "ok"}
 
 
 @router.post("/digest/unsubscribe")
-async def unsubscribe_from_digest(email: str):
-    """Unsubscribe an email from the Pain Point Digest."""
+@limiter.limit("5/minute")
+async def unsubscribe_from_digest(request: Request, email: str):
+    """Unsubscribe an email from the Pain Point Digest.
+
+    Returns a uniform {"status": "ok"} response — see subscribe endpoint.
+    """
     if not email or "@" not in email:
         raise HTTPException(status_code=400, detail="Invalid email address")
 
@@ -397,11 +409,9 @@ async def unsubscribe_from_digest(email: str):
         )
         existing = result.scalar_one_or_none()
 
-        if not existing or not existing.subscribed:
-            return {"status": "not_subscribed", "email": email}
+        if existing and existing.subscribed:
+            existing.subscribed = False
+            existing.unsubscribed_at = utcnow()
+            await db.commit()
 
-        existing.subscribed = False
-        existing.unsubscribed_at = datetime.datetime.utcnow()
-        await db.commit()
-
-    return {"status": "unsubscribed", "email": email}
+    return {"status": "ok"}

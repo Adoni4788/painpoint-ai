@@ -1,8 +1,15 @@
 import httpx
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from .base import BaseCollector, CollectedPost
 from ...core.config import get_settings
+
+
+def _utc_from_ts(ts: float | int | None) -> datetime | None:
+    """Convert a unix timestamp to a naive UTC datetime (matches DB column type)."""
+    if not ts:
+        return None
+    return datetime.fromtimestamp(ts, tz=timezone.utc).replace(tzinfo=None)
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +54,7 @@ class RedditCollector(BaseCollector):
                         text=text[:2000],
                         author=post_data.get("author"),
                         url=f"https://reddit.com{post_data.get('permalink', '')}",
-                        timestamp=datetime.utcfromtimestamp(post_data.get("created_utc", 0)) if post_data.get("created_utc") else None,
+                        timestamp=_utc_from_ts(post_data.get("created_utc")),
                     ))
 
                     # Only fetch comments for larger searches (not subtopic micro-searches)
@@ -87,7 +94,7 @@ class RedditCollector(BaseCollector):
                     text=body[:2000],
                     author=comment.get("author"),
                     url=f"https://reddit.com{permalink}",
-                    timestamp=datetime.utcfromtimestamp(comment.get("created_utc", 0)) if comment.get("created_utc") else None,
+                    timestamp=_utc_from_ts(comment.get("created_utc")),
                 ))
 
                 if len(posts) >= remaining:

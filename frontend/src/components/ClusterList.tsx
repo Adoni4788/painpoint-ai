@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+
 import { Cluster } from "@/lib/api";
 import { getScoreBarColor } from "@/lib/scoreUtils";
 
@@ -33,11 +34,10 @@ export function ClusterList({
         : totalDataPoints.toString();
 
   return (
-    <div className="text-left min-w-0 font-sans">
-      {/* Bento Grid Header */}
-      <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div className="min-w-0 text-left font-sans">
+      <div className="mb-5 flex flex-col justify-between gap-3 md:flex-row md:items-end">
         <div>
-          <h2 className="font-logo text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+          <h2 className="font-heading text-2xl font-semibold tracking-normal text-gray-900 dark:text-white">
             Opportunity Board
           </h2>
           <p className="mt-1 font-mono text-xs text-gray-500 dark:text-gray-400">
@@ -45,20 +45,18 @@ export function ClusterList({
           </p>
         </div>
         {totalDataPoints > 0 && (
-          <div className="rounded-xl border border-gray-200/80 dark:border-white/10 bg-white/50 dark:bg-white/5 px-5 py-2.5 shadow-sm backdrop-blur-sm">
-            <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-gray-500 dark:text-gray-400 mb-0.5">
+          <div className="rounded-lg border border-gray-200/80 bg-white/60 px-4 py-2 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
+            <p className="mb-0.5 font-mono text-[10px] uppercase tracking-[0.15em] text-gray-500 dark:text-gray-400">
               Data Coverage
             </p>
-            <p className="font-mono text-lg font-semibold text-gray-900 dark:text-white">
+            <p className="font-mono text-base font-semibold text-gray-900 dark:text-white">
               {dataPointsFormatted} analyzed
             </p>
           </div>
         )}
       </div>
 
-      {/* Bento Grid */}
-      <div className="grid gap-4 min-w-0">
-        {/* Featured Opportunity — Hero card */}
+      <div className="grid min-w-0 gap-4">
         {featured && (
           <FeaturedClusterCard
             cluster={featured}
@@ -68,10 +66,9 @@ export function ClusterList({
           />
         )}
 
-        {/* Secondary cards in grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {displayed.map((cluster, idx) => (
-            <BentoClusterCard
+            <ClusterCard
               key={cluster.id}
               cluster={cluster}
               rank={idx + 2}
@@ -86,7 +83,7 @@ export function ClusterList({
         <div className="mt-6 flex justify-center">
           <button
             onClick={() => setShowAll(!showAll)}
-            className="font-mono text-sm font-medium text-gray-500 hover:text-ink dark:text-gray-400 dark:hover:text-paper px-4 py-2 rounded-lg border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-colors"
+            className="rounded-lg border border-gray-200 px-4 py-2 font-mono text-sm font-medium text-gray-500 transition-colors hover:border-gray-300 hover:text-ink dark:border-white/10 dark:text-gray-400 dark:hover:border-white/20 dark:hover:text-paper"
           >
             {showAll ? "Show less" : `Show all ${clusters.length} clusters`}
           </button>
@@ -110,49 +107,47 @@ function FeaturedClusterCard({
   return (
     <button
       onClick={onClick}
-      className={`group/card relative noise-overlay w-full min-w-0 text-left p-6 md:p-8 rounded-[24px] border transition-all duration-500 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both delay-100 ${
+      className={`group/card relative w-full min-w-0 overflow-hidden rounded-lg border p-5 text-left transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 fill-mode-both delay-100 md:p-6 ${
         isSelected
-          ? "border-[#4d7c7a]/50 bg-white dark:bg-[#0A0A0B] shadow-xl shadow-[#4d7c7a]/15 dark:shadow-[#4d7c7a]/20 ring-1 ring-[#4d7c7a]"
-          : "border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 hover:border-[#4d7c7a]/30 hover:bg-white dark:hover:bg-[#121214] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_8px_30px_rgba(77,124,122,0.15)] hover:-translate-y-1"
+          ? "border-[#4d7c7a]/50 bg-white ring-1 ring-[#4d7c7a] shadow-lg shadow-[#4d7c7a]/10 dark:bg-[#111214]"
+          : "border-black/10 bg-white/60 hover:border-[#4d7c7a]/35 hover:bg-white hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:border-white/10 dark:bg-white/[0.04] dark:hover:bg-[#121214]"
       }`}
     >
-      {/* Dynamic ambient glow on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#4d7c7a]/5 to-[#f97316]/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none" />
-      <div className="relative z-10 flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400">
-              #FEATURED
+      <div className="relative z-10 flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 flex items-center gap-3">
+            <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#4d7c7a] dark:text-teal-300">
+              Featured
             </span>
             <span className="font-mono text-xs text-gray-500 dark:text-gray-400">
               #{rank}
             </span>
           </div>
-          <h3 className="font-logo text-2xl md:text-3xl font-medium text-gray-900 dark:text-white tracking-tight leading-snug">
+          <h3 className="font-heading text-xl font-semibold leading-tight tracking-normal text-gray-900 dark:text-white md:text-2xl">
             {cluster.label}
           </h3>
           {cluster.summary && (
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+            <p className="mt-2 max-w-5xl text-sm leading-6 text-gray-600 line-clamp-2 dark:text-gray-400">
               {cluster.summary}
             </p>
           )}
-          <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2">
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
             <span className="font-mono text-xs text-gray-500 dark:text-gray-400">
               {cluster.complaint_count} complaints
             </span>
             <AuthenticityBar value={cluster.avg_authenticity} />
           </div>
         </div>
-        <div className="shrink-0 flex flex-col items-end">
-          <div className="gradient-primary-text font-heading text-3xl md:text-4xl font-bold">
+        <div className="flex shrink-0 flex-row items-center justify-between gap-3 md:flex-col md:items-end">
+          <div className="font-heading text-3xl font-semibold text-[#8b5cf6] dark:text-[#9f7aea] md:text-4xl">
             {cluster.opportunity_score.toFixed(1)}
           </div>
-          <div className="font-mono text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 mt-1">
+          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-gray-500 dark:text-gray-400 md:mt-1">
             Opportunity
           </div>
         </div>
       </div>
-      <div className="relative z-10 mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="relative z-10 mt-5 grid grid-cols-2 gap-4 md:grid-cols-4">
         <ScoreBar label="Relevance" value={cluster.relevance_score} />
         <ScoreBar label="Frequency" value={cluster.frequency_score} />
         <ScoreBar label="Emotion" value={cluster.emotion_score} />
@@ -162,7 +157,7 @@ function FeaturedClusterCard({
   );
 }
 
-function BentoClusterCard({
+function ClusterCard({
   cluster,
   rank,
   isSelected,
@@ -176,26 +171,25 @@ function BentoClusterCard({
   return (
     <button
       onClick={onClick}
-      style={{ animationDelay: `${(rank * 100) + 100}ms` }}
-      className={`group/card relative noise-overlay w-full min-w-0 text-left p-5 rounded-[20px] border transition-all duration-500 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both ${
+      style={{ animationDelay: `${rank * 100 + 100}ms` }}
+      className={`group/card relative w-full min-w-0 overflow-hidden rounded-lg border p-4 text-left transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 fill-mode-both ${
         isSelected
-          ? "border-[#4d7c7a]/50 bg-white dark:bg-[#0A0A0B] shadow-lg shadow-[#4d7c7a]/10 ring-1 ring-[#4d7c7a]/50"
-          : "border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 hover:border-[#4d7c7a]/30 hover:bg-white dark:hover:bg-[#121214] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:hover:shadow-[0_8px_30px_rgba(77,124,122,0.1)] hover:-translate-y-1"
+          ? "border-[#4d7c7a]/50 bg-white ring-1 ring-[#4d7c7a]/50 shadow-lg shadow-[#4d7c7a]/10 dark:bg-[#111214]"
+          : "border-black/10 bg-white/60 hover:border-[#4d7c7a]/35 hover:bg-white hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)] dark:border-white/10 dark:bg-white/[0.04] dark:hover:bg-[#121214]"
       }`}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-[#4d7c7a]/0 via-transparent to-[#f97316]/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none" />
       <div className="relative z-10 flex items-start justify-between gap-4">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-mono text-[10px] font-bold text-gray-400 dark:text-gray-500">
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 flex items-start gap-2">
+            <span className="mt-0.5 shrink-0 font-mono text-[10px] font-semibold text-gray-400 dark:text-gray-500">
               #{rank}
             </span>
-            <h3 className="font-logo text-lg font-medium text-gray-900 dark:text-white truncate tracking-tight">
+            <h3 className="font-heading text-base font-semibold leading-snug tracking-normal text-gray-900 line-clamp-2 dark:text-white">
               {cluster.label}
             </h3>
           </div>
           {cluster.summary && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
+            <p className="mb-3 text-sm leading-5 text-gray-600 line-clamp-2 dark:text-gray-400">
               {cluster.summary}
             </p>
           )}
@@ -206,7 +200,7 @@ function BentoClusterCard({
             <AuthenticityBar value={cluster.avg_authenticity} />
           </div>
         </div>
-        <div className="gradient-primary-text font-heading text-xl font-bold shrink-0">
+        <div className="shrink-0 font-heading text-xl font-semibold text-[#8b5cf6] dark:text-[#9f7aea]">
           {cluster.opportunity_score.toFixed(1)}
         </div>
       </div>
@@ -234,14 +228,14 @@ function AuthenticityBar({ value }: { value: number }) {
       <span className="font-mono text-[10px] text-gray-500 dark:text-gray-400">
         AUTH
       </span>
-      <div className="flex items-center gap-2 min-w-[80px]">
-        <div className="h-1.5 flex-1 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+      <div className="flex min-w-[80px] items-center gap-2">
+        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-white/10">
           <div
             className={`h-full rounded-full ${barColor} transition-all duration-500`}
             style={{ width: `${pct}%` }}
           />
         </div>
-        <span className="font-mono text-[10px] font-semibold text-gray-700 dark:text-gray-300 w-8">
+        <span className="w-8 font-mono text-[10px] font-semibold text-gray-700 dark:text-gray-300">
           {pct}%
         </span>
       </div>
@@ -254,16 +248,16 @@ function ScoreBar({ label, value }: { label: string; value: number }) {
   const barColor = getScoreBarColor(value);
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-1">
-        <span className="font-mono text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase">
+    <div className="min-w-0">
+      <div className="mb-1 flex items-center justify-between gap-2">
+        <span className="font-mono text-[10px] font-medium uppercase text-gray-500 dark:text-gray-400">
           {label}
         </span>
         <span className="font-mono text-[10px] font-semibold text-ink dark:text-paper">
           {value.toFixed(1)}
         </span>
       </div>
-      <div className="h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+      <div className="h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-white/10">
         <div
           className={`h-full rounded-full ${barColor} transition-all duration-500`}
           style={{ width: `${pct}%` }}

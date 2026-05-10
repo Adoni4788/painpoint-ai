@@ -173,13 +173,13 @@ export function StatusBanner({ search }: StatusBannerProps) {
   const elapsed = formatElapsed(search.created_at, tick);
 
   return (
-    <div className="px-6 py-4 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-[#0A0A0B]">
-      <div className={`relative overflow-hidden rounded-3xl border border-gray-200/80 dark:border-white/10 bg-gradient-to-br ${currentStage.tone.panel} via-white to-white dark:via-[#111214] dark:to-[#0D0E10] shadow-[0_18px_50px_rgba(15,23,42,0.06)] dark:shadow-[0_18px_50px_rgba(0,0,0,0.28)]`}>
+    <div className="shrink-0 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-[#0A0A0B] px-4 py-3 md:px-6">
+      <div className={`relative max-h-[calc(100vh-6.5rem)] overflow-y-auto overflow-x-hidden rounded-xl border border-gray-200/80 dark:border-white/10 bg-gradient-to-br ${currentStage.tone.panel} via-white to-white dark:via-[#111214] dark:to-[#0D0E10] shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.24)] scrollbar-main md:max-h-[560px]`}>
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4d7c7a]/45 to-transparent" />
 
-        <div className="grid gap-6 px-5 py-5 lg:grid-cols-[minmax(0,1.25fr)_320px] lg:px-6">
-          <div className="min-w-0 space-y-5">
-            <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="grid gap-4 px-4 py-4 lg:grid-cols-[minmax(0,1fr)_280px] lg:px-5">
+          <div className="min-w-0 space-y-4">
+            <div className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-200/70 pb-4 dark:border-white/10">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${currentStage.tone.badge}`}>
@@ -200,17 +200,17 @@ export function StatusBanner({ search }: StatusBannerProps) {
                   )}
                 </div>
 
-                <h3 className={`mt-3 text-xl font-semibold tracking-tight ${currentStage.tone.accent}`}>
+                <h3 className={`mt-3 text-lg font-semibold tracking-tight ${currentStage.tone.accent}`}>
                   {currentStage.label}
                 </h3>
-                <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-300">
+                <p className="mt-1 max-w-2xl text-sm leading-5 text-gray-600 dark:text-gray-300">
                   {search.status === "failed"
                     ? "The run stopped before results were generated. You can retry the same search or adjust the query."
                     : currentStage.detail}
                 </p>
               </div>
 
-              <div className="min-w-0 rounded-2xl border border-gray-200 dark:border-white/10 bg-white/75 dark:bg-white/5 px-4 py-3">
+              <div className="min-w-0 rounded-lg border border-gray-200 dark:border-white/10 bg-white/75 px-3 py-2 dark:bg-white/5">
                 <div className="text-[11px] uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
                   Query
                 </div>
@@ -224,12 +224,12 @@ export function StatusBanner({ search }: StatusBannerProps) {
               {stats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-2xl border border-gray-200/80 dark:border-white/10 bg-white/70 dark:bg-white/5 px-4 py-3"
+                  className="rounded-lg border border-gray-200/80 bg-white/70 px-3 py-2.5 dark:border-white/10 dark:bg-white/5"
                 >
                   <div className="text-[11px] uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
                     {stat.label}
                   </div>
-                  <div className="mt-2 text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                  <div className="mt-1 text-xl font-semibold text-gray-900 dark:text-gray-100">
                     {stat.value}
                   </div>
                   <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -239,7 +239,7 @@ export function StatusBanner({ search }: StatusBannerProps) {
               ))}
             </div>
 
-            <div className="rounded-2xl border border-gray-200/80 dark:border-white/10 bg-white/70 dark:bg-white/5 px-4 py-4">
+            <div className="rounded-lg border border-gray-200/80 bg-white/70 px-3 py-3 dark:border-white/10 dark:bg-white/5">
               <div className="flex items-center justify-between gap-3">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
                   Progress
@@ -251,7 +251,7 @@ export function StatusBanner({ search }: StatusBannerProps) {
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-3">
+              <div className="mt-3 grid gap-2">
                 {STAGES.map((stage, index) => {
                   const isCurrent = stage.id === search.status;
                   const isComplete =
@@ -262,7 +262,7 @@ export function StatusBanner({ search }: StatusBannerProps) {
                   return (
                     <div
                       key={stage.id}
-                      className={`flex items-start gap-3 rounded-2xl border px-3 py-3 transition-colors ${
+                      className={`flex items-start gap-3 rounded-lg border px-3 py-2.5 transition-colors ${
                         isCurrent
                           ? "border-[#4d7c7a]/25 bg-[#4d7c7a]/8 dark:border-[#4d7c7a]/30 dark:bg-[#4d7c7a]/10"
                           : isComplete
@@ -307,7 +307,7 @@ export function StatusBanner({ search }: StatusBannerProps) {
                             </span>
                           )}
                         </div>
-                        <p className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
+                        <p className="mt-1 text-xs leading-4 text-gray-500 dark:text-gray-400">
                           {stage.detail}
                         </p>
                       </div>
@@ -342,7 +342,7 @@ function StatusSidePanel({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-gray-200/80 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] p-4">
+      <div className="rounded-lg border border-gray-200/80 bg-black/[0.02] p-4 dark:border-white/10 dark:bg-white/[0.04]">
         <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
           What is happening
         </div>
@@ -353,7 +353,7 @@ function StatusSidePanel({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-gray-200/80 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] p-4">
+      <div className="rounded-lg border border-gray-200/80 bg-black/[0.02] p-4 dark:border-white/10 dark:bg-white/[0.04]">
         <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
           Source set
         </div>
@@ -361,7 +361,7 @@ function StatusSidePanel({
           {sourceNames.map((source) => (
             <span
               key={source}
-              className="inline-flex items-center rounded-full border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5 px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-300"
+              className="inline-flex items-center rounded-md border border-gray-200 bg-white/80 px-2.5 py-1 text-xs font-medium text-gray-700 dark:border-white/10 dark:bg-white/5 dark:text-gray-300"
             >
               {source}
             </span>

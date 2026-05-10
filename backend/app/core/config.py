@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     reddit_user_agent: str = "PainPointAI/1.0"
     g2_api_key: str = ""
     youtube_api_key: str = ""
+    # Optional Stack Exchange app key — without it the SE API allows 300
+    # req/IP/day, with it 10K. Free to register at stackapps.com/apps/oauth/register.
+    stackexchange_key: str = ""
     cors_origins: str = "http://localhost:3000"
     sentry_dsn: str = ""
     rate_limit: str = "60/minute"

@@ -324,7 +324,7 @@ async def create_search(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Start a new pain point search."""
-    valid_sources = {"reddit", "hackernews", "amazon", "g2", "youtube", "facebook"}
+    valid_sources = {"reddit", "hackernews", "amazon", "g2", "youtube", "facebook", "stackoverflow"}
     sources = [s for s in payload.sources if s in valid_sources] or ["reddit", "hackernews", "amazon"]
 
     if payload.workspace_id is not None:

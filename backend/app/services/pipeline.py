@@ -13,7 +13,15 @@ from sqlalchemy import select, delete
 from ..core.config import get_settings
 from ..core.utils import utcnow
 from ..models.search import Search, RawPost, PainCluster, PRDDraft
-from .collectors import RedditCollector, HackerNewsCollector, AmazonCollector, G2Collector, YouTubeCollector, FacebookCollector
+from .collectors import (
+    RedditCollector,
+    HackerNewsCollector,
+    AmazonCollector,
+    G2Collector,
+    YouTubeCollector,
+    FacebookCollector,
+    StackOverflowCollector,
+)
 from .collectors.base import CollectedPost
 from . import ai_service
 
@@ -28,6 +36,7 @@ COLLECTOR_MAP = {
     "g2": G2Collector,
     "youtube": YouTubeCollector,
     "facebook": FacebookCollector,
+    "stackoverflow": StackOverflowCollector,
 }
 
 MAX_SUBTOPICS_PER_SEARCH = 8

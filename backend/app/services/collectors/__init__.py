@@ -4,6 +4,7 @@ from .amazon import AmazonCollector
 from .g2 import G2Collector
 from .youtube import YouTubeCollector
 from .facebook import FacebookCollector
+from .stackoverflow import StackOverflowCollector
 from .base import BaseCollector
 
 __all__ = [
@@ -13,5 +14,6 @@ __all__ = [
     "G2Collector",
     "YouTubeCollector",
     "FacebookCollector",
+    "StackOverflowCollector",
     "BaseCollector",
 ]

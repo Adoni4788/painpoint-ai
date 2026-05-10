@@ -103,6 +103,67 @@ def _normalize_collection_queries(original_query: str, subtopics: list[str]) -> 
 # signal complaint corpora on the internet.
 AUTHENTICITY_CAP_EXEMPT_SOURCES = frozenset({"github", "stackoverflow"})
 
+# Bug-tracker sources where the platform's own search API already pre-filtered
+# by the user's query, so any returned post is structurally on-topic. We
+# trust the platform contract here: even if the LLM rates a post as
+# "somewhat_relevant" or "is_complaint=False", we can still keep it as long
+# as it's not flagged as obviously unrelated. Without this we leave 100%
+# of GitHub/SO posts on the floor for being too clinically written.
+BUG_TRACKER_SOURCES = frozenset({"github", "stackoverflow"})
+
+# Floor scores we substitute for bug-tracker posts when the LLM under-rates
+# them. Calibrated so a "somewhat_relevant" 0.5 post still passes the
+# downstream relevance filter, but a clearly unrelated post is still dropped.
+BUG_TRACKER_COMPLAINT_FLOOR = 0.6
+BUG_TRACKER_RELEVANCE_FLOOR = 0.5
+
+
+def _apply_bug_tracker_trust(
+    source: str,
+    is_complaint: bool,
+    complaint_score: float,
+    relevance: str,
+    relevance_score: float,
+) -> tuple[bool, float, float]:
+    """
+    For bug-tracker sources only, force-trust the platform contract: if the
+    LLM didn't flag the post as 'unrelated', treat it as a real complaint.
+
+    Returns possibly-adjusted (is_complaint, complaint_score, relevance_score).
+    Other sources are returned unchanged.
+    """
+    if source not in BUG_TRACKER_SOURCES:
+        return is_complaint, complaint_score, relevance_score
+    if relevance == "unrelated":
+        # Trust the LLM when it's confident the post is off-topic.
+        return is_complaint, complaint_score, relevance_score
+    if not is_complaint or complaint_score < BUG_TRACKER_COMPLAINT_FLOOR:
+        is_complaint = True
+        complaint_score = max(complaint_score, BUG_TRACKER_COMPLAINT_FLOOR)
+    if relevance_score < BUG_TRACKER_RELEVANCE_FLOOR:
+        relevance_score = BUG_TRACKER_RELEVANCE_FLOOR
+    return is_complaint, complaint_score, relevance_score
+
+
+def _passes_primary_relevance_filter(
+    source: str,
+    relevance: str,
+    relevance_score: float,
+    authenticity_score: float,
+) -> bool:
+    """
+    Per-source relevance filter. Bug-tracker sources get a softer bar
+    because the platform's search API already pre-filtered by query terms.
+    Other sources keep the strict bar (must be 'directly_relevant' >= 0.6).
+    """
+    if authenticity_score < 0.4:
+        return False
+    if source in BUG_TRACKER_SOURCES:
+        if relevance == "unrelated":
+            return False
+        return relevance_score >= 0.4
+    return relevance == "directly_relevant" and relevance_score >= 0.6
+
 
 def _apply_authenticity_cap(
     content_type: str,
@@ -326,6 +387,15 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
                 content_type, authenticity_score, source=raw_post_records[idx].source
             )
 
+            # Bug-tracker trust override (see _apply_bug_tracker_trust).
+            is_complaint, complaint_score, relevance_score = _apply_bug_tracker_trust(
+                source=raw_post_records[idx].source,
+                is_complaint=is_complaint,
+                complaint_score=complaint_score,
+                relevance=relevance,
+                relevance_score=relevance_score,
+            )
+
             raw_post_records[idx].is_complaint = is_complaint
             raw_post_records[idx].complaint_score = complaint_score
             raw_post_records[idx].relevance = relevance
@@ -349,19 +419,30 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
         search.total_complaints_found = len(all_complaint_posts)
 
         # --- RELEVANCE FILTER ---
+        # See _passes_primary_relevance_filter for the per-source rule. Bug-
+        # tracker sources get a softer bar because the platform's search API
+        # already pre-filtered by query terms.
         relevant_complaints = []
+        seen_ids: set[int] = set()
         for c in all_complaint_posts:
-            if c["relevance"] != "directly_relevant" or c["relevance_score"] < 0.6:
-                continue
-            if c["authenticity_score"] < 0.4:
-                continue
-            relevant_complaints.append(c)
+            if _passes_primary_relevance_filter(
+                source=c["source"],
+                relevance=c["relevance"],
+                relevance_score=c["relevance_score"],
+                authenticity_score=c["authenticity_score"],
+            ):
+                relevant_complaints.append(c)
+                seen_ids.add(id(c))
 
-        # Fall back to somewhat_relevant if we don't have enough directly_relevant
+        # Fall back to somewhat_relevant for non-bug-tracker sources if we
+        # don't have enough directly_relevant. Bug-tracker posts already
+        # received the softer bar above, so they don't need a fallback pass.
         if len(relevant_complaints) < 5:
             somewhat = [
                 c for c in all_complaint_posts
-                if c["relevance"] == "somewhat_relevant"
+                if c["source"] not in BUG_TRACKER_SOURCES
+                and id(c) not in seen_ids
+                and c["relevance"] == "somewhat_relevant"
                 and c["relevance_score"] >= 0.4
                 and c["authenticity_score"] >= 0.4
             ]
@@ -373,10 +454,22 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
         search.total_relevant_complaints = len(relevant_complaints)
         await db.commit()
 
+        # Posts that would have qualified on relevance alone but were
+        # dropped specifically by the authenticity floor.
         blocked_by_auth = sum(
             1 for c in all_complaint_posts
-            if c["relevance"] == "directly_relevant"
-            and c["relevance_score"] >= 0.6
+            if (
+                (
+                    c["source"] in BUG_TRACKER_SOURCES
+                    and c["relevance"] != "unrelated"
+                    and c["relevance_score"] >= 0.4
+                )
+                or (
+                    c["source"] not in BUG_TRACKER_SOURCES
+                    and c["relevance"] == "directly_relevant"
+                    and c["relevance_score"] >= 0.6
+                )
+            )
             and c["authenticity_score"] < 0.4
         )
         logger.info(

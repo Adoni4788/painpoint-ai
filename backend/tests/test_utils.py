@@ -6,7 +6,12 @@ import pytest
 from datetime import datetime, timezone
 
 from app.services.ai_service import sanitize_user_input, _strip_json_fences
-from app.services.pipeline import _apply_authenticity_cap, _deduplicate_posts
+from app.services.pipeline import (
+    _apply_authenticity_cap,
+    _apply_bug_tracker_trust,
+    _deduplicate_posts,
+    _passes_primary_relevance_filter,
+)
 from app.services.collectors.base import CollectedPost
 from app.core.utils import utcnow
 
@@ -148,6 +153,123 @@ class TestApplyAuthenticityCap:
         # Older callers that don't pass `source` still get the cap.
         result = _apply_authenticity_cap("promotional_content", 0.9)
         assert result == 0.15
+
+
+# ---------------------------------------------------------------------------
+# _apply_bug_tracker_trust — force-trust the platform contract for
+# github/stackoverflow when the LLM under-rates a post (live test 2026-05-10
+# showed 45 GitHub posts with 0 making it through the filters because the
+# LLM rated bug reports as is_complaint=False / somewhat_relevant).
+# ---------------------------------------------------------------------------
+
+class TestApplyBugTrackerTrust:
+    def test_github_not_unrelated_forces_complaint(self):
+        # LLM said is_complaint=False but it's not unrelated → flip to True.
+        is_c, c_score, r_score = _apply_bug_tracker_trust(
+            source="github",
+            is_complaint=False,
+            complaint_score=0.2,
+            relevance="somewhat_relevant",
+            relevance_score=0.3,
+        )
+        assert is_c is True
+        assert c_score >= 0.6
+        assert r_score >= 0.5
+
+    def test_github_already_passing_unchanged(self):
+        is_c, c_score, r_score = _apply_bug_tracker_trust(
+            source="github",
+            is_complaint=True,
+            complaint_score=0.9,
+            relevance="directly_relevant",
+            relevance_score=0.95,
+        )
+        assert (is_c, c_score, r_score) == (True, 0.9, 0.95)
+
+    def test_github_unrelated_is_respected(self):
+        # If LLM is sure it's off-topic, don't override it.
+        is_c, c_score, r_score = _apply_bug_tracker_trust(
+            source="github",
+            is_complaint=False,
+            complaint_score=0.0,
+            relevance="unrelated",
+            relevance_score=0.0,
+        )
+        assert is_c is False
+        assert c_score == 0.0
+        assert r_score == 0.0
+
+    def test_stackoverflow_treated_same_as_github(self):
+        is_c, c_score, _r = _apply_bug_tracker_trust(
+            source="stackoverflow",
+            is_complaint=False,
+            complaint_score=0.1,
+            relevance="somewhat_relevant",
+            relevance_score=0.5,
+        )
+        assert is_c is True
+        assert c_score >= 0.6
+
+    def test_reddit_pass_through_unchanged(self):
+        # Non-bug-tracker sources are not affected by the trust override.
+        is_c, c_score, r_score = _apply_bug_tracker_trust(
+            source="reddit",
+            is_complaint=False,
+            complaint_score=0.1,
+            relevance="somewhat_relevant",
+            relevance_score=0.3,
+        )
+        assert (is_c, c_score, r_score) == (False, 0.1, 0.3)
+
+
+# ---------------------------------------------------------------------------
+# _passes_primary_relevance_filter — soft bar for bug-tracker sources, strict
+# bar for everyone else.
+# ---------------------------------------------------------------------------
+
+class TestPassesPrimaryRelevanceFilter:
+    def test_github_somewhat_relevant_passes_with_soft_bar(self):
+        assert _passes_primary_relevance_filter(
+            source="github",
+            relevance="somewhat_relevant",
+            relevance_score=0.5,
+            authenticity_score=0.7,
+        ) is True
+
+    def test_github_unrelated_drops_even_with_high_score(self):
+        assert _passes_primary_relevance_filter(
+            source="github",
+            relevance="unrelated",
+            relevance_score=0.9,
+            authenticity_score=0.9,
+        ) is False
+
+    def test_github_low_authenticity_drops(self):
+        # Auth floor still applies even on bug-tracker sources.
+        assert _passes_primary_relevance_filter(
+            source="github",
+            relevance="directly_relevant",
+            relevance_score=0.9,
+            authenticity_score=0.3,
+        ) is False
+
+    def test_reddit_somewhat_relevant_drops_strict_bar(self):
+        # Non-bug-tracker sources still need directly_relevant >= 0.6
+        # in the primary pass (fallback pass is handled separately).
+        assert _passes_primary_relevance_filter(
+            source="reddit",
+            relevance="somewhat_relevant",
+            relevance_score=0.7,
+            authenticity_score=0.7,
+        ) is False
+
+    def test_reddit_directly_relevant_passes(self):
+        assert _passes_primary_relevance_filter(
+            source="reddit",
+            relevance="directly_relevant",
+            relevance_score=0.7,
+            authenticity_score=0.7,
+        ) is True
 
 
 # ---------------------------------------------------------------------------

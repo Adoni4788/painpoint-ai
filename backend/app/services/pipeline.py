@@ -95,8 +95,29 @@ def _normalize_collection_queries(original_query: str, subtopics: list[str]) -> 
     return normalized or [original_query[:MAX_COLLECTION_QUERY_CHARS]]
 
 
-def _apply_authenticity_cap(content_type: str, authenticity_score: float) -> float:
-    """Cap authenticity score based on content_type classification."""
+# Sources where the platform format itself guarantees authenticity:
+# users only post here when something is broken (bug reports, error questions),
+# so even posts the LLM mis-classifies as "guide_article" should NOT have
+# authenticity capped. Without this exemption, GitHub Issues and Stack
+# Overflow questions get systematically dropped despite being the highest-
+# signal complaint corpora on the internet.
+AUTHENTICITY_CAP_EXEMPT_SOURCES = frozenset({"github", "stackoverflow"})
+
+
+def _apply_authenticity_cap(
+    content_type: str,
+    authenticity_score: float,
+    source: str | None = None,
+) -> float:
+    """Cap authenticity score based on content_type classification.
+
+    Exempts sources whose platform format guarantees authenticity (see
+    AUTHENTICITY_CAP_EXEMPT_SOURCES). For those sources we trust the raw
+    LLM authenticity score — bug reports with stack traces are inherently
+    high-signal even when the LLM mis-types them as a guide.
+    """
+    if source and source in AUTHENTICITY_CAP_EXEMPT_SOURCES:
+        return authenticity_score
     cap = AUTHENTICITY_CAPS.get(content_type)
     if cap is not None and authenticity_score > cap:
         logger.debug(
@@ -301,7 +322,9 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
             # YouTube comments tend to be noisier; apply multiplicative downweight
             if raw_post_records[idx].source == "youtube":
                 authenticity_score *= 0.85
-            authenticity_score = _apply_authenticity_cap(content_type, authenticity_score)
+            authenticity_score = _apply_authenticity_cap(
+                content_type, authenticity_score, source=raw_post_records[idx].source
+            )
 
             raw_post_records[idx].is_complaint = is_complaint
             raw_post_records[idx].complaint_score = complaint_score
@@ -360,6 +383,27 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
             "Relevance filter: %d complaints -> %d relevant for '%s' (%d blocked by authenticity)",
             len(all_complaint_posts), len(relevant_complaints), query, blocked_by_auth,
         )
+
+        # Per-source funnel — when a search returns 0 pain points, this log
+        # tells us exactly which stage dropped each source's posts. Cheap to
+        # compute, invaluable for diagnosing source-specific issues.
+        per_source_collected: dict[str, int] = {}
+        for r in raw_post_records:
+            per_source_collected[r.source] = per_source_collected.get(r.source, 0) + 1
+        per_source_complaint: dict[str, int] = {}
+        for c in all_complaint_posts:
+            per_source_complaint[c["source"]] = per_source_complaint.get(c["source"], 0) + 1
+        per_source_relevant: dict[str, int] = {}
+        for c in relevant_complaints:
+            per_source_relevant[c["source"]] = per_source_relevant.get(c["source"], 0) + 1
+        for src in sorted(per_source_collected.keys()):
+            logger.info(
+                "Funnel %s: collected=%d complaint=%d relevant=%d",
+                src,
+                per_source_collected.get(src, 0),
+                per_source_complaint.get(src, 0),
+                per_source_relevant.get(src, 0),
+            )
 
         if not relevant_complaints:
             search.status = "completed"

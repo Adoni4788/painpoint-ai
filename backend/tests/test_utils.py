@@ -128,6 +128,27 @@ class TestApplyAuthenticityCap:
         result = _apply_authenticity_cap("promotional_content", 0.15)
         assert result == 0.15
 
+    def test_github_source_skips_cap_for_guide_article(self):
+        # GitHub bug reports often look "guide-like" because of structured
+        # reproduction steps. The cap is exempted for github so we don't
+        # systematically drop them.
+        result = _apply_authenticity_cap("guide_article", 0.85, source="github")
+        assert result == 0.85
+
+    def test_stackoverflow_source_skips_cap_for_comparison(self):
+        result = _apply_authenticity_cap("comparison_post", 0.80, source="stackoverflow")
+        assert result == 0.80
+
+    def test_reddit_source_still_caps(self):
+        # Non-exempt sources still get the cap applied normally.
+        result = _apply_authenticity_cap("guide_article", 0.85, source="reddit")
+        assert result == 0.25
+
+    def test_no_source_arg_still_caps_legacy(self):
+        # Older callers that don't pass `source` still get the cap.
+        result = _apply_authenticity_cap("promotional_content", 0.9)
+        assert result == 0.15
+
 
 # ---------------------------------------------------------------------------
 # _deduplicate_posts (M5)

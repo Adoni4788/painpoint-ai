@@ -267,6 +267,29 @@ async def validate_minimal(
     try:
         keywords = await ai_service.extract_keywords_from_idea(payload.idea)
         logger.info("Validate keywords for idea '%s': %s", payload.idea[:80], keywords)
+
+        # Coherence guard: if the 3 extracted keywords describe multiple unrelated
+        # niches, OR-joining them produces low-signal cross-niche results (e.g.
+        # "meditation audio OR remote sessions OR connecting with friends" ends up
+        # mixing meditation, B2B collab, and social into one corpus). Refuse and
+        # nudge the user to focus.
+        coherence = await ai_service.assess_keyword_coherence(payload.idea, keywords)
+        if not coherence.get("coherent", True):
+            reason = coherence.get("reason") or "your idea covers multiple distinct niches"
+            focus = coherence.get("suggested_focus") or ""
+            message = (
+                f"Your idea looks like it covers more than one niche — {reason}"
+            )
+            if focus:
+                message += f" Try focusing on one and rerun, e.g. \"{focus}\"."
+            else:
+                message += " Try rephrasing to focus on a single niche and rerun."
+            logger.info(
+                "validate_minimal blocked for incoherent keywords idea='%s' kw=%s focus='%s'",
+                payload.idea[:80], keywords, focus,
+            )
+            raise HTTPException(status_code=400, detail=message)
+
         query = " OR ".join(kw[:50] for kw in keywords)
         sources = ["reddit", "hackernews", "amazon"]
 

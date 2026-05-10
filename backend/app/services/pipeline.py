@@ -47,6 +47,18 @@ IN_PROGRESS_STATUSES = frozenset(
     {"pending", "expanding", "collecting", "analyzing", "detecting", "clustering", "scoring"}
 )
 
+# Minimum number of supporting posts required for a cluster to be persisted.
+# Single-post clusters are statistical noise — they let the LLM rationalize a
+# confident-looking opportunity card from anecdotal evidence. Better to surface
+# fewer high-signal clusters than to ship hallucinated ones.
+MIN_CLUSTER_SIZE = 3
+
+# Membership confidence threshold for LLM-as-judge cluster validation.
+# Posts whose second-pass score is below this are dropped from the cluster
+# before scoring + persistence, so a tangential post can't drag down the
+# cluster's evidence quality.
+CLUSTER_MEMBERSHIP_THRESHOLD = 0.6
+
 
 def _normalize_collection_queries(original_query: str, subtopics: list[str]) -> list[str]:
     """Normalize, dedupe, and cap LLM-expanded collection queries."""
@@ -84,6 +96,80 @@ def _apply_authenticity_cap(content_type: str, authenticity_score: float) -> flo
     return authenticity_score
 
 
+# Cosine-similarity floor below which a post is treated as "obviously off-topic"
+# regardless of corpus size. Calibrated against text-embedding-3-small; keep
+# conservative so we don't over-prune small corpora.
+PREFILTER_SIM_FLOOR = 0.15
+# Even when the floor would prune most posts, never drop below this many
+# kept posts (if available) — guards against a too-aggressive filter on
+# small/exotic niches.
+PREFILTER_MIN_KEEP = 25
+
+
+async def _prefilter_by_similarity(
+    posts: list,
+    query: str,
+    niche_description: str | None,
+    hypothetical_complaints: list[str],
+    keep_n: int,
+) -> list:
+    """
+    Rank `posts` by cosine similarity to a HyDE-style anchor centroid
+    (query + niche description + hypothetical complaint posts) and return
+    the top `keep_n` whose similarity is at or above PREFILTER_SIM_FLOOR.
+
+    Fails open: on embedding errors or empty inputs, returns posts truncated
+    to keep_n in their original order — i.e. the legacy flat-cap behavior.
+    """
+    if not posts:
+        return posts
+
+    anchor_texts: list[str] = [query]
+    if niche_description:
+        anchor_texts.append(niche_description)
+    anchor_texts.extend(hypothetical_complaints or [])
+
+    post_texts = [
+        f"{(p.title or '').strip()}\n{(p.text or '').strip()}"[:1200]
+        for p in posts
+    ]
+
+    embed_inputs = anchor_texts + post_texts
+    embeddings = await ai_service.embed_texts(embed_inputs, purpose="prefilter")
+
+    if not embeddings or len(embeddings) != len(embed_inputs):
+        if len(posts) > keep_n:
+            logger.info(
+                "Pre-filter unavailable; flat-capping %d -> %d posts",
+                len(posts), keep_n,
+            )
+            return posts[:keep_n]
+        return posts
+
+    n_anchors = len(anchor_texts)
+    centroid = ai_service.average_vectors(embeddings[:n_anchors])
+    if not centroid:
+        return posts[:keep_n] if len(posts) > keep_n else posts
+
+    post_embeds = embeddings[n_anchors:]
+    similarities = [ai_service.cosine_similarity(pe, centroid) for pe in post_embeds]
+
+    ranked = sorted(range(len(posts)), key=lambda i: similarities[i], reverse=True)
+
+    above_floor = [i for i in ranked if similarities[i] >= PREFILTER_SIM_FLOOR]
+    floor_target = max(PREFILTER_MIN_KEEP, len(above_floor))
+    target = min(keep_n, floor_target, len(posts))
+    keep_indices_sorted = sorted(ranked[:target])
+
+    kept = [posts[i] for i in keep_indices_sorted]
+    logger.info(
+        "HyDE pre-filter: %d -> %d posts (anchors=%d floor=%.2f median_sim=%.3f)",
+        len(posts), len(kept), n_anchors, PREFILTER_SIM_FLOOR,
+        (sorted(similarities)[len(similarities) // 2] if similarities else 0.0),
+    )
+    return kept
+
+
 async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[str], db: AsyncSession):
     """
     Full pipeline:
@@ -109,8 +195,12 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
         subtopics = expansion.get("subtopics", [query])
         niche_keywords = expansion.get("keywords", [])
         niche_description = expansion.get("niche_description")
+        hypothetical_complaints = expansion.get("hypothetical_complaints", []) or []
 
-        logger.info("Expanded '%s' into %d subtopics", query, len(subtopics))
+        logger.info(
+            "Expanded '%s' into %d subtopics + %d HyDE anchors",
+            query, len(subtopics), len(hypothetical_complaints),
+        )
 
         # --- COLLECT ---
         search.status = "collecting"
@@ -126,14 +216,20 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
             await db.commit()
             return
 
-        # Cost guard: cap the number of posts fed to the LLM (M3)
+        # --- HyDE EMBEDDING PRE-FILTER ---
+        # Rank posts by semantic similarity to a centroid of (niche query +
+        # niche description + hypothetical complaint posts), then keep the top
+        # max_posts_per_pipeline. This both reduces LLM cost and improves
+        # cluster quality vs. the flat top-N truncation we used to do.
+        # Falls open: if embeddings fail, we revert to flat truncation.
         max_posts = settings.max_posts_per_pipeline
-        if len(all_posts) > max_posts:
-            logger.info(
-                "Capping posts from %d to %d (max_posts_per_pipeline)",
-                len(all_posts), max_posts,
-            )
-            all_posts = all_posts[:max_posts]
+        all_posts = await _prefilter_by_similarity(
+            all_posts,
+            query=query,
+            niche_description=niche_description,
+            hypothetical_complaints=hypothetical_complaints,
+            keep_n=max_posts,
+        )
 
         # --- SAVE RAW POSTS ---
         search.status = "analyzing"
@@ -278,6 +374,62 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
         # --- SCORE + SAVE ---
         search.status = "scoring"
         await db.commit()
+
+        # Cluster floor + LLM-as-judge validation:
+        # 1. Dedupe + bounds-check raw member_indices (LLM can emit dupes / OOB).
+        # 2. Pre-filter clusters that are already too small to bother validating.
+        # 3. Run a second-pass LLM that scores each member's membership
+        #    confidence; drop members below CLUSTER_MEMBERSHIP_THRESHOLD.
+        # 4. Re-apply the floor — clusters that lose too many members on
+        #    validation get dropped entirely rather than persisting on weak
+        #    evidence.
+        filtered_clusters: list[dict] = []
+        dropped_for_size = 0
+        dropped_for_validation = 0
+        members_dropped_total = 0
+
+        for cdata in cluster_data:
+            valid_indices = sorted({
+                i for i in cdata.get("member_indices", [])
+                if isinstance(i, int) and 0 <= i < len(relevant_complaints)
+            })
+            if len(valid_indices) < MIN_CLUSTER_SIZE:
+                dropped_for_size += 1
+                continue
+
+            # Second-pass: ask the LLM to grade each member's membership.
+            members = [
+                {
+                    "text": relevant_complaints[i]["text"],
+                    "source": relevant_complaints[i]["source"],
+                }
+                for i in valid_indices
+            ]
+            scores = await ai_service.validate_cluster_members(
+                cdata.get("label", ""),
+                cdata.get("summary", ""),
+                members,
+            )
+            kept_indices = [
+                idx for idx, score in zip(valid_indices, scores)
+                if score >= CLUSTER_MEMBERSHIP_THRESHOLD
+            ]
+            members_dropped_total += len(valid_indices) - len(kept_indices)
+
+            if len(kept_indices) < MIN_CLUSTER_SIZE:
+                dropped_for_validation += 1
+                continue
+
+            cdata["member_indices"] = kept_indices
+            filtered_clusters.append(cdata)
+
+        if dropped_for_size or dropped_for_validation or members_dropped_total:
+            logger.info(
+                "Cluster QA for '%s': dropped %d below floor, %d after validation, "
+                "%d members removed for low membership confidence",
+                query, dropped_for_size, dropped_for_validation, members_dropped_total,
+            )
+        cluster_data = filtered_clusters
 
         for cdata in cluster_data:
             member_indices = cdata.get("member_indices", [])

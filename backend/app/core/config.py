@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     # Optional Stack Exchange app key — without it the SE API allows 300
     # req/IP/day, with it 10K. Free to register at stackapps.com/apps/oauth/register.
     stackexchange_key: str = ""
+    # Optional GitHub personal-access token — without it search/issues allows
+    # 10 req/min/IP, with it 30 req/min. Any classic PAT or fine-grained PAT
+    # with public_repo read scope works.
+    github_token: str = ""
     cors_origins: str = "http://localhost:3000"
     sentry_dsn: str = ""
     rate_limit: str = "60/minute"

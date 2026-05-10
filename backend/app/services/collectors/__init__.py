@@ -5,6 +5,7 @@ from .g2 import G2Collector
 from .youtube import YouTubeCollector
 from .facebook import FacebookCollector
 from .stackoverflow import StackOverflowCollector
+from .github import GitHubIssuesCollector
 from .base import BaseCollector
 
 __all__ = [
@@ -15,5 +16,6 @@ __all__ = [
     "YouTubeCollector",
     "FacebookCollector",
     "StackOverflowCollector",
+    "GitHubIssuesCollector",
     "BaseCollector",
 ]

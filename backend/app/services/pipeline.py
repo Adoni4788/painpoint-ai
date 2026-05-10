@@ -21,6 +21,7 @@ from .collectors import (
     YouTubeCollector,
     FacebookCollector,
     StackOverflowCollector,
+    GitHubIssuesCollector,
 )
 from .collectors.base import CollectedPost
 from . import ai_service
@@ -37,6 +38,7 @@ COLLECTOR_MAP = {
     "youtube": YouTubeCollector,
     "facebook": FacebookCollector,
     "stackoverflow": StackOverflowCollector,
+    "github": GitHubIssuesCollector,
 }
 
 MAX_SUBTOPICS_PER_SEARCH = 8

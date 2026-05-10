@@ -110,3 +110,51 @@ class OpportunityReport(BaseModel):
     cluster: ClusterResponse
     posts: list[RawPostResponse]
     prd: Optional[PRDResponse] = None
+
+
+# ---------------------------------------------------------------------------
+# Longitudinal trend responses
+# ---------------------------------------------------------------------------
+class ClusterSnapshotPoint(BaseModel):
+    """One time-series point for a cluster: a single (niche, week, label) row."""
+    iso_year: int
+    iso_week: int
+    cluster_label: str
+    cluster_label_norm: str
+    cluster_summary: Optional[str] = None
+    complaint_count: int
+    opportunity_score: float
+    frequency_score: float
+    emotion_score: float
+    urgency_score: float
+    relevance_score: float
+    avg_authenticity: float
+    source_breakdown: dict
+    captured_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class NicheTrendResponse(BaseModel):
+    """All snapshot points for a niche, plus a list of seen cluster labels."""
+    niche: str
+    weeks_covered: int
+    cluster_labels: list[str]
+    points: list[ClusterSnapshotPoint]
+
+
+class ClusterTrendDelta(BaseModel):
+    """
+    Change-over-time summary for a cluster: latest opportunity_score vs.
+    the previous snapshot. Used for the "+47% vs last week" chip on the
+    cluster card.
+    """
+    cluster_label: str
+    cluster_label_norm: str
+    latest_iso_year: int
+    latest_iso_week: int
+    latest_opportunity_score: float
+    previous_opportunity_score: Optional[float] = None
+    opportunity_score_delta_pct: Optional[float] = None
+    weeks_observed: int
+    points: list[ClusterSnapshotPoint]

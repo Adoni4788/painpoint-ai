@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { ClusterWithQuery, listAllClusters } from "@/lib/api";
 import { RotatingTips } from "@/components/RotatingTips";
+import { TrendChip } from "@/components/TrendChip";
 import { getScoreColorClasses, getScoreTextColorClasses, getAuthenticityColorClasses } from "@/lib/scoreUtils";
 
 type SortField = "opportunity_score" | "frequency_score" | "emotion_score" | "urgency_score" | "relevance_score" | "created_at";
@@ -516,6 +517,7 @@ function ClusterCard({
             <span className={authColor}>{authPct}% auth</span>
             <span>{cluster.complaint_count} complaints</span>
             <span>{new Date(cluster.created_at).toLocaleDateString()}</span>
+            <TrendChip niche={cluster.search_query} label={cluster.label} />
           </div>
         </div>
       </div>

@@ -90,6 +90,42 @@ export interface OpportunityReport {
   prd: PRD | null;
 }
 
+export interface ClusterSnapshotPoint {
+  iso_year: number;
+  iso_week: number;
+  cluster_label: string;
+  cluster_label_norm: string;
+  cluster_summary: string | null;
+  complaint_count: number;
+  opportunity_score: number;
+  frequency_score: number;
+  emotion_score: number;
+  urgency_score: number;
+  relevance_score: number;
+  avg_authenticity: number;
+  source_breakdown: Record<string, number>;
+  captured_at: string;
+}
+
+export interface NicheTrendResponse {
+  niche: string;
+  weeks_covered: number;
+  cluster_labels: string[];
+  points: ClusterSnapshotPoint[];
+}
+
+export interface ClusterTrendDelta {
+  cluster_label: string;
+  cluster_label_norm: string;
+  latest_iso_year: number;
+  latest_iso_week: number;
+  latest_opportunity_score: number;
+  previous_opportunity_score: number | null;
+  opportunity_score_delta_pct: number | null;
+  weeks_observed: number;
+  points: ClusterSnapshotPoint[];
+}
+
 function toUserFriendlyMessage(err: unknown): string {
   if (err instanceof Error) {
     if (err.message.startsWith("API error ")) {
@@ -242,4 +278,34 @@ export async function validateMinimal(idea: string): Promise<SearchResult> {
     method: "POST",
     body: JSON.stringify({ idea }),
   });
+}
+
+// ---------------------------------------------------------------------------
+// Longitudinal pain trends
+// ---------------------------------------------------------------------------
+export async function listTrendNiches(): Promise<string[]> {
+  return fetchJSON<string[]>("/trends/niches");
+}
+
+export async function getNicheTrend(niche: string, weeks = 12): Promise<NicheTrendResponse> {
+  const q = `?weeks=${weeks}`;
+  return fetchJSON<NicheTrendResponse>(`/trends/niche/${encodeURIComponent(niche)}${q}`);
+}
+
+/**
+ * Fetch the time-series for a single (niche, cluster_label) pair. Returns
+ * null on 404 — that's the common case (most clusters won't have snapshot
+ * history yet, especially for ad-hoc user searches).
+ */
+export async function getClusterTrend(
+  niche: string,
+  label: string,
+): Promise<ClusterTrendDelta | null> {
+  const q = `?niche=${encodeURIComponent(niche)}&label=${encodeURIComponent(label)}`;
+  try {
+    return await fetchJSON<ClusterTrendDelta>(`/trends/cluster${q}`);
+  } catch (e) {
+    if (e instanceof Error && e.message.includes("404")) return null;
+    throw e;
+  }
 }

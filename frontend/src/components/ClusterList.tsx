@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { Cluster } from "@/lib/api";
 import { getScoreBarColor } from "@/lib/scoreUtils";
+import { TrendChip } from "@/components/TrendChip";
 
 interface ClusterListProps {
   clusters: Cluster[];
@@ -11,6 +12,13 @@ interface ClusterListProps {
   onSelectCluster: (cluster: Cluster) => void;
   /** Total complaints/data points for Data Coverage card */
   totalDataPoints?: number;
+  /**
+   * Optional niche resolver — given a cluster, returns the niche string used
+   * for trend lookup. Reports passes the cluster's parent search_query;
+   * Discover passes the active search's query. When null/undefined, the
+   * trend chip simply doesn't render.
+   */
+  getNiche?: (cluster: Cluster) => string | null;
 }
 
 const INITIAL_SHOW_COUNT = 6;
@@ -20,6 +28,7 @@ export function ClusterList({
   selectedClusterId,
   onSelectCluster,
   totalDataPoints = 0,
+  getNiche,
 }: ClusterListProps) {
   const [showAll, setShowAll] = useState(false);
   const [featured, ...rest] = clusters;
@@ -63,6 +72,7 @@ export function ClusterList({
             rank={1}
             isSelected={featured.id === selectedClusterId}
             onClick={() => onSelectCluster(featured)}
+            niche={getNiche?.(featured) ?? null}
           />
         )}
 
@@ -74,6 +84,7 @@ export function ClusterList({
               rank={idx + 2}
               isSelected={cluster.id === selectedClusterId}
               onClick={() => onSelectCluster(cluster)}
+              niche={getNiche?.(cluster) ?? null}
             />
           ))}
         </div>
@@ -98,11 +109,13 @@ function FeaturedClusterCard({
   rank,
   isSelected,
   onClick,
+  niche,
 }: {
   cluster: Cluster;
   rank: number;
   isSelected: boolean;
   onClick: () => void;
+  niche: string | null;
 }) {
   return (
     <button
@@ -136,6 +149,7 @@ function FeaturedClusterCard({
               {cluster.complaint_count} complaints
             </span>
             <AuthenticityBar value={cluster.avg_authenticity} />
+            <TrendChip niche={niche} label={cluster.label} />
           </div>
         </div>
         <div className="flex shrink-0 flex-row items-center justify-between gap-3 md:flex-col md:items-end">
@@ -162,11 +176,13 @@ function ClusterCard({
   rank,
   isSelected,
   onClick,
+  niche,
 }: {
   cluster: Cluster;
   rank: number;
   isSelected: boolean;
   onClick: () => void;
+  niche: string | null;
 }) {
   return (
     <button
@@ -198,6 +214,7 @@ function ClusterCard({
               {cluster.complaint_count} complaints
             </span>
             <AuthenticityBar value={cluster.avg_authenticity} />
+            <TrendChip niche={niche} label={cluster.label} compact />
           </div>
         </div>
         <div className="shrink-0 font-heading text-xl font-semibold text-[#8b5cf6] dark:text-[#9f7aea]">

@@ -293,6 +293,7 @@ function DiscoverPageContent() {
                   selectedClusterId={selectedReport?.cluster.id ?? null}
                   onSelectCluster={handleSelectCluster}
                   totalDataPoints={activeSearch?.total_relevant_complaints ?? activeSearch?.total_complaints_found ?? 0}
+                  getNiche={() => activeSearch?.query ?? null}
                 />
               ) : activeSearch?.status === "completed" && clusters.length === 0 ? (
                 <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">

@@ -11,6 +11,7 @@ import { ClusterList } from "@/components/ClusterList";
 import { ReportPanel } from "@/components/ReportPanel";
 import { StatusBanner } from "@/components/StatusBanner";
 import {
+  ApiError,
   SearchResult,
   Cluster,
   OpportunityReport,
@@ -163,8 +164,8 @@ function DiscoverPageContent() {
       refreshSearches();
     } catch (e: unknown) {
       // 402 = free tier limit reached — show upgrade modal
-      const message = e instanceof Error ? e.message : "";
-      if (message.includes("402")) {
+      const status = e instanceof ApiError ? e.status : null;
+      if (status === 402) {
         setShowUpgradeModal(true);
       } else {
         console.error("Search failed:", e);

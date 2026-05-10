@@ -127,29 +127,74 @@ export interface ClusterTrendDelta {
 }
 
 function toUserFriendlyMessage(err: unknown): string {
+  // ApiError already carries a friendly message (built by makeApiError).
+  if (err instanceof Error && err.name === "ApiError" && err.message) {
+    return err.message;
+  }
   if (err instanceof Error) {
-    if (err.message.startsWith("API error ")) {
-      const match = err.message.match(/API error (\d+): (.+)/);
-      if (match) {
-        const [, status, body] = match;
-        const statusNum = parseInt(status, 10);
-        if (statusNum === 429) return "You've hit the rate limit. Please wait a moment before trying again.";
-        if (statusNum === 500) return "Something went wrong on our end. Please try again.";
-        if (statusNum === 502 || statusNum === 503) return "The service is starting up or temporarily unavailable. Please try again in a minute.";
-        if (statusNum >= 400 && statusNum < 500) {
-          try {
-            const parsed = JSON.parse(body);
-            if (parsed.detail) return typeof parsed.detail === "string" ? parsed.detail : "Invalid request.";
-          } catch {
-            return body.length < 80 ? body : "Invalid request.";
-          }
-        }
-      }
-    }
     if (err.name === "AbortError") return "The request timed out. The service may be starting—please try again.";
     if (err instanceof TypeError && err.message.includes("fetch")) return "Unable to connect. Check your connection and try again.";
   }
   return "Something went wrong. Please try again.";
+}
+
+/**
+ * Error thrown by fetchJSON for any non-2xx response. Carries the HTTP
+ * status so callers can branch on it (e.g. 402 → upgrade modal) without
+ * fragile substring matching on the message. Message is the user-friendly
+ * detail when the backend returned a JSON body with a `detail` string,
+ * falling back to the rate-limit friendly message for 429, and finally to
+ * the raw "API error N: ..." form when no detail is available.
+ */
+export class ApiError extends Error {
+  status: number;
+  rawBody: string;
+  constructor(status: number, message: string, rawBody: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.rawBody = rawBody;
+  }
+}
+
+function makeApiError(status: number, body: string): ApiError {
+  // Special-case the well-known statuses with hard-coded friendly messages.
+  if (status === 429) {
+    return new ApiError(
+      status,
+      "You've hit the rate limit. Please wait a moment before trying again.",
+      body,
+    );
+  }
+  if (status === 500) {
+    return new ApiError(
+      status,
+      "Something went wrong on our end. Please try again.",
+      body,
+    );
+  }
+  if (status === 502 || status === 503) {
+    return new ApiError(
+      status,
+      "The service is starting up or temporarily unavailable. Please try again in a minute.",
+      body,
+    );
+  }
+  // For any other 4xx, prefer FastAPI's {"detail": "..."} envelope.
+  if (status >= 400 && status < 500) {
+    try {
+      const parsed = JSON.parse(body);
+      if (typeof parsed?.detail === "string" && parsed.detail.length > 0) {
+        return new ApiError(status, parsed.detail, body);
+      }
+    } catch {
+      // not JSON — fall through
+    }
+    if (body && body.length > 0 && body.length < 200) {
+      return new ApiError(status, body, body);
+    }
+  }
+  return new ApiError(status, `API error ${status}: ${body}`, body);
 }
 
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
@@ -180,17 +225,15 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
       // Retry only idempotent reads. Retrying POST/PATCH/DELETE can duplicate
       // paid searches, PRD generations, workspace writes, or deletes.
       if (retryable && (res.status === 502 || res.status === 503) && attempt < maxAttempts) {
-        lastError = new Error(`API error ${res.status}: ${await res.text()}`);
+        lastError = makeApiError(res.status, await res.text());
         await new Promise((r) => setTimeout(r, attempt === 1 ? 8000 : 5000));
         continue;
       }
 
       if (!res.ok) {
         const text = await res.text();
-        const err = new Error(`API error ${res.status}: ${text}`);
-        // For 429 throw friendly message immediately — retrying would make it worse
-        if (res.status === 429) throw new Error(toUserFriendlyMessage(err));
-        throw err;
+        const apiErr = makeApiError(res.status, text);
+        throw apiErr;
       }
       return res.json();
     } catch (err) {
@@ -308,7 +351,7 @@ export async function getClusterTrend(
   try {
     return await fetchJSON<ClusterTrendDelta>(`/trends/cluster${q}`);
   } catch (e) {
-    if (e instanceof Error && e.message.includes("404")) return null;
+    if (e instanceof ApiError && e.status === 404) return null;
     throw e;
   }
 }

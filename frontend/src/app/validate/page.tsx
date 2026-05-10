@@ -8,7 +8,7 @@ import { AppShell } from "@/components/AppShell";
 import { FocusTrap } from "@/components/FocusTrap";
 import { RotatingTips } from "@/components/RotatingTips";
 import { SOURCES } from "@/lib/sources";
-import { validateMinimal } from "@/lib/api";
+import { ApiError, validateMinimal } from "@/lib/api";
 import { captureEvent } from "@/lib/analytics";
 import { UpgradeModal } from "@/components/UpgradeModal";
 
@@ -107,10 +107,11 @@ export default function ValidatePage() {
       setShowFeedbackModal(true);
     } catch (e: unknown) {
       // 402 = free tier limit reached — show upgrade modal
-      const message = e instanceof Error ? e.message : "";
-      if (message.includes("402")) {
+      const status = e instanceof ApiError ? e.status : null;
+      if (status === 402) {
         setShowUpgradeModal(true);
       } else {
+        const message = e instanceof Error ? e.message : "";
         setError(message || "Validation failed");
       }
     } finally {

@@ -4,7 +4,7 @@ from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import or_, select, func
 from sqlalchemy.orm import selectinload
 
 from ..core.database import get_db
@@ -48,7 +48,7 @@ async def _get_search_or_403(
     search = await db.get(Search, search_id)
     if not search:
         raise HTTPException(status_code=404, detail="Search not found")
-    if current_user is not None and search.user_id is not None and search.user_id != current_user.id:
+    if current_user is not None and search.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
     return search
 
@@ -64,7 +64,7 @@ async def _get_cluster_or_403(
         raise HTTPException(status_code=404, detail="Cluster not found")
     if current_user is not None:
         search = await db.get(Search, cluster.search_id)
-        if search and search.user_id is not None and search.user_id != current_user.id:
+        if search is None or search.user_id != current_user.id:
             raise HTTPException(status_code=403, detail="Not authorized")
     return cluster
 
@@ -122,7 +122,10 @@ async def _check_search_limit(
     if getattr(current_user, "_is_pro", False):
         return
 
-    # Count searches this calendar month
+    # Count billable completed searches plus in-flight searches this calendar
+    # month. Failed/zero-result completed searches stay non-billable, but
+    # in-flight searches reserve quota so parallel requests cannot bypass the
+    # free-tier limit before any pipeline finishes.
     # Use naive UTC datetime to match the DB column (TIMESTAMP WITHOUT TIME ZONE)
     now = utcnow()
     first_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -130,6 +133,12 @@ async def _check_search_limit(
         select(func.count(Search.id))
         .where(Search.user_id == current_user.id)
         .where(Search.created_at >= first_of_month)
+        .where(
+            or_(
+                Search.is_quota_billable == True,  # noqa: E712
+                Search.status.in_(IN_PROGRESS_STATUSES),
+            )
+        )
     )
     count = result.scalar() or 0
 
@@ -359,12 +368,14 @@ async def _run_pipeline_with_session(search_id: UUID, query: str, sources: list[
             search = await db.get(Search, search_id)
             if search:
                 search.status = "failed"
+                search.is_quota_billable = False
                 await db.commit()
         except Exception as e:
             logger.error("Background pipeline error for search %s: %s", search_id, e)
             search = await db.get(Search, search_id)
             if search:
                 search.status = "failed"
+                search.is_quota_billable = False
                 await db.commit()
 
 

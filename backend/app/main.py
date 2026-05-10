@@ -59,6 +59,38 @@ if settings.sentry_dsn:
 # ---------------------------------------------------------------------------
 # Lifespan
 # ---------------------------------------------------------------------------
+async def _mark_stale_searches_failed() -> None:
+    """
+    Render can restart a worker while FastAPI BackgroundTasks are mid-pipeline.
+    Mark old in-flight searches failed on boot so they do not reserve quota or
+    sit forever as "scoring"/"collecting" in the UI.
+    """
+    from datetime import timedelta
+
+    from sqlalchemy import update
+
+    from .core.database import async_session
+    from .core.utils import utcnow
+    from .models.search import Search
+    from .services.pipeline import IN_PROGRESS_STATUSES
+
+    cutoff = utcnow() - timedelta(seconds=settings.pipeline_timeout_seconds + 120)
+    async with async_session() as db:
+        result = await db.execute(
+            update(Search)
+            .where(Search.status.in_(IN_PROGRESS_STATUSES))
+            .where(Search.created_at < cutoff)
+            .values(
+                status="failed",
+                is_quota_billable=False,
+                completed_at=utcnow(),
+            )
+        )
+        await db.commit()
+        if result.rowcount:
+            logger.warning("Marked %d stale in-progress search(es) as failed", result.rowcount)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting PainPoint AI backend...")
@@ -73,6 +105,7 @@ async def lifespan(app: FastAPI):
         )
     await init_db()
     logger.info("Database initialized")
+    await _mark_stale_searches_failed()
     yield
     logger.info("Shutting down PainPoint AI backend...")
 

@@ -68,6 +68,13 @@ SOURCES = ["reddit", "hackernews", "amazon"]
 LOOPS_API = "https://app.loops.so/api/v1"
 
 
+def _mask_email(email: str) -> str:
+    local, sep, domain = (email or "").partition("@")
+    if not sep:
+        return ""
+    return f"{local[:1]}***@{domain}"
+
+
 def _pick_niches_for_week(iso_week: int, count: int = 3) -> list[str]:
     """
     Deterministically pick `count` niches for the given ISO week number.
@@ -228,10 +235,14 @@ async def _send_digest_email(
         )
         if resp.status_code == 200:
             return True
-        logger.warning("Loops send failed for %s: %s %s", email, resp.status_code, resp.text)
+        logger.warning(
+            "Loops send failed for %s: status=%s",
+            _mask_email(email),
+            resp.status_code,
+        )
         return False
     except Exception as e:
-        logger.error("Loops send exception for %s: %s", email, e)
+        logger.error("Loops send exception for %s: %s", _mask_email(email), e)
         return False
 
 
@@ -309,7 +320,7 @@ async def send_digest(
 
     # --- Fetch subscribers (or use test email) ---
     if test_email:
-        logger.info("TEST MODE — sending only to: %s", test_email)
+        logger.info("TEST MODE - sending only to: %s", _mask_email(test_email))
         subscribers = [test_email]
     else:
         logger.info("Fetching digest subscribers from database...")

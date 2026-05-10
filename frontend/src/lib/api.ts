@@ -153,7 +153,9 @@ function toUserFriendlyMessage(err: unknown): string {
 }
 
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
-  const maxAttempts = 5;
+  const method = (options?.method ?? "GET").toUpperCase();
+  const retryable = method === "GET" || method === "HEAD";
+  const maxAttempts = retryable ? 5 : 1;
   let lastError: unknown = null;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -175,8 +177,9 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
       });
       clearTimeout(timer);
 
-      // Retry on 502/503 (backend cold start on Render free tier)
-      if ((res.status === 502 || res.status === 503) && attempt < maxAttempts) {
+      // Retry only idempotent reads. Retrying POST/PATCH/DELETE can duplicate
+      // paid searches, PRD generations, workspace writes, or deletes.
+      if (retryable && (res.status === 502 || res.status === 503) && attempt < maxAttempts) {
         lastError = new Error(`API error ${res.status}: ${await res.text()}`);
         await new Promise((r) => setTimeout(r, attempt === 1 ? 8000 : 5000));
         continue;
@@ -194,10 +197,10 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
       clearTimeout(timer);
       lastError = err;
 
-      if (attempt < maxAttempts && err instanceof DOMException && err.name === "AbortError") {
+      if (retryable && attempt < maxAttempts && err instanceof DOMException && err.name === "AbortError") {
         continue;
       }
-      if (attempt < maxAttempts && err instanceof TypeError) {
+      if (retryable && attempt < maxAttempts && err instanceof TypeError) {
         // Network error (fetch failed) — wait briefly then retry
         await new Promise((r) => setTimeout(r, 2000));
         continue;

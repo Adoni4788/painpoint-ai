@@ -50,12 +50,9 @@ async def snapshot_clusters_for_niche(
     """
     Persist a ClusterSnapshot row for every PainCluster on the given Search.
 
-    Returns the number of snapshots written. Idempotency is *not* enforced
-    here — calling twice for the same (niche, week, search_id) writes
-    duplicate rows. The cron callsite controls cadence (once per Friday)
-    so duplicates only happen on operator retries, which we want preserved
-    for audit. If we later need de-dup, add a unique constraint on
-    (niche, iso_year, iso_week, cluster_label_norm, search_id).
+    Returns the number of snapshots upserted. The database enforces one row
+    per (niche, ISO week, normalized cluster label), so operator retries update
+    the current weekly point instead of duplicating trend history.
     """
     if snapshot_date is None:
         snapshot_date = utcnow().date()
@@ -73,31 +70,45 @@ async def snapshot_clusters_for_niche(
         return 0
 
     written = 0
+    safe_niche = niche.strip()[:500] or "unknown"
     for c in clusters:
-        snapshot = ClusterSnapshot(
-            niche=niche.strip()[:500] or "unknown",
-            iso_year=int(iso_year),
-            iso_week=int(iso_week),
-            cluster_label=(c.label or "")[:300],
-            cluster_label_norm=normalize_cluster_label(c.label or "")[:300],
-            cluster_summary=c.summary,
-            complaint_count=c.complaint_count or 0,
-            opportunity_score=float(c.opportunity_score or 0.0),
-            frequency_score=float(c.frequency_score or 0.0),
-            emotion_score=float(c.emotion_score or 0.0),
-            urgency_score=float(c.urgency_score or 0.0),
-            relevance_score=float(c.relevance_score or 0.0),
-            avg_authenticity=float(c.avg_authenticity or 0.5),
-            source_breakdown=dict(c.source_breakdown or {}),
-            top_complaints=[t[:300] for t in (c.top_complaints or [])][:5],
-            search_id=search_id,
+        label_norm = normalize_cluster_label(c.label or "")[:300] or "unknown"
+        existing = await db.execute(
+            select(ClusterSnapshot).where(
+                ClusterSnapshot.niche == safe_niche,
+                ClusterSnapshot.iso_year == int(iso_year),
+                ClusterSnapshot.iso_week == int(iso_week),
+                ClusterSnapshot.cluster_label_norm == label_norm,
+            )
         )
-        db.add(snapshot)
+        snapshot = existing.scalar_one_or_none()
+        if snapshot is None:
+            snapshot = ClusterSnapshot(
+                niche=safe_niche,
+                iso_year=int(iso_year),
+                iso_week=int(iso_week),
+                cluster_label_norm=label_norm,
+            )
+            db.add(snapshot)
+
+        snapshot.cluster_label = (c.label or "")[:300]
+        snapshot.cluster_summary = c.summary
+        snapshot.complaint_count = c.complaint_count or 0
+        snapshot.opportunity_score = float(c.opportunity_score or 0.0)
+        snapshot.frequency_score = float(c.frequency_score or 0.0)
+        snapshot.emotion_score = float(c.emotion_score or 0.0)
+        snapshot.urgency_score = float(c.urgency_score or 0.0)
+        snapshot.relevance_score = float(c.relevance_score or 0.0)
+        snapshot.avg_authenticity = float(c.avg_authenticity or 0.5)
+        snapshot.source_breakdown = dict(c.source_breakdown or {})
+        snapshot.top_complaints = [t[:300] for t in (c.top_complaints or [])][:5]
+        snapshot.search_id = search_id
+        snapshot.created_at = utcnow()
         written += 1
 
     await db.flush()
     logger.info(
-        "Wrote %d cluster snapshot(s) for niche=%r week=%d-W%02d search_id=%s",
+        "Upserted %d cluster snapshot(s) for niche=%r week=%d-W%02d search_id=%s",
         written, niche, iso_year, iso_week, search_id,
     )
     return written

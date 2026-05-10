@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import String, Text, DateTime, Float, Integer, ForeignKey, JSON, Index
+from sqlalchemy import String, Text, DateTime, Float, Integer, ForeignKey, JSON, Index, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
 from ..core.database import Base
@@ -63,6 +63,9 @@ class Search(Base):
     total_posts_fetched: Mapped[int] = mapped_column(Integer, default=0)
     total_complaints_found: Mapped[int] = mapped_column(Integer, default=0)
     total_relevant_complaints: Mapped[int] = mapped_column(Integer, default=0)
+    # Counts against the user's free-tier quota only after the pipeline
+    # produces at least one persisted opportunity cluster.
+    is_quota_billable: Mapped[bool] = mapped_column(default=False, nullable=False, index=True)
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[str] = mapped_column(DateTime, default=utcnow)
     completed_at: Mapped[str] = mapped_column(DateTime, nullable=True)
@@ -205,6 +208,10 @@ class ClusterSnapshot(Base):
     created_at: Mapped[str] = mapped_column(DateTime, default=utcnow)
 
     __table_args__ = (
+        UniqueConstraint(
+            "niche", "iso_year", "iso_week", "cluster_label_norm",
+            name="uq_cluster_snapshots_niche_week_label",
+        ),
         Index(
             "ix_cluster_snapshots_niche_week",
             "niche", "iso_year", "iso_week",

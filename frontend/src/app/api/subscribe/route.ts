@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const LOOPS_API_URL = "https://app.loops.so/api/v1/contacts/create";
+const BACKEND_API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
 
 export async function POST(request: Request) {
   try {
@@ -23,37 +23,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const apiKey = process.env.LOOPS_API_KEY;
-    if (!apiKey) {
-      console.error("LOOPS_API_KEY is not configured");
-      return NextResponse.json(
-        { error: "Newsletter signup is temporarily unavailable" },
-        { status: 503 }
-      );
-    }
-
-    const res = await fetch(LOOPS_API_URL, {
+    const res = await fetch(`${BACKEND_API_BASE}/api/digest/subscribe?email=${encodeURIComponent(email)}`, {
       method: "POST",
       headers: {
-        Authorization: `ApiKey ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        email,
-        source: "GapLens Landing Page",
-      }),
     });
 
-    const data = (await res.json()) as { success?: boolean; id?: string; message?: string };
-
     if (!res.ok) {
-      // 409 = contact already exists — treat as success (they're already subscribed)
-      if (res.status === 409) {
-        return NextResponse.json({ success: true });
-      }
-      console.error("Loops API error:", res.status, data);
+      const data = (await res.json().catch(() => ({}))) as { detail?: string; error?: string };
+      console.error("Digest subscribe proxy error:", res.status, data?.detail ?? data?.error ?? "unknown");
       return NextResponse.json(
-        { error: data?.message ?? "Failed to subscribe" },
+        { error: data?.detail ?? data?.error ?? "Failed to subscribe" },
         { status: res.status >= 500 ? 503 : 400 }
       );
     }

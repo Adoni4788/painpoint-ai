@@ -305,6 +305,7 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
 
         if not all_posts:
             search.status = "completed"
+            search.is_quota_billable = False
             search.completed_at = utcnow()
             await db.commit()
             return
@@ -500,6 +501,7 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
 
         if not relevant_complaints:
             search.status = "completed"
+            search.is_quota_billable = False
             search.completed_at = utcnow()
             await db.commit()
             return
@@ -558,6 +560,10 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
                 cdata.get("summary", ""),
                 members,
             )
+            if scores is None:
+                dropped_for_validation += 1
+                continue
+
             kept_indices = [
                 idx for idx, score in zip(valid_indices, scores)
                 if score >= CLUSTER_MEMBERSHIP_THRESHOLD
@@ -643,6 +649,7 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
         search.summary = await ai_service.generate_search_summary(query, cluster_summaries)
 
         search.status = "completed"
+        search.is_quota_billable = len(cluster_data) > 0
         search.completed_at = utcnow()
         await db.commit()
 
@@ -665,6 +672,7 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
         search = await db.get(Search, search_id)
         if search:
             search.status = "failed"
+            search.is_quota_billable = False
             await db.commit()
 
 

@@ -2,9 +2,9 @@
 Public API for longitudinal cluster snapshots.
 
 Reads the cluster_snapshots table written by the weekly digest cron.
-The endpoints are intentionally open to all authenticated users (or
-anonymous in dev mode) — the data is aggregated niche-level signal, not
-user-specific.
+These endpoints are Pro-gated in production because the aggregated trend
+history is a paid dataset. Anonymous access is only allowed when backend auth
+is disabled for local development.
 
 Endpoints:
 - GET /api/trends/niches            — list niches with at least one snapshot
@@ -35,10 +35,21 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+async def require_pro_user(
+    current_user: Optional[User] = Depends(get_current_user),
+) -> Optional[User]:
+    """Require Pro in production; preserve anonymous local dev mode."""
+    if current_user is None:
+        return None
+    if not getattr(current_user, "_is_pro", False):
+        raise HTTPException(status_code=403, detail="Pro plan required")
+    return current_user
+
+
 @router.get("/trends/niches", response_model=list[str])
 async def list_niches_with_trends(
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: Optional[User] = Depends(require_pro_user),
 ):
     """List every niche that has at least one snapshot point."""
     result = await db.execute(
@@ -52,7 +63,7 @@ async def get_niche_trend(
     niche: str,
     weeks: int = Query(default=12, ge=1, le=104),
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: Optional[User] = Depends(require_pro_user),
 ):
     """
     Full time-series for a niche, ordered oldest -> newest. Includes the
@@ -141,7 +152,7 @@ async def get_cluster_trend(
     niche: str = Query(..., min_length=1, max_length=500),
     label: str = Query(..., min_length=1, max_length=300),
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: Optional[User] = Depends(require_pro_user),
 ):
     """
     Time-series for one (niche, cluster_label) pair. Joins by normalized

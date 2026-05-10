@@ -38,6 +38,13 @@ _jwks_cache: TTLCache = TTLCache(maxsize=1, ttl=3600)
 _pro_cache: TTLCache = TTLCache(maxsize=256, ttl=90)
 
 
+def _mask_email(email: str) -> str:
+    local, sep, domain = (email or "").partition("@")
+    if not sep:
+        return ""
+    return f"{local[:1]}***@{domain}"
+
+
 async def _check_pro_via_api(clerk_id: str) -> bool:
     """Check Clerk API for public_metadata.pro — cached 90 seconds."""
     if not clerk_id or not settings.clerk_secret_key:
@@ -162,7 +169,11 @@ async def get_current_user(
         db.add(user)
         await db.commit()
         await db.refresh(user)
-        logger.info("Auto-created new user clerk_id=%s email=%s", clerk_id, email)
+        logger.info(
+            "Auto-created new user clerk_id_suffix=%s email=%s",
+            clerk_id[-6:],
+            _mask_email(email),
+        )
 
     # Attach Pro status — check JWT claims first, fall back to Clerk API.
     # Clerk includes public_metadata in session tokens only if you customise

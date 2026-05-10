@@ -139,3 +139,5 @@ See [scripts/README.md](scripts/README.md) for running cost-per-search experimen
 ## Deployment
 
 See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for deploying to Render (backend, frontend, PostgreSQL).
+
+For recent UI and workflow context, also review [docs/HANDOFF_OVERVIEW.md](docs/HANDOFF_OVERVIEW.md).

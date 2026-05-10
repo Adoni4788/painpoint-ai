@@ -1,8 +1,15 @@
 import httpx
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from .base import BaseCollector, CollectedPost
 from ...core.config import get_settings
+
+
+def _utc_from_ts(ts: float | int | None) -> datetime | None:
+    """Convert a unix timestamp to a naive UTC datetime (matches DB column type)."""
+    if not ts:
+        return None
+    return datetime.fromtimestamp(ts, tz=timezone.utc).replace(tzinfo=None)
 
 logger = logging.getLogger(__name__)
 
@@ -62,16 +69,14 @@ class FacebookCollector(BaseCollector):
 
                             posts.append(
                                 CollectedPost(
-                                    source="facebook",
+                                    # This collector is a Reddit proxy for Facebook-adjacent discussions.
+                                    # Keep provenance truthful so source coverage is not overstated.
+                                    source="reddit",
                                     title=title,
                                     text=text[:2000],
                                     author=pd.get("author"),
                                     url=f"https://reddit.com{pd.get('permalink', '')}",
-                                    timestamp=(
-                                        datetime.utcfromtimestamp(pd.get("created_utc", 0))
-                                        if pd.get("created_utc")
-                                        else None
-                                    ),
+                                    timestamp=_utc_from_ts(pd.get("created_utc")),
                                 )
                             )
 

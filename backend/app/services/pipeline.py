@@ -30,6 +30,10 @@ COLLECTOR_MAP = {
     "facebook": FacebookCollector,
 }
 
+MAX_SUBTOPICS_PER_SEARCH = 8
+MAX_COLLECTION_TASKS = 32
+MAX_COLLECTION_QUERY_CHARS = 160
+
 # Rule-based authenticity caps by content type.
 # Even if the LLM overscores a promotional post, these caps enforce hard limits.
 AUTHENTICITY_CAPS = {
@@ -42,6 +46,30 @@ AUTHENTICITY_CAPS = {
 IN_PROGRESS_STATUSES = frozenset(
     {"pending", "expanding", "collecting", "analyzing", "detecting", "clustering", "scoring"}
 )
+
+
+def _normalize_collection_queries(original_query: str, subtopics: list[str]) -> list[str]:
+    """Normalize, dedupe, and cap LLM-expanded collection queries."""
+    candidates = [original_query, *subtopics]
+    normalized: list[str] = []
+    seen: set[str] = set()
+
+    for candidate in candidates:
+        if not isinstance(candidate, str):
+            continue
+        query = re.sub(r"\s+", " ", candidate).strip()
+        if not query:
+            continue
+        query = query[:MAX_COLLECTION_QUERY_CHARS]
+        key = query.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        normalized.append(query)
+        if len(normalized) >= MAX_SUBTOPICS_PER_SEARCH + 1:
+            break
+
+    return normalized or [original_query[:MAX_COLLECTION_QUERY_CHARS]]
 
 
 def _apply_authenticity_cap(content_type: str, authenticity_score: float) -> float:
@@ -134,7 +162,15 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
         search.status = "detecting"
         await db.commit()
 
-        texts_for_analysis = [{"text": p.text} for p in all_posts]
+        texts_for_analysis = [
+            {
+                "text": p.text,
+                "source": p.source,
+                "title": p.title or "",
+                "url": p.url or "",
+            }
+            for p in all_posts
+        ]
         analysis_results = await ai_service.detect_complaints_and_relevance(
             query,
             texts_for_analysis,
@@ -229,7 +265,14 @@ async def run_search_pipeline(search_id: uuid.UUID, query: str, sources: list[st
         await db.commit()
 
         cluster_data = await ai_service.cluster_complaints(
-            query, [{"text": c["text"]} for c in relevant_complaints]
+            query,
+            [
+                {
+                    "text": c["text"],
+                    "source": c["source"],
+                }
+                for c in relevant_complaints
+            ],
         )
 
         # --- SCORE + SAVE ---
@@ -384,14 +427,25 @@ async def _collect_from_sources_expanded(
     Collect from sources using expanded subtopic queries with controlled concurrency.
     Runs at most 4 collection tasks in parallel.
     """
-    all_queries = [original_query] + [s for s in subtopics if s != original_query]
+    allowed_sources = [source for source in sources if source in COLLECTOR_MAP]
+    if not allowed_sources:
+        return []
+
+    all_queries = _normalize_collection_queries(original_query, subtopics)
+    max_queries_for_sources = max(1, MAX_COLLECTION_TASKS // len(allowed_sources))
+    if len(all_queries) > max_queries_for_sources:
+        logger.info(
+            "Capping collection queries from %d to %d for %d sources",
+            len(all_queries), max_queries_for_sources, len(allowed_sources),
+        )
+        all_queries = all_queries[:max_queries_for_sources]
+
     per_query_limit = max(8, 40 // len(all_queries))
 
     task_specs: list[tuple[str, str]] = []
     for search_query in all_queries:
-        for source in sources:
-            if source in COLLECTOR_MAP:
-                task_specs.append((search_query, source))
+        for source in allowed_sources:
+            task_specs.append((search_query, source))
 
     if not task_specs:
         return []

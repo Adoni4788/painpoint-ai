@@ -4,7 +4,6 @@ from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime, timezone
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 
@@ -12,6 +11,7 @@ from ..core.database import get_db
 from ..core.config import get_settings
 from ..core.limiter import limiter
 from ..core.auth import get_current_user
+from ..core.utils import utcnow
 from ..models.search import Workspace, Search, RawPost, PainCluster, PRDDraft, User
 from ..schemas.search import (
     WorkspaceCreate, WorkspaceUpdate, WorkspaceResponse,
@@ -30,6 +30,13 @@ settings = get_settings()
 
 # ---------------------------------------------------------------------------
 # Ownership verification helpers
+#
+# In production, get_current_user() either returns a User or raises 401, so
+# `current_user is None` only happens when CLERK_ISSUER_URL is unset (dev mode).
+# Each helper below short-circuits ownership checks in that case so the
+# unauthenticated dev workflow keeps functioning. The lifespan check in
+# main.py refuses to start a "production" environment without CLERK_ISSUER_URL,
+# so the dev-mode branches are not reachable in real deployments.
 # ---------------------------------------------------------------------------
 
 async def _get_search_or_403(
@@ -84,6 +91,19 @@ async def _get_workspace_or_403(
 # For simplicity we count searches per calendar month in the DB.
 # ---------------------------------------------------------------------------
 FREE_MONTHLY_SEARCH_LIMIT = 3
+_search_create_locks: dict[str, asyncio.Lock] = {}
+
+
+def _search_limit_key(current_user: "User | None") -> str:
+    return f"user:{current_user.id}" if current_user is not None else "anonymous"
+
+
+def _get_search_create_lock(key: str) -> asyncio.Lock:
+    lock = _search_create_locks.get(key)
+    if lock is None:
+        lock = asyncio.Lock()
+        _search_create_locks[key] = lock
+    return lock
 
 
 async def _check_search_limit(
@@ -92,7 +112,10 @@ async def _check_search_limit(
 ) -> None:
     """Raise 402 if a free-tier user has hit their monthly search limit."""
     if current_user is None:
-        return  # dev mode � no limits
+        # Dev mode only: get_current_user() never returns None when
+        # CLERK_ISSUER_URL is set, and main.py refuses to start "production"
+        # without it. So this branch is unreachable in real deployments.
+        return
 
     # Pro status is attached to the user object by get_current_user()
     # from the Clerk JWT public_metadata.pro claim.
@@ -101,7 +124,7 @@ async def _check_search_limit(
 
     # Count searches this calendar month
     # Use naive UTC datetime to match the DB column (TIMESTAMP WITHOUT TIME ZONE)
-    now = datetime.utcnow()
+    now = utcnow()
     first_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     result = await db.execute(
         select(func.count(Search.id))
@@ -118,6 +141,35 @@ async def _check_search_limit(
                 "Upgrade to Pro for unlimited searches."
             ),
         )
+
+
+async def _create_search_after_limit_check(
+    db: AsyncSession,
+    current_user: "User | None",
+    *,
+    query: str,
+    sources: list[str],
+    workspace_id: UUID | None = None,
+) -> Search:
+    """
+    Check quota and create the Search under the same per-user process lock.
+
+    This closes the common single-instance race where a free user fires
+    multiple requests at once. A DB-backed counter is still the stronger
+    cross-instance option if the service is scaled horizontally.
+    """
+    async with _get_search_create_lock(_search_limit_key(current_user)):
+        await _check_search_limit(db, current_user)
+        search = Search(
+            query=query,
+            sources=sources,
+            workspace_id=workspace_id,
+            user_id=current_user.id if current_user else None,
+        )
+        db.add(search)
+        await db.commit()
+        await db.refresh(search)
+        return search
 
 # ---------------------------------------------------------------------------
 # Workspaces
@@ -213,21 +265,18 @@ async def validate_minimal(
 ):
     """Minimal Validate flow: idea → 3 keywords → OR query → existing pipeline."""
     try:
-        await _check_search_limit(db, current_user)
         keywords = await ai_service.extract_keywords_from_idea(payload.idea)
         logger.info("Validate keywords for idea '%s': %s", payload.idea[:80], keywords)
         query = " OR ".join(kw[:50] for kw in keywords)
         sources = ["reddit", "hackernews", "amazon"]
 
-        search = Search(
+        search = await _create_search_after_limit_check(
+            db,
+            current_user,
             query=query,
             sources=sources,
             workspace_id=None,
-            user_id=current_user.id if current_user else None,
         )
-        db.add(search)
-        await db.commit()
-        await db.refresh(search)
 
         background_tasks.add_task(_run_pipeline_with_session, search.id, query, sources)
         return search
@@ -252,19 +301,19 @@ async def create_search(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Start a new pain point search."""
-    await _check_search_limit(db, current_user)
     valid_sources = {"reddit", "hackernews", "amazon", "g2", "youtube", "facebook"}
     sources = [s for s in payload.sources if s in valid_sources] or ["reddit", "hackernews", "amazon"]
 
-    search = Search(
+    if payload.workspace_id is not None:
+        await _get_workspace_or_403(payload.workspace_id, db, current_user)
+
+    search = await _create_search_after_limit_check(
+        db,
+        current_user,
         query=payload.query,
         sources=sources,
         workspace_id=payload.workspace_id,
-        user_id=current_user.id if current_user else None,
     )
-    db.add(search)
-    await db.commit()
-    await db.refresh(search)
 
     background_tasks.add_task(_run_pipeline_with_session, search.id, payload.query, sources)
     return search

@@ -159,6 +159,70 @@ class DigestSubscriber(Base):
         return f"<DigestSubscriber email={self.email!r} subscribed={self.subscribed}>"
 
 
+class ClusterSnapshot(Base):
+    """
+    Time-series snapshot of a pain cluster, captured weekly by the digest cron.
+
+    Each row is a single (niche × ISO week × cluster_label) point. Stacking
+    rows over weeks gives us the longitudinal pain dataset competitors can't
+    replicate without their own multi-month history. Use cluster_label_norm
+    for joining the same pain across weeks despite minor LLM label drift.
+    """
+    __tablename__ = "cluster_snapshots"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    # The niche query the cron ran (e.g. "fitness tracking apps").
+    niche: Mapped[str] = mapped_column(String(500), nullable=False, index=True)
+    # ISO 8601 calendar week. Composite-indexed with niche for time-series scans.
+    iso_year: Mapped[int] = mapped_column(Integer, nullable=False)
+    iso_week: Mapped[int] = mapped_column(Integer, nullable=False)
+    # Original LLM-emitted label for display.
+    cluster_label: Mapped[str] = mapped_column(String(300), nullable=False)
+    # Normalized label (lowercase, whitespace-collapsed) for cross-week joins
+    # despite minor wording drift in the LLM output.
+    cluster_label_norm: Mapped[str] = mapped_column(
+        String(300), nullable=False, index=True
+    )
+    cluster_summary: Mapped[str] = mapped_column(Text, nullable=True)
+    # Volume + scoring snapshot.
+    complaint_count: Mapped[int] = mapped_column(Integer, default=0)
+    opportunity_score: Mapped[float] = mapped_column(Float, default=0.0)
+    frequency_score: Mapped[float] = mapped_column(Float, default=0.0)
+    emotion_score: Mapped[float] = mapped_column(Float, default=0.0)
+    urgency_score: Mapped[float] = mapped_column(Float, default=0.0)
+    relevance_score: Mapped[float] = mapped_column(Float, default=0.0)
+    avg_authenticity: Mapped[float] = mapped_column(Float, default=0.5)
+    source_breakdown: Mapped[dict] = mapped_column(JSON, default=dict)
+    # Truncated representative quotes — vocabulary fingerprint for trend display.
+    top_complaints: Mapped[list] = mapped_column(JSON, default=list)
+    # Provenance back to the search that produced this snapshot.
+    search_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("searches.id", ondelete="SET NULL"),
+        nullable=True, index=True,
+    )
+    created_at: Mapped[str] = mapped_column(DateTime, default=utcnow)
+
+    __table_args__ = (
+        Index(
+            "ix_cluster_snapshots_niche_week",
+            "niche", "iso_year", "iso_week",
+        ),
+        Index(
+            "ix_cluster_snapshots_niche_label",
+            "niche", "cluster_label_norm",
+        ),
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"<ClusterSnapshot niche={self.niche!r} "
+            f"week={self.iso_year}-W{self.iso_week:02d} "
+            f"label={self.cluster_label!r}>"
+        )
+
+
 class PRDDraft(Base):
     __tablename__ = "prd_drafts"
 

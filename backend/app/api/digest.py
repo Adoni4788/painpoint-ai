@@ -28,6 +28,7 @@ from ..core.limiter import limiter
 from ..core.utils import utcnow
 from ..models.search import Search, PainCluster, RawPost, DigestSubscriber
 from ..services.pipeline import run_search_pipeline
+from ..services.trends import snapshot_clusters_for_niche
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -111,6 +112,19 @@ async def _run_pipeline_for_niche(niche: str) -> dict | None:
         if not cluster:
             logger.warning("No clusters found for niche: %s", niche)
             return None
+
+        # Longitudinal snapshot — writes one ClusterSnapshot row per cluster
+        # so we accumulate a weekly time series per niche. Failures here must
+        # NOT block the digest send, so wrap in try/except.
+        try:
+            await snapshot_clusters_for_niche(db, niche=niche, search_id=search_id)
+            await db.commit()
+        except Exception as snapshot_err:
+            logger.warning(
+                "Cluster snapshot failed for niche=%r search_id=%s: %s",
+                niche, search_id, snapshot_err,
+            )
+            await db.rollback()
 
         # Best quote from posts in this cluster
         post_result = await db.execute(

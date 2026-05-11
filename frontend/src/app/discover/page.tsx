@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { SourceFilters } from "@/components/SearchBar";
 import { MdExpandMore, MdExpandLess } from "react-icons/md";
 import { HiOutlineArrowUpRight } from "react-icons/hi2";
-import { SOURCES } from "@/lib/sources";
+import { DISABLED_SOURCE_IDS, SOURCES } from "@/lib/sources";
 import { AppShell } from "@/components/AppShell";
 import { ClusterList } from "@/components/ClusterList";
 import { ReportPanel } from "@/components/ReportPanel";
@@ -82,6 +82,10 @@ function DiscoverPageContent() {
   }, [urlSearchId, router, refreshSearches]);
 
   const toggleSource = (id: string) => {
+    // Defense-in-depth: disabled sources (e.g. G2 until we ship the paid
+    // integration) must never enter the active sources array even if the
+    // picker is bypassed somehow.
+    if (DISABLED_SOURCE_IDS.has(id)) return;
     setSources((prev) =>
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
     );

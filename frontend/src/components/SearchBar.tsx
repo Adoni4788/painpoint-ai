@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { SOURCE_OPTIONS } from "@/lib/sources";
+import { useIsPro } from "@/lib/useIsPro";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -74,6 +75,7 @@ export function SourceFilters({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const isPro = useIsPro();
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -119,31 +121,39 @@ export function SourceFilters({
             <div className="space-y-0.5">
               {SOURCE_OPTIONS.map((src) => {
                 const active = sources.includes(src.id);
-                const disabled = src.disabled;
+                // A source is locked when either it's permanently disabled
+                // (e.g. G2 until we ship paid integration) or when it
+                // requires Pro and the current user isn't Pro yet.
+                const locked = src.disabled || (src.requiresPro && !isPro);
+                const isPaywall = !src.disabled && src.requiresPro && !isPro;
+                const tooltip = src.disabled
+                  ? src.disabledReason
+                  : isPaywall
+                    ? "Pro plan required — upgrade to unlock"
+                    : undefined;
                 return (
                   <button
                     key={src.id}
                     type="button"
-                    disabled={disabled}
+                    disabled={locked}
                     onClick={() => {
-                      if (disabled) return;
+                      if (locked) return;
                       onToggle(src.id);
                     }}
-                    title={disabled ? src.disabledReason : undefined}
-                    aria-disabled={disabled ? "true" : "false"}
+                    title={tooltip}
                     className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 overflow-hidden ${
-                      disabled
+                      locked
                         ? "text-gray-400 dark:text-gray-600 cursor-not-allowed opacity-60"
                         : active
                           ? "text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-white/10"
                           : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5"
                     }`}
                   >
-                  <span className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold text-white shrink-0 ${disabled ? "bg-gray-300 dark:bg-[#2a2a2a]" : active ? src.color : "bg-gray-300 dark:bg-[#404040]"}`}>
+                  <span className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold text-white shrink-0 ${locked ? "bg-gray-300 dark:bg-[#2a2a2a]" : active ? src.color : "bg-gray-300 dark:bg-[#404040]"}`}>
                     {src.icon}
                   </span>
                   <span className="truncate">{src.label}</span>
-                  {disabled ? (
+                  {locked ? (
                     <span className="ml-auto shrink-0 text-[9px] font-semibold uppercase tracking-wider text-amber-600/80 dark:text-amber-400/80">
                       Pro
                     </span>

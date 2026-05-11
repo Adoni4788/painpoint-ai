@@ -50,6 +50,11 @@ services:
         sync: false
       - key: LOOPS_DIGEST_TEMPLATE_ID
         value: cmn88kowo093w0ixod8kfquuj
+      # Apify API token — powers Pro-tier Trustpilot + Capterra collectors.
+      # Leave unset to keep those collectors disabled (frontend already hides
+      # them from free users; backend rejects them with 402).
+      - key: APIFY_API_TOKEN
+        sync: false
     buildFilter:
       paths:
         - backend/**

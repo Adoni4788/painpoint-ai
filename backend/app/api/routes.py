@@ -19,7 +19,12 @@ from ..schemas.search import (
     ClusterWithSearchResponse,
     PRDResponse, OpportunityReport, RawPostResponse,
 )
-from ..services.pipeline import run_search_pipeline, generate_prd_for_cluster, IN_PROGRESS_STATUSES
+from ..services.pipeline import (
+    run_search_pipeline,
+    generate_prd_for_cluster,
+    IN_PROGRESS_STATUSES,
+    PRO_ONLY_SOURCES,
+)
 from ..services import ai_service
 
 logger = logging.getLogger(__name__)
@@ -333,8 +338,25 @@ async def create_search(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Start a new pain point search."""
-    valid_sources = {"reddit", "hackernews", "amazon", "g2", "youtube", "facebook", "stackoverflow", "github"}
+    valid_sources = {
+        "reddit", "hackernews", "amazon", "g2", "youtube", "facebook",
+        "stackoverflow", "github", "trustpilot", "capterra",
+    }
     sources = [s for s in payload.sources if s in valid_sources] or ["reddit", "hackernews", "amazon"]
+
+    # Pro-gate: paid sources (currently Trustpilot + Capterra via Apify) cost
+    # real money per search. Free users must not trigger them, even if they
+    # bypass the frontend picker. The frontend hides these for non-Pro users.
+    is_pro = bool(getattr(current_user, "_is_pro", False)) if current_user is not None else False
+    requested_pro_sources = [s for s in sources if s in PRO_ONLY_SOURCES]
+    if requested_pro_sources and not is_pro:
+        raise HTTPException(
+            status_code=402,
+            detail=(
+                f"Pro plan required to use these sources: {', '.join(requested_pro_sources)}. "
+                "Upgrade to unlock Trustpilot and Capterra review mining."
+            ),
+        )
 
     if payload.workspace_id is not None:
         await _get_workspace_or_403(payload.workspace_id, db, current_user)

@@ -22,6 +22,8 @@ from .collectors import (
     FacebookCollector,
     StackOverflowCollector,
     GitHubIssuesCollector,
+    TrustpilotCollector,
+    CapterraCollector,
 )
 from .collectors.base import CollectedPost
 from . import ai_service
@@ -39,7 +41,14 @@ COLLECTOR_MAP = {
     "facebook": FacebookCollector,
     "stackoverflow": StackOverflowCollector,
     "github": GitHubIssuesCollector,
+    "trustpilot": TrustpilotCollector,
+    "capterra": CapterraCollector,
 }
+
+# Sources that cost real money per search via paid third-party APIs (Apify).
+# Free-tier users must NOT be able to trigger these, even if they POST the
+# source name directly. The frontend hides them; the API rejects them.
+PRO_ONLY_SOURCES: frozenset[str] = frozenset({"trustpilot", "capterra"})
 
 MAX_SUBTOPICS_PER_SEARCH = 8
 MAX_COLLECTION_TASKS = 32

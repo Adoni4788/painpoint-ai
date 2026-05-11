@@ -82,6 +82,9 @@ Open http://localhost:3000
 | `OPENAI_MODEL` | Model to use (default: gpt-4o-mini) | No |
 | `REDDIT_CLIENT_ID` | Reddit API client ID | No (uses public JSON API) |
 | `REDDIT_CLIENT_SECRET` | Reddit API client secret | No |
+| `STACKEXCHANGE_KEY` | Stack Exchange app key. Raises SE quota from 300/day to 10K/day | No |
+| `GITHUB_TOKEN` | GitHub PAT with `public_repo` scope. Raises rate limit from 10/min to 30/min | No |
+| `APIFY_API_TOKEN` | Apify Bearer token. Required for the Pro-tier Trustpilot + Capterra collectors. Get one free at https://console.apify.com/account/integrations | No (Pro sources stay disabled without it) |
 | `CORS_ORIGINS` | Comma-separated allowed origins. Production: include `https://painpoint-ai-frontend.onrender.com` | No (default: http://localhost:3000) |
 
 ### Frontend (`frontend/.env.local`)

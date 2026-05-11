@@ -5,7 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { SourceFilters } from "@/components/SearchBar";
 import { MdExpandMore, MdExpandLess } from "react-icons/md";
 import { HiOutlineArrowUpRight } from "react-icons/hi2";
-import { DISABLED_SOURCE_IDS, SOURCES } from "@/lib/sources";
+import { DISABLED_SOURCE_IDS, PRO_ONLY_SOURCE_IDS, SOURCES } from "@/lib/sources";
+import { useIsPro } from "@/lib/useIsPro";
 import { AppShell } from "@/components/AppShell";
 import { ClusterList } from "@/components/ClusterList";
 import { ReportPanel } from "@/components/ReportPanel";
@@ -81,11 +82,15 @@ function DiscoverPageContent() {
     })();
   }, [urlSearchId, router, refreshSearches]);
 
+  const isPro = useIsPro();
+
   const toggleSource = (id: string) => {
     // Defense-in-depth: disabled sources (e.g. G2 until we ship the paid
     // integration) must never enter the active sources array even if the
-    // picker is bypassed somehow.
+    // picker is bypassed somehow. Same for Pro-only sources when the user
+    // isn't Pro — backend would 402 anyway, but failing in the UI is kinder.
     if (DISABLED_SOURCE_IDS.has(id)) return;
+    if (PRO_ONLY_SOURCE_IDS.has(id) && !isPro) return;
     setSources((prev) =>
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
     );

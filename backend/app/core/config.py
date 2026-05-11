@@ -20,6 +20,17 @@ class Settings(BaseSettings):
     # 10 req/min/IP, with it 30 req/min. Any classic PAT or fine-grained PAT
     # with public_repo read scope works.
     github_token: str = ""
+    # Apify API token (Bearer). Required for the Pro-tier Trustpilot and
+    # Capterra collectors. Leave empty to keep those collectors disabled.
+    # Get one free at https://console.apify.com/account/integrations.
+    apify_api_token: str = ""
+    # Per-collector budgets so a single search can't drain the Apify wallet.
+    # These are review/result caps the collectors pass to Apify's `limit`
+    # query param; Apify only charges for what it returns.
+    apify_trustpilot_reviews_per_brand: int = 30
+    apify_trustpilot_max_brands: int = 5
+    apify_capterra_max_results: int = 6
+    apify_capterra_reviews_per_product: int = 12
     cors_origins: str = "http://localhost:3000"
     sentry_dsn: str = ""
     rate_limit: str = "60/minute"

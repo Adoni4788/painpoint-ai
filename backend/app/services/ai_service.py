@@ -187,6 +187,76 @@ async def extract_keywords_from_idea(idea: str) -> list[str]:
         return words if len(words) >= 3 else [idea] * 3
 
 
+async def suggest_brands_for_niche(query: str, max_brands: int = 5) -> list[str]:
+    """
+    Ask the LLM for 4-5 representative brand / product domains in the niche.
+
+    Used by collectors that target review platforms keyed on company URLs
+    (Trustpilot, App Store, Glassdoor, etc.) where keyword search isn't
+    a native input. Returns plain hostnames without scheme — e.g.
+    ["vagaro.com", "booksy.com", "squareup.com"].
+
+    Fails open: on any error or unparseable response, returns []. Callers
+    must handle the empty case by skipping the collector.
+    """
+    if not query or not query.strip():
+        return []
+
+    safe_query = sanitize_user_input(query, max_length=300)
+    safe_max = max(1, min(int(max_brands), 8))
+
+    prompt = (
+        f"A user is researching the niche: '{safe_query}'\n\n"
+        f"List the top {safe_max} well-known product or service brands operating "
+        "in this niche today. Return ONLY a JSON array of plain hostnames "
+        "(no scheme, no path) — e.g. [\"vagaro.com\", \"booksy.com\"].\n\n"
+        "Rules:\n"
+        "- Real, well-known brands ONLY; do not invent domains.\n"
+        "- Each must be a registrable domain that exists.\n"
+        "- Prefer the brand's primary domain (squareup.com, not "
+        "  squareup.com/appointments).\n"
+        "- Skip generic aggregators (e.g. google.com, reddit.com).\n"
+        "- Return ONLY the JSON array, no markdown, no commentary."
+    )
+
+    try:
+        resp = await client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+            max_tokens=200,
+        )
+        _log_openai_usage("suggest_brands_for_niche", resp)
+        data = json.loads(_strip_json_fences(resp.choices[0].message.content))
+    except Exception as e:
+        logger.warning("suggest_brands_for_niche failed for q=%r: %s", safe_query, e)
+        return []
+
+    if not isinstance(data, list):
+        return []
+
+    cleaned: list[str] = []
+    seen: set[str] = set()
+    for entry in data:
+        if not isinstance(entry, str):
+            continue
+        domain = entry.strip().lower()
+        # Strip scheme, path, and any trailing slash if the model ignored
+        # the "no scheme" instruction.
+        if "://" in domain:
+            domain = domain.split("://", 1)[1]
+        domain = domain.split("/", 1)[0].strip("/").strip()
+        if not domain or "." not in domain or len(domain) > 100:
+            continue
+        if domain in seen:
+            continue
+        seen.add(domain)
+        cleaned.append(domain)
+        if len(cleaned) >= safe_max:
+            break
+    return cleaned
+
+
 async def assess_keyword_coherence(idea: str, keywords: list[str]) -> dict:
     """
     Judge whether the 3 extracted keywords describe a single coherent niche.

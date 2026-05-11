@@ -6,6 +6,8 @@ from .youtube import YouTubeCollector
 from .facebook import FacebookCollector
 from .stackoverflow import StackOverflowCollector
 from .github import GitHubIssuesCollector
+from .trustpilot import TrustpilotCollector
+from .capterra import CapterraCollector
 from .base import BaseCollector
 
 __all__ = [
@@ -17,5 +19,7 @@ __all__ = [
     "FacebookCollector",
     "StackOverflowCollector",
     "GitHubIssuesCollector",
+    "TrustpilotCollector",
+    "CapterraCollector",
     "BaseCollector",
 ]

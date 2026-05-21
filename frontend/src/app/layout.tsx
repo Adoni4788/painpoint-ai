@@ -42,18 +42,18 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   metadataBase: new URL("https://gaplens.io"),
   title: "GapLens — Opportunity Discovery Engine",
-  description: "Turn public complaints into product opportunities. GapLens scans Reddit, Hacker News, Amazon, G2, and YouTube to surface validated pain points and score them for market opportunity.",
+  description: "Turn public complaints into product opportunities. GapLens scans Reddit, Hacker News, Amazon, YouTube, Stack Overflow, GitHub & more to surface validated pain points and score them for market opportunity.",
   openGraph: {
     type: "website",
     siteName: "GapLens",
     title: "GapLens — Opportunity Discovery Engine",
-    description: "Turn public complaints into product opportunities. Scan Reddit, HN, Amazon, G2, and YouTube for validated pain points.",
+    description: "Turn public complaints into product opportunities. Scan Reddit, HN, Amazon, YouTube, Stack Overflow & more for validated pain points.",
     url: "https://gaplens.io",
   },
   twitter: {
     card: "summary_large_image",
     title: "GapLens — Opportunity Discovery Engine",
-    description: "Turn public complaints into product opportunities. Scan Reddit, HN, Amazon, G2, and YouTube for validated pain points.",
+    description: "Turn public complaints into product opportunities. Scan Reddit, HN, Amazon, YouTube, Stack Overflow & more for validated pain points.",
   },
   robots: {
     index: true,

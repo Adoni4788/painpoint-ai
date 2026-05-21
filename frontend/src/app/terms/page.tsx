@@ -49,9 +49,9 @@ export default function TermsPage() {
             <h2 className="text-lg font-semibold text-white mb-3">2. Description of Service</h2>
             <p>
               GapLens is an AI-powered opportunity discovery engine that scans public data sources — including Reddit,
-              Hacker News, Amazon reviews, G2, and YouTube — to surface validated pain points and score them for
-              market opportunity. The Service is intended for founders, product managers, and entrepreneurs conducting
-              market research.
+              Hacker News, Amazon reviews, YouTube, Stack Overflow, GitHub, and others — to surface validated pain
+              points and score them for market opportunity. The Service is intended for founders, product managers,
+              and entrepreneurs conducting market research.
             </p>
           </section>
 

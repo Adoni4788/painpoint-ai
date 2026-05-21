@@ -249,7 +249,7 @@ function DiscoverPageContent() {
 
               {/* Subtitle */}
               <p className="text-gray-600 dark:text-gray-400 mb-10 leading-relaxed max-w-lg mx-auto">
-                Enter a keyword, niche, or product category. GapLens mines six platforms for real frustrations—with authenticity scoring.
+                Enter a keyword, niche, or product category. GapLens mines Reddit, HN, Amazon, YouTube, Stack Overflow & more for real frustrations—with authenticity scoring.
               </p>
 
               {/* AI Prompt search bar */}

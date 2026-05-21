@@ -11,7 +11,7 @@ const PRO_FEATURES = [
   "Unlimited searches",
   "Full pain point clustering",
   "AI-generated PRD drafts",
-  "All 6 platforms",
+  "Trustpilot & Capterra reviews",
   "Priority processing",
 ];
 

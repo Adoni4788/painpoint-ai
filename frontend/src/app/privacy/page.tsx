@@ -73,8 +73,8 @@ export default function PrivacyPage() {
             <h3 className="text-base font-semibold text-gray-200 mt-4 mb-2">Public data we analyze on your behalf</h3>
             <p>
               When you run a search, GapLens retrieves and analyzes publicly available content from third-party
-              platforms (such as Reddit, Hacker News, Amazon, G2, and YouTube). We do not scrape or store private
-              user data from those platforms — only publicly accessible content is processed.
+              platforms (such as Reddit, Hacker News, Amazon, YouTube, Stack Overflow, and GitHub). We do not scrape
+              or store private user data from those platforms — only publicly accessible content is processed.
             </p>
           </section>
 

@@ -5,7 +5,7 @@ import { Logo } from "@/components/Logo";
 export const metadata: Metadata = {
   title: "GummySearch Alternative — GapLens | Find Pain Points Across 6 Platforms",
   description:
-    "GummySearch shut down in November 2025. GapLens is the best replacement — mine Reddit, Hacker News, Amazon, G2, YouTube & Facebook for real user pain points, then generate a PRD in one click.",
+    "GummySearch shut down in November 2025. GapLens is the best replacement — mine Reddit, Hacker News, Amazon, Stack Overflow, YouTube & Facebook for real user pain points, then generate a PRD in one click.",
   openGraph: {
     title: "GummySearch Alternative — GapLens",
     description:
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 const features = [
   {
     heading: "6 sources, not just Reddit",
-    body: "GummySearch was Reddit-only. GapLens mines Reddit, Hacker News, Amazon Reviews, G2, YouTube comments, and Facebook Groups — giving you a fuller picture of real user frustration.",
+    body: "GummySearch was Reddit-only. GapLens mines Reddit, Hacker News, Amazon Reviews, Stack Overflow, YouTube comments, and Facebook Groups — giving you a fuller picture of real user frustration.",
   },
   {
     heading: "Authenticity scoring",
@@ -47,7 +47,7 @@ const features = [
 ];
 
 const comparison = [
-  { feature: "Data sources", gummysearch: "Reddit only", gaplens: "Reddit, HN, Amazon, G2, YouTube, Facebook" },
+  { feature: "Data sources", gummysearch: "Reddit only", gaplens: "Reddit, HN, Amazon, Stack Overflow, YouTube, Facebook" },
   { feature: "Authenticity scoring", gummysearch: "No", gaplens: "Yes — filters promotional & fake content" },
   { feature: "AI pain-point clustering", gummysearch: "Basic grouping", gaplens: "Named clusters with 5 scored dimensions" },
   { feature: "Opportunity scoring", gummysearch: "No", gaplens: "Yes — frequency × emotion × urgency" },
@@ -71,7 +71,7 @@ const faqs = [
   },
   {
     q: "Is there a free plan?",
-    a: "Yes. You can run searches on Reddit and Hacker News for free without a credit card. Paid plans unlock all six sources, more searches per month, and PRD generation.",
+    a: "Yes. The free plan includes 3 searches per month across all core sources (Reddit, HN, Amazon, YouTube, Stack Overflow, GitHub, Facebook). Pro unlocks unlimited searches, full PRD generation, and B2B review sources like Trustpilot and Capterra.",
   },
   {
     q: "How current is the data?",
@@ -127,7 +127,7 @@ export default function GummySearchAlternativePage() {
           </span>
         </h1>
         <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-4 leading-relaxed">
-          GapLens replaces GummySearch — and goes further. Mine Reddit, Hacker News, Amazon, G2, YouTube, and Facebook for real pain points, then generate a full PRD in one click.
+          GapLens replaces GummySearch — and goes further. Mine Reddit, Hacker News, Amazon, Stack Overflow, YouTube, and Facebook for real pain points, then generate a full PRD in one click.
         </p>
         <p className="text-sm text-gray-500 mb-10">
           Free to start · No credit card required · Live data

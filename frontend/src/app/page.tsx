@@ -26,7 +26,7 @@ const SAMPLE_PAIN_POINTS = [
     title: "Onboarding takes too long",
     score: 87,
     mentions: 342,
-    platforms: ["Reddit", "G2"],
+    platforms: ["Reddit", "Stack Overflow"],
     quote: '"I gave up after 20 minutes. Couldn\'t figure out where to start."',
     accent: "#ef4444",
     scoreColor: "text-red-400 dark:text-red-300",
@@ -50,7 +50,7 @@ const SAMPLE_PAIN_POINTS = [
     title: "Pricing feels unpredictable",
     score: 71,
     mentions: 156,
-    platforms: ["G2", "Amazon"],
+    platforms: ["YouTube", "Amazon"],
     quote: '"Got a surprise bill at month-end. No warning whatsoever."',
     accent: "#3b82f6",
     scoreColor: "text-blue-500 dark:text-blue-400",
@@ -91,7 +91,7 @@ const PRICING_PLANS = [
       "AI-generated PRD drafts",
       "Export to PDF & CSV",
       "Priority processing",
-      "All 6 platforms",
+      "Trustpilot & Capterra reviews",
     ],
     cta: "Start 7-day free trial",
     href: LS_CHECKOUT_BASE,
@@ -290,7 +290,7 @@ export default function LandingPage() {
 
         {/* Sub */}
         <p className="text-[1.05rem] text-gray-400 max-w-lg mx-auto mb-10 leading-[1.7]">
-          GapLens mines six platforms for real user frustrations — clusters them with AI, scores each opportunity, and hands you a PRD ready to build from.
+          GapLens mines Reddit, HN, Amazon, YouTube, Stack Overflow & more for real user frustrations — clusters them with AI, scores each opportunity, and hands you a PRD ready to build from.
         </p>
 
         {/* CTAs */}

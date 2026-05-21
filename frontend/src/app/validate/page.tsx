@@ -14,7 +14,7 @@ import { UpgradeModal } from "@/components/UpgradeModal";
 
 const VALIDATE_TIPS = [
   "Be specific – include who it's for and the problem it solves.",
-  "We scan Reddit, HN, Amazon, G2, and YouTube for real complaints.",
+  "We scan Reddit, HN, Amazon, YouTube, Stack Overflow & more for real complaints.",
   "More details = better keyword extraction = more relevant results.",
   "Think about the pain point, not just the solution.",
   "Try mentioning your target user, like 'for freelancers' or 'for remote teams'.",
@@ -136,7 +136,7 @@ export default function ValidatePage() {
 
           {/* Description */}
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed max-w-lg mx-auto">
-            Describe your idea in one sentence. GapLens surfaces pain-point clusters, real complaints, and messaging angles from Reddit, HN, G2, Amazon, and YouTube — in minutes.
+            Describe your idea in one sentence. GapLens surfaces pain-point clusters, real complaints, and messaging angles from Reddit, HN, Amazon, YouTube, Stack Overflow & more — in minutes.
           </p>
 
           {/* Idea input card */}

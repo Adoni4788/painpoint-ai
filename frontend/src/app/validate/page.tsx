@@ -123,19 +123,19 @@ export default function ValidatePage() {
     <AppShell headerCenter={<ValidateHeaderContent />}>
 
       {/* Immersive validate — mirrors Discover's "Find the Gap" layout */}
-      <div className="noise-overlay flex-1 overflow-y-auto flex flex-col items-center justify-center min-h-0 px-6 py-6 relative bg-gradient-to-b from-transparent to-white/30 dark:to-black/20">
+      <div className="noise-overlay flex-1 overflow-y-auto flex flex-col items-center justify-center min-h-0 px-6 py-4 relative bg-gradient-to-b from-transparent to-white/30 dark:to-black/20">
         <div className="relative z-10 max-w-2xl w-full mx-auto text-center animate-in fade-in slide-in-from-bottom-6 duration-1000">
 
           {/* Heading */}
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-ink dark:text-paper mb-1.5">
+          <h2 className="font-heading text-2xl md:text-3xl font-bold text-ink dark:text-paper mb-1">
             Validate Your Idea
           </h2>
-          <p className="font-mono text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-5">
+          <p className="font-mono text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">
             Idea Validator · Market Signal
           </p>
 
           {/* Description */}
-          <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed max-w-lg mx-auto">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed max-w-lg mx-auto">
             Describe your product idea in a sentence. GapLens mines six platforms for real frustrations to validate demand.
           </p>
 
@@ -153,7 +153,7 @@ export default function ValidatePage() {
                 value={idea}
                 onChange={(e) => setIdea(e.target.value)}
                 placeholder="e.g. A tool that helps email marketers improve deliverability and avoid spam folders"
-                className="w-full h-28 px-5 pt-4 pb-3 rounded-3xl bg-transparent text-base text-ink dark:text-paper placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:outline-none resize-none"
+                className="w-full h-20 px-5 pt-4 pb-3 rounded-3xl bg-transparent text-sm text-ink dark:text-paper placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:outline-none resize-none"
                 disabled={loading}
                 maxLength={500}
                 aria-label="Describe your product idea"
@@ -209,7 +209,7 @@ export default function ValidatePage() {
           </form>
 
           {/* Source badges — mirrors Discover's platform list */}
-          <div className="flex items-center justify-center gap-6 flex-wrap mt-8 opacity-70">
+          <div className="flex items-center justify-center gap-4 flex-wrap mt-5 opacity-70">
             {SOURCES.map((src) => (
               <span
                 key={src.id}

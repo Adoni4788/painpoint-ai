@@ -237,7 +237,7 @@ export default function ReportsPage() {
     <AppShell headerCenter={<ReportsHeaderContent />}>
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Toolbar */}
-        <div className="py-4 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-black shrink-0">
+        <div className="py-4 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-[#0A0A0B] shrink-0">
           <div className="px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
             <div>

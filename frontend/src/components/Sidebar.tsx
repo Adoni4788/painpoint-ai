@@ -125,9 +125,6 @@ export function Sidebar({ searches, activeSearchId, isOpen, onToggle, onSelectSe
             <div className="w-10 flex items-center justify-center shrink-0 text-[#050505] dark:text-white">
               <Logo size={22} className="logo-app" />
             </div>
-            <span className="text-[#050505] dark:text-white text-lg font-heading font-semibold tracking-tight truncate overflow-hidden opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:w-auto transition-all duration-300">
-              GapLens
-            </span>
           </div>
           <button
             onClick={onToggle}

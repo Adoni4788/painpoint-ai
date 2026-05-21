@@ -128,7 +128,7 @@ export default function ValidatePage() {
 
           {/* Heading */}
           <h2 className="font-heading text-2xl md:text-3xl font-bold text-ink dark:text-paper mb-1">
-            Validate Your Idea
+            Find Real Pain Points Before You Build
           </h2>
           <p className="font-mono text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">
             Idea Validator · Market Signal
@@ -136,7 +136,7 @@ export default function ValidatePage() {
 
           {/* Description */}
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed max-w-lg mx-auto">
-            Describe your product idea in a sentence. GapLens mines six platforms for real frustrations to validate demand.
+            Describe your idea in one sentence. GapLens surfaces pain-point clusters, real complaints, and messaging angles from Reddit, HN, G2, Amazon, and YouTube — in minutes.
           </p>
 
           {/* Idea input card */}
